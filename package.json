@@ -19,7 +19,7 @@
   "homepage": "https://github.com/process-engine/management_api_core#readme",
   "dependencies": {
     "@essential-projects/errors_ts": "^1.1.0",
-    "@process-engine/management_api_contracts": "feature~add_get_events_for_process_model",
+    "@process-engine/management_api_contracts": "^0.2.0",
     "@process-engine/process_engine_contracts": "^12.0.0",
     "uuid": "^3.3.2"
   },
