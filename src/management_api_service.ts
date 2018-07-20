@@ -88,7 +88,7 @@ export class ManagementApiService implements IManagementApiService {
       events: startEvents,
     };
 
-    return Promise.resolve(eventList);
+    return eventList;
   }
 
   private async _createExecutionContextFacadeFromManagementContext(managementContext: ManagementContext): Promise<IExecutionContextFacade> {
