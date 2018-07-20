@@ -1,6 +1,7 @@
 import * as EssentialProjectErrors from '@essential-projects/errors_ts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {
+  EventList,
   IManagementApiService,
   ManagementContext,
   ProcessModelExecution,
@@ -9,30 +10,40 @@ import {
   ExecutionContext,
   IExecutionContextFacade,
   IExecutionContextFacadeFactory,
+  IProcessModelFacade,
+  IProcessModelFacadeFactory,
   IProcessModelService,
   Model,
 } from '@process-engine/process_engine_contracts';
 
+import {managementApiEventConverter} from './converters/index';
 import {IProcessModelExecutionAdapter} from './process_model_execution/index';
 
 export class ManagementApiService implements IManagementApiService {
   public config: any = undefined;
 
   private _executionContextFacadeFactory: IExecutionContextFacadeFactory;
+  private _processModelFacadeFactory: IProcessModelFacadeFactory;
   private _processModelExecutionAdapter: IProcessModelExecutionAdapter;
   private _processModelService: IProcessModelService;
 
   constructor(executionContextFacadeFactory: IExecutionContextFacadeFactory,
+              processModelFacadeFactory: IProcessModelFacadeFactory,
               processModelExecutionAdapter: IProcessModelExecutionAdapter,
               processModelService: IProcessModelService) {
 
     this._executionContextFacadeFactory = executionContextFacadeFactory;
+    this._processModelFacadeFactory = processModelFacadeFactory;
     this._processModelExecutionAdapter = processModelExecutionAdapter;
     this._processModelService = processModelService;
   }
 
   private get executionContextFacadeFactory(): IExecutionContextFacadeFactory {
     return this._executionContextFacadeFactory;
+  }
+
+  private get processModelFacadeFactory(): IProcessModelFacadeFactory {
+    return this._processModelFacadeFactory;
   }
 
   private get processModelExecutionAdapter(): IProcessModelExecutionAdapter {
@@ -61,6 +72,23 @@ export class ManagementApiService implements IManagementApiService {
 
     return this.processModelExecutionAdapter
       .startProcessInstance(executionContextFacade, processModelId, startEventId, payload, startCallbackType, endEventId);
+  }
+
+  public async getEventsForProcessModel(context: ManagementContext, processModelId: string): Promise<EventList> {
+
+    const executionContextFacade: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
+
+    const processModel: Model.Types.Process = await this.processModelService.getProcessModelById(executionContextFacade, processModelId);
+    const processModelFacade: IProcessModelFacade = this.processModelFacadeFactory.create(processModel);
+
+    const startEvents: Array<Event> = processModelFacade.getStartEvents()
+                                                        .map(managementApiEventConverter);
+
+    const eventList: EventList = {
+      events: startEvents,
+    };
+
+    return eventList;
   }
 
   private async _createExecutionContextFacadeFromManagementContext(managementContext: ManagementContext): Promise<IExecutionContextFacade> {
