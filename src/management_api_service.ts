@@ -36,6 +36,7 @@ export class ManagementApiService implements IManagementApiService {
   private _processModelExecutionAdapter: IProcessModelExecutionAdapter;
   private _processModelService: IProcessModelService;
 
+  private convertProcessModel: Function;
   private convertUserTasks: Function;
 
   constructor(eventAggregator: IEventAggregator,
@@ -79,9 +80,33 @@ export class ManagementApiService implements IManagementApiService {
 
   public async initialize(): Promise<void> {
 
+    this.convertProcessModel = Converters.createProcessModelConverter(this.processModelFacadeFactory);
     this.convertUserTasks = Converters.createUserTaskConverter(this.processModelFacadeFactory, this.processModelService);
 
     return Promise.resolve();
+  }
+
+  // Process models
+  public async getProcessModels(context: ManagementContext): Promise<ProcessModelExecution.ProcessModelList> {
+
+    const executionContextFacade: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
+    const processModels: Array<Model.Types.Process> = await this.processModelService.getProcessModels(executionContextFacade);
+    const managementApiProcessModels: Array<ProcessModelExecution.ProcessModel> = processModels.map((processModel: Model.Types.Process) => {
+      return this.convertProcessModel(processModel);
+    });
+
+    return <ProcessModelExecution.ProcessModelList> {
+      processModels: managementApiProcessModels,
+    };
+  }
+
+  public async getProcessModelById(context: ManagementContext, processModelId: string): Promise<ProcessModelExecution.ProcessModel> {
+
+    const executionContextFacade: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
+    const processModel: Model.Types.Process = await this.processModelService.getProcessModelById(executionContextFacade, processModelId);
+    const managementApiProcessModel: ProcessModelExecution.ProcessModel = this.convertProcessModel(processModel);
+
+    return managementApiProcessModel;
   }
 
   public async startProcessInstance(context: ManagementContext,
