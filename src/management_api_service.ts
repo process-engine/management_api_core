@@ -1,6 +1,7 @@
 import * as EssentialProjectErrors from '@essential-projects/errors_ts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {
+  Event,
   EventList,
   IManagementApiService,
   ManagementContext,
