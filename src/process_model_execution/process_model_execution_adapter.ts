@@ -22,7 +22,7 @@ export interface IProcessModelExecutionAdapter {
 // TODO: When running processes, we need to pass full process model to the ExecuteProcessService.
 // Right now, this can only be achieved, if all claim checks against the persistence service pass, regardless of who makes the request.
 // To that end, this adapter - and this adapter ONLY! - will have to use a mock for the IAM facade,
-// until the consumer api is able to authenticate itself against the external authority.
+// until the management api is able to authenticate itself against the external authority.
 export class ProcessModelExecutionAdapter implements IProcessModelExecutionAdapter {
 
   private _executeProcessService: IExecuteProcessService;

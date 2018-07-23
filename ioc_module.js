@@ -13,7 +13,9 @@ function registerInContainer(container) {
   container
     .register('ManagementApiService', ManagementApiService)
     .dependencies(
+      'EventAggregator',
       'ExecutionContextFacadeFactory',
+      'FlowNodeInstanceService',
       'ProcessModelFacadeFactory',
       'ManagementApiProcessModelExecutionAdapter',
       'ProcessModelService')
