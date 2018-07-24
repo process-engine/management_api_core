@@ -3,35 +3,36 @@ import {IProcessModelFacade, IProcessModelFacadeFactory, Model} from '@process-e
 
 export function createProcessModelConverter(processModelFacadeFactory: IProcessModelFacadeFactory): Function {
 
-  return (processModel: Model.Types.Process): ProcessModelExecution.ProcessModel => {
+  return (processModel: Model.Types.Process, processModelRaw: string): ProcessModelExecution.ProcessModel => {
 
     const processModelFacade: IProcessModelFacade = processModelFacadeFactory.create(processModel);
 
-    function consumerApiEventConverter(event: Model.Events.Event): Event {
-      const consumerApiEvent: Event = new Event();
-      consumerApiEvent.key = event.id;
-      consumerApiEvent.id = event.id;
+    function managementApiEventConverter(event: Model.Events.Event): Event {
+      const managementApiEvent: Event = new Event();
+      managementApiEvent.key = event.id;
+      managementApiEvent.id = event.id;
 
-      return consumerApiEvent;
+      return managementApiEvent;
     }
 
-    let consumerApiStartEvents: Array<Event> = [];
-    let consumerApiEndEvents: Array<Event> = [];
+    let managementApiStartEvents: Array<Event> = [];
+    let managementApiEndEvents: Array<Event> = [];
 
     const processModelIsExecutable: boolean = processModelFacade.getIsExecutable();
 
     if (processModelIsExecutable) {
       const startEvents: Array<Model.Events.StartEvent> = processModelFacade.getStartEvents();
-      consumerApiStartEvents = startEvents.map(consumerApiEventConverter);
+      managementApiStartEvents = startEvents.map(managementApiEventConverter);
 
       const endEvents: Array<Model.Events.EndEvent> = processModelFacade.getEndEvents();
-      consumerApiEndEvents = endEvents.map(consumerApiEventConverter);
+      managementApiEndEvents = endEvents.map(managementApiEventConverter);
     }
 
     const processModelResponse: ProcessModelExecution.ProcessModel = {
       key: processModel.id,
-      startEvents: consumerApiStartEvents,
-      endEvents: consumerApiEndEvents,
+      xml: processModelRaw,
+      startEvents: managementApiStartEvents,
+      endEvents: managementApiEndEvents,
     };
 
     return processModelResponse;

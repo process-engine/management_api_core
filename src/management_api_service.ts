@@ -20,11 +20,14 @@ import {
   IProcessModelFacadeFactory,
   IProcessModelService,
   Model,
+  ProcessDefinitionRaw,
   Runtime,
 } from '@process-engine/process_engine_contracts';
 
 import * as Converters from './converters/index';
 import {IProcessModelExecutionAdapter} from './process_model_execution/index';
+
+import * as BluebirdPromise from 'bluebird';
 
 export class ManagementApiService implements IManagementApiService {
   public config: any = undefined;
@@ -91,9 +94,13 @@ export class ManagementApiService implements IManagementApiService {
 
     const executionContextFacade: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
     const processModels: Array<Model.Types.Process> = await this.processModelService.getProcessModels(executionContextFacade);
-    const managementApiProcessModels: Array<ProcessModelExecution.ProcessModel> = processModels.map((processModel: Model.Types.Process) => {
-      return this.convertProcessModel(processModel);
-    });
+
+    const managementApiProcessModels: Array<ProcessModelExecution.ProcessModel> =
+      await BluebirdPromise.map(processModels, async(processModel: Model.Types.Process) => {
+        const processModelRaw: string = await this._getRawXmlForProcessModelById(executionContextFacade, processModel.id);
+
+        return this.convertProcessModel(processModel, processModelRaw);
+      });
 
     return <ProcessModelExecution.ProcessModelList> {
       processModels: managementApiProcessModels,
@@ -103,8 +110,11 @@ export class ManagementApiService implements IManagementApiService {
   public async getProcessModelById(context: ManagementContext, processModelId: string): Promise<ProcessModelExecution.ProcessModel> {
 
     const executionContextFacade: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
+
     const processModel: Model.Types.Process = await this.processModelService.getProcessModelById(executionContextFacade, processModelId);
-    const managementApiProcessModel: ProcessModelExecution.ProcessModel = this.convertProcessModel(processModel);
+    const processModelRaw: string = await this._getRawXmlForProcessModelById(executionContextFacade, processModel.id);
+
+    const managementApiProcessModel: ProcessModelExecution.ProcessModel = this.convertProcessModel(processModel, processModelRaw);
 
     return managementApiProcessModel;
   }
@@ -232,6 +242,14 @@ export class ManagementApiService implements IManagementApiService {
     const executionContext: ExecutionContext = new ExecutionContext(identity);
 
     return this.executionContextFacadeFactory.create(executionContext);
+  }
+
+  private async _getRawXmlForProcessModelById(executionContextFacade: IExecutionContextFacade, processModelId: string): Promise<string> {
+
+    const processModelRaw: ProcessDefinitionRaw =
+      await this.processModelService.getProcessDefinitionAsXmlById(executionContextFacade, processModelId);
+
+    return processModelRaw.xml;
   }
 
   private _validateStartRequest(processModel: Model.Types.Process,
