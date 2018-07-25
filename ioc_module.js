@@ -13,6 +13,7 @@ function registerInContainer(container) {
   container
     .register('ManagementApiService', ManagementApiService)
     .dependencies(
+      'CorrelationService',
       'EventAggregator',
       'ExecutionContextFacadeFactory',
       'FlowNodeInstanceService',

@@ -2,6 +2,7 @@ import * as EssentialProjectErrors from '@essential-projects/errors_ts';
 import {IEventAggregator} from '@essential-projects/event_aggregator_contracts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {
+  Correlation,
   Event,
   EventList,
   IManagementApiService,
@@ -13,6 +14,7 @@ import {
 } from '@process-engine/management_api_contracts';
 import {
   ExecutionContext,
+  ICorrelationService,
   IExecutionContextFacade,
   IExecutionContextFacadeFactory,
   IFlowNodeInstanceService,
@@ -32,6 +34,7 @@ import * as BluebirdPromise from 'bluebird';
 export class ManagementApiService implements IManagementApiService {
   public config: any = undefined;
 
+  private _correlationService: ICorrelationService;
   private _eventAggregator: IEventAggregator;
   private _executionContextFacadeFactory: IExecutionContextFacadeFactory;
   private _flowNodeInstanceService: IFlowNodeInstanceService;
@@ -42,19 +45,25 @@ export class ManagementApiService implements IManagementApiService {
   private convertProcessModel: Function;
   private convertUserTasks: Function;
 
-  constructor(eventAggregator: IEventAggregator,
+  constructor(correlationService: ICorrelationService,
+              eventAggregator: IEventAggregator,
               executionContextFacadeFactory: IExecutionContextFacadeFactory,
               flowNodeInstanceService: IFlowNodeInstanceService,
               processModelFacadeFactory: IProcessModelFacadeFactory,
               processModelExecutionAdapter: IProcessModelExecutionAdapter,
               processModelService: IProcessModelService) {
 
+    this._correlationService = correlationService;
     this._eventAggregator = eventAggregator;
     this._executionContextFacadeFactory = executionContextFacadeFactory;
     this._flowNodeInstanceService = flowNodeInstanceService;
     this._processModelExecutionAdapter = processModelExecutionAdapter;
     this._processModelFacadeFactory = processModelFacadeFactory;
     this._processModelService = processModelService;
+  }
+
+  private get correlationService(): ICorrelationService {
+    return this._correlationService;
   }
 
   private get eventAggregator(): IEventAggregator {
@@ -87,6 +96,17 @@ export class ManagementApiService implements IManagementApiService {
     this.convertUserTasks = Converters.createUserTaskConverter(this.processModelFacadeFactory, this.processModelService);
 
     return Promise.resolve();
+  }
+
+  // Correlations
+  public async getAllActiveCorrelations(context: ManagementContext): Promise<Array<Correlation>> {
+
+    const executionContextFacade: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
+    const activeCorrelations: Array<Runtime.Types.Correlation> = await this.correlationService.getAllActiveCorrelations(executionContextFacade);
+
+    const managementApiCorrelations: Array<Correlation> = activeCorrelations.map(Converters.managementApiCorrelationConverter);
+
+    return managementApiCorrelations;
   }
 
   // Process models
