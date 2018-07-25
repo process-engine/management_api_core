@@ -104,10 +104,7 @@ export class ManagementApiService implements IManagementApiService {
     const executionContextFacade: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
     const activeCorrelations: Array<Runtime.Types.Correlation> = await this.correlationService.getAllActiveCorrelations(executionContextFacade);
 
-    const managementApiCorrelations: Array<Correlation> =
-      await BluebirdPromise.map(activeCorrelations, async(runtimeCorrelation: Runtime.Types.Correlation) => {
-        return Converters.managementApiCorrelationConverter(runtimeCorrelation);
-      });
+    const managementApiCorrelations: Array<Correlation> = activeCorrelations.map(Converters.managementApiCorrelationConverter);
 
     return managementApiCorrelations;
   }
