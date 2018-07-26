@@ -56,20 +56,20 @@ async function convertSuspendedFlowNodeToUserTask(executionContextFacade: IExecu
   const processModelFacade: IProcessModelFacade = _processModelFacadeFactory.create(processModel);
   const userTask: Model.Activities.UserTask = processModelFacade.getFlowNodeById(flowNodeInstance.flowNodeId) as Model.Activities.UserTask;
 
-  return convertToConsumerApiUserTask(userTask, flowNodeInstance);
+  return convertToManagementApiUserTask(userTask, flowNodeInstance);
 }
 
-function convertToConsumerApiUserTask(userTask: Model.Activities.UserTask, flowNodeInstance: Runtime.Types.FlowNodeInstance): UserTask {
+function convertToManagementApiUserTask(userTask: Model.Activities.UserTask, flowNodeInstance: Runtime.Types.FlowNodeInstance): UserTask {
 
-  const consumerApiFormFields: Array<UserTaskFormField> = userTask.formFields.map((formField: Model.Types.FormField) => {
-    return convertToConsumerApiFormField(formField);
+  const managementApiFormFields: Array<UserTaskFormField> = userTask.formFields.map((formField: Model.Types.FormField) => {
+    return convertToManagementApiFormField(formField);
   });
 
   const userTaskConfig: UserTaskConfig = {
-    formFields: consumerApiFormFields,
+    formFields: managementApiFormFields,
   };
 
-  const consumerApiUserTask: UserTask = {
+  const managementApiUserTask: UserTask = {
     key: flowNodeInstance.flowNodeId,
     id: flowNodeInstance.flowNodeId,
     processInstanceId: flowNodeInstance.token.processInstanceId,
@@ -77,21 +77,21 @@ function convertToConsumerApiUserTask(userTask: Model.Activities.UserTask, flowN
     tokenPayload: flowNodeInstance.token.payload,
   };
 
-  return consumerApiUserTask;
+  return managementApiUserTask;
 }
 
-function convertToConsumerApiFormField(formField: Model.Types.FormField): UserTaskFormField {
+function convertToManagementApiFormField(formField: Model.Types.FormField): UserTaskFormField {
 
   const userTaskFormField: UserTaskFormField = new UserTaskFormField();
   userTaskFormField.id = formField.id;
   userTaskFormField.label = formField.label;
-  userTaskFormField.type = convertToConsumerApiFormFieldType(formField.type);
+  userTaskFormField.type = convertToManagementApiFormFieldType(formField.type);
   userTaskFormField.defaultValue = formField.defaultValue;
   userTaskFormField.preferredControl = formField.preferredControl;
 
   return userTaskFormField;
 }
 
-function convertToConsumerApiFormFieldType(type: string): UserTaskFormFieldType {
+function convertToManagementApiFormFieldType(type: string): UserTaskFormFieldType {
   return UserTaskFormFieldType[type];
 }

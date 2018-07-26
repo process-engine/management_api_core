@@ -1,6 +1,7 @@
 import * as EssentialProjectErrors from '@essential-projects/errors_ts';
 import {IEventAggregator} from '@essential-projects/event_aggregator_contracts';
 import {IIdentity} from '@essential-projects/iam_contracts';
+import {DeploymentContext, IDeploymentApiService, ImportProcessModelRequestPayload} from '@process-engine/deployment_api_contracts';
 import {
   Correlation,
   Event,
@@ -35,6 +36,7 @@ export class ManagementApiService implements IManagementApiService {
   public config: any = undefined;
 
   private _correlationService: ICorrelationService;
+  private _deploymentApiService: IDeploymentApiService;
   private _eventAggregator: IEventAggregator;
   private _executionContextFacadeFactory: IExecutionContextFacadeFactory;
   private _flowNodeInstanceService: IFlowNodeInstanceService;
@@ -46,6 +48,7 @@ export class ManagementApiService implements IManagementApiService {
   private convertUserTasks: Function;
 
   constructor(correlationService: ICorrelationService,
+              deploymentApiService: IDeploymentApiService,
               eventAggregator: IEventAggregator,
               executionContextFacadeFactory: IExecutionContextFacadeFactory,
               flowNodeInstanceService: IFlowNodeInstanceService,
@@ -54,6 +57,7 @@ export class ManagementApiService implements IManagementApiService {
               processModelService: IProcessModelService) {
 
     this._correlationService = correlationService;
+    this._deploymentApiService = deploymentApiService;
     this._eventAggregator = eventAggregator;
     this._executionContextFacadeFactory = executionContextFacadeFactory;
     this._flowNodeInstanceService = flowNodeInstanceService;
@@ -64,6 +68,10 @@ export class ManagementApiService implements IManagementApiService {
 
   private get correlationService(): ICorrelationService {
     return this._correlationService;
+  }
+
+  private get deploymentApiService(): IDeploymentApiService {
+    return this._deploymentApiService;
   }
 
   private get eventAggregator(): IEventAggregator {
@@ -174,6 +182,23 @@ export class ManagementApiService implements IManagementApiService {
     };
 
     return eventList;
+  }
+
+  public async updateProcessModelById(context: ManagementContext,
+                                      processModelId: string,
+                                      payload: ProcessModelExecution.UpdateProcessModelRequestPayload,
+                                     ): Promise<void> {
+
+    const deploymentApiPayload: ImportProcessModelRequestPayload = {
+      name: processModelId,
+      xml: payload.xml,
+      overwriteExisting: payload.overwriteExisting,
+    };
+
+    const deploymentContext: DeploymentContext = new DeploymentContext();
+    deploymentContext.identity = context.identity;
+
+    return this.deploymentApiService.importBpmnFromXml(deploymentContext, deploymentApiPayload);
   }
 
   // UserTasks
