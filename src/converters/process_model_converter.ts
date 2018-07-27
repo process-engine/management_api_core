@@ -1,40 +1,12 @@
-import {Event, ProcessModelExecution} from '@process-engine/management_api_contracts';
-import {IProcessModelFacade, IProcessModelFacadeFactory, Model} from '@process-engine/process_engine_contracts';
+import * as clone from 'clone';
 
-export function createProcessModelConverter(processModelFacadeFactory: IProcessModelFacadeFactory): Function {
+import {ProcessModel as ConsumerApiProcessModel} from '@process-engine/consumer_api_contracts';
+import {ProcessModelExecution} from '@process-engine/management_api_contracts';
 
-  return (processModel: Model.Types.Process, processModelRaw: string): ProcessModelExecution.ProcessModel => {
+export function convertProcessModel(consumerApiProcessModel: ConsumerApiProcessModel, processModelRaw: string): ProcessModelExecution.ProcessModel {
 
-    const processModelFacade: IProcessModelFacade = processModelFacadeFactory.create(processModel);
+  const processModel: ProcessModelExecution.ProcessModel = <ProcessModelExecution.ProcessModel> clone(consumerApiProcessModel);
+  processModel.xml = processModelRaw;
 
-    function managementApiEventConverter(event: Model.Events.Event): Event {
-      const managementApiEvent: Event = new Event();
-      managementApiEvent.key = event.id;
-      managementApiEvent.id = event.id;
-
-      return managementApiEvent;
-    }
-
-    let managementApiStartEvents: Array<Event> = [];
-    let managementApiEndEvents: Array<Event> = [];
-
-    const processModelIsExecutable: boolean = processModelFacade.getIsExecutable();
-
-    if (processModelIsExecutable) {
-      const startEvents: Array<Model.Events.StartEvent> = processModelFacade.getStartEvents();
-      managementApiStartEvents = startEvents.map(managementApiEventConverter);
-
-      const endEvents: Array<Model.Events.EndEvent> = processModelFacade.getEndEvents();
-      managementApiEndEvents = endEvents.map(managementApiEventConverter);
-    }
-
-    const processModelResponse: ProcessModelExecution.ProcessModel = {
-      key: processModel.id,
-      xml: processModelRaw,
-      startEvents: managementApiStartEvents,
-      endEvents: managementApiEndEvents,
-    };
-
-    return processModelResponse;
-  };
+  return processModel;
 }
