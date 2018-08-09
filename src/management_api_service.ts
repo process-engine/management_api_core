@@ -207,7 +207,7 @@ export class ManagementApiService implements IManagementApiService {
   private async _getRawXmlForProcessModelById(executionContextFacade: IExecutionContextFacade, processModelId: string): Promise<string> {
 
     const processModelRaw: ProcessDefinitionRaw =
-      await this.processModelService.getProcessDefinitionAsXmlById(executionContextFacade, processModelId);
+      await this.processModelService.getProcessDefinitionAsXmlByName(executionContextFacade, processModelId);
 
     return processModelRaw.xml;
   }
