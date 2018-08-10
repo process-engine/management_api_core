@@ -22,8 +22,8 @@
     "@essential-projects/iam_contracts": "^3.0.0",
     "@process-engine/consumer_api_contracts": "^0.14.0",
     "@process-engine/deployment_api_contracts": "^0.1.0",
-    "@process-engine/management_api_contracts": "^0.7.0",
-    "@process-engine/process_engine_contracts": "^17.0.0",
+    "@process-engine/management_api_contracts": "feature~process_definitions_instead_of_process_model",
+    "@process-engine/process_engine_contracts": "feature~process_definitions_instead_of_process_model",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
