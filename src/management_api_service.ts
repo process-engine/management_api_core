@@ -4,7 +4,7 @@ import {
   ProcessModel as ConsumerApiProcessModel,
   ProcessModelList as ConsumerApiProcessModelList,
 } from '@process-engine/consumer_api_contracts';
-import {DeploymentContext, IDeploymentApiService, ImportProcessModelRequestPayload} from '@process-engine/deployment_api_contracts';
+import {DeploymentContext, IDeploymentApiService, ImportProcessDefinitionsRequestPayload} from '@process-engine/deployment_api_contracts';
 import {
   Correlation,
   Event,
@@ -151,13 +151,13 @@ export class ManagementApiService implements IManagementApiService {
     return eventList;
   }
 
-  public async updateProcessModelById(context: ManagementContext,
-                                      processModelId: string,
-                                      payload: ProcessModelExecution.UpdateProcessModelRequestPayload,
-                                     ): Promise<void> {
+  public async updateProcessDefinitionsByName(context: ManagementContext,
+                                              name: string,
+                                              payload: ProcessModelExecution.UpdateProcessDefinitionsRequestPayload,
+                                            ): Promise<void> {
 
-    const deploymentApiPayload: ImportProcessModelRequestPayload = {
-      name: processModelId,
+    const deploymentApiPayload: ImportProcessDefinitionsRequestPayload = {
+      name: name,
       xml: payload.xml,
       overwriteExisting: payload.overwriteExisting,
     };
@@ -207,7 +207,7 @@ export class ManagementApiService implements IManagementApiService {
   private async _getRawXmlForProcessModelById(executionContextFacade: IExecutionContextFacade, processModelId: string): Promise<string> {
 
     const processModelRaw: ProcessDefinitionRaw =
-      await this.processModelService.getProcessDefinitionAsXmlById(executionContextFacade, processModelId);
+      await this.processModelService.getProcessDefinitionAsXmlByName(executionContextFacade, processModelId);
 
     return processModelRaw.xml;
   }
