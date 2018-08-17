@@ -22,8 +22,11 @@
     "@essential-projects/iam_contracts": "^3.1.0",
     "@process-engine/consumer_api_contracts": "^0.15.0",
     "@process-engine/deployment_api_contracts": "^0.2.0",
-    "@process-engine/management_api_contracts": "^0.8.0",
-    "@process-engine/process_engine_contracts": "^20.0.0",
+    "@process-engine/kpi_api_contracts": "feature~initial_implementation",
+    "@process-engine/logging_api_contracts": "feature~initial_implementation",
+    "@process-engine/management_api_contracts": "feature~update_contracts_for_heatmap_feature",
+    "@process-engine/token_history_api_contracts": "feature~initial_implementation",
+    "@process-engine/process_engine_contracts": "feature~store_enter_and_exit_token_separately",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
