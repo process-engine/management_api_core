@@ -1,8 +1,8 @@
 import {IIdentity} from '@essential-projects/iam_contracts';
 
 import {ActiveToken, FlowNodeRuntimeInformation, IKpiApiService} from '@process-engine/kpi_api_contracts';
-import {ILoggingService, LogEntry} from '@process-engine/logging_api_contracts';
-import {ITokenHistoryService, TokenHistoryEntry} from '@process-engine/token_history_api_contracts';
+import {ILoggingApiService, LogEntry} from '@process-engine/logging_api_contracts';
+import {ITokenHistoryApiService, TokenHistoryEntry} from '@process-engine/token_history_api_contracts';
 
 import {
   IConsumerApiService,
@@ -45,20 +45,20 @@ export class ManagementApiService implements IManagementApiService {
   private _deploymentApiService: IDeploymentApiService;
   private _executionContextFacadeFactory: IExecutionContextFacadeFactory;
   private _kpiApiService: IKpiApiService;
-  private _loggingApiService: ILoggingService;
+  private _loggingApiService: ILoggingApiService;
   private _processModelFacadeFactory: IProcessModelFacadeFactory;
   private _processModelService: IProcessModelService;
-  private _tokenHistoryApiService: ITokenHistoryService;
+  private _tokenHistoryApiService: ITokenHistoryApiService;
 
   constructor(consumerApiService: IConsumerApiService,
               correlationService: ICorrelationService,
               deploymentApiService: IDeploymentApiService,
               executionContextFacadeFactory: IExecutionContextFacadeFactory,
               kpiApiService: IKpiApiService,
-              loggingApiService: ILoggingService,
+              loggingApiService: ILoggingApiService,
               processModelFacadeFactory: IProcessModelFacadeFactory,
               processModelService: IProcessModelService,
-              tokenHistoryApiService: ITokenHistoryService) {
+              tokenHistoryApiService: ITokenHistoryApiService) {
 
     this._consumerApiService = consumerApiService;
     this._correlationService = correlationService;
@@ -91,7 +91,7 @@ export class ManagementApiService implements IManagementApiService {
     return this._kpiApiService;
   }
 
-  private get loggingApiService(): ILoggingService {
+  private get loggingApiService(): ILoggingApiService {
     return this._loggingApiService;
   }
 
@@ -103,7 +103,7 @@ export class ManagementApiService implements IManagementApiService {
     return this._processModelService;
   }
 
-  private get tokenHistoryApiService(): ITokenHistoryService {
+  private get tokenHistoryApiService(): ITokenHistoryApiService {
     return this._tokenHistoryApiService;
   }
 
@@ -255,7 +255,7 @@ export class ManagementApiService implements IManagementApiService {
     const exectutionContext: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
     const identity: IIdentity = exectutionContext.getIdentity();
 
-    return this.loggingApiService.getLogsForProcessModel(identity, correlationId, processModelId);
+    return this.loggingApiService.readLogForProcessModel(identity, correlationId, processModelId);
   }
 
   public async getTokensForFlowNodeInstance(context: ManagementContext,
