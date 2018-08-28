@@ -1,4 +1,9 @@
 import {IIdentity} from '@essential-projects/iam_contracts';
+
+import {ActiveToken, FlowNodeRuntimeInformation, IKpiApiService} from '@process-engine/kpi_api_contracts';
+import {ILoggingApiService, LogEntry} from '@process-engine/logging_api_contracts';
+import {ITokenHistoryApiService, TokenHistoryEntry} from '@process-engine/token_history_api_contracts';
+
 import {
   IConsumerApiService,
   ProcessModel as ConsumerApiProcessModel,
@@ -39,22 +44,31 @@ export class ManagementApiService implements IManagementApiService {
   private _correlationService: ICorrelationService;
   private _deploymentApiService: IDeploymentApiService;
   private _executionContextFacadeFactory: IExecutionContextFacadeFactory;
+  private _kpiApiService: IKpiApiService;
+  private _loggingApiService: ILoggingApiService;
   private _processModelFacadeFactory: IProcessModelFacadeFactory;
   private _processModelService: IProcessModelService;
+  private _tokenHistoryApiService: ITokenHistoryApiService;
 
   constructor(consumerApiService: IConsumerApiService,
               correlationService: ICorrelationService,
               deploymentApiService: IDeploymentApiService,
               executionContextFacadeFactory: IExecutionContextFacadeFactory,
+              kpiApiService: IKpiApiService,
+              loggingApiService: ILoggingApiService,
               processModelFacadeFactory: IProcessModelFacadeFactory,
-              processModelService: IProcessModelService) {
+              processModelService: IProcessModelService,
+              tokenHistoryApiService: ITokenHistoryApiService) {
 
     this._consumerApiService = consumerApiService;
     this._correlationService = correlationService;
     this._deploymentApiService = deploymentApiService;
     this._executionContextFacadeFactory = executionContextFacadeFactory;
+    this._kpiApiService = kpiApiService;
+    this._loggingApiService = loggingApiService;
     this._processModelFacadeFactory = processModelFacadeFactory;
     this._processModelService = processModelService;
+    this._tokenHistoryApiService = tokenHistoryApiService;
   }
 
   private get consumerApiService(): IConsumerApiService {
@@ -73,12 +87,24 @@ export class ManagementApiService implements IManagementApiService {
     return this._executionContextFacadeFactory;
   }
 
+  private get kpiApiService(): IKpiApiService {
+    return this._kpiApiService;
+  }
+
+  private get loggingApiService(): ILoggingApiService {
+    return this._loggingApiService;
+  }
+
   private get processModelFacadeFactory(): IProcessModelFacadeFactory {
     return this._processModelFacadeFactory;
   }
 
   private get processModelService(): IProcessModelService {
     return this._processModelService;
+  }
+
+  private get tokenHistoryApiService(): ITokenHistoryApiService {
+    return this._tokenHistoryApiService;
   }
 
   // Correlations
@@ -193,6 +219,53 @@ export class ManagementApiService implements IManagementApiService {
                               userTaskResult: UserTaskResult): Promise<void> {
 
     return this.consumerApiService.finishUserTask(context, processModelId, correlationId, userTaskId, userTaskResult);
+  }
+
+  public async getRuntimeInformationForProcessModel(context: ManagementContext, processModelId: string): Promise<Array<FlowNodeRuntimeInformation>> {
+    const exectutionContext: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
+    const identity: IIdentity = exectutionContext.getIdentity();
+
+    return this.kpiApiService.getRuntimeInformationForProcessModel(identity, processModelId);
+  }
+
+  public async getRuntimeInformationForFlowNode(context: ManagementContext,
+                                                processModelId: string,
+                                                flowNodeId: string): Promise<FlowNodeRuntimeInformation> {
+    const exectutionContext: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
+    const identity: IIdentity = exectutionContext.getIdentity();
+
+    return this.kpiApiService.getRuntimeInformationForFlowNode(identity, processModelId, flowNodeId);
+  }
+
+  public async getActiveTokensForProcessModel(context: ManagementContext, processModelId: string): Promise<Array<ActiveToken>> {
+    const exectutionContext: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
+    const identity: IIdentity = exectutionContext.getIdentity();
+
+    return this.kpiApiService.getActiveTokensForProcessModel(identity, processModelId);
+  }
+
+  public async getActiveTokensForFlowNode(context: ManagementContext, flowNodeId: string): Promise<Array<ActiveToken>> {
+    const exectutionContext: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
+    const identity: IIdentity = exectutionContext.getIdentity();
+
+    return this.kpiApiService.getActiveTokensForFlowNode(identity, flowNodeId);
+  }
+
+  public async getLogsForProcessModel(context: ManagementContext, correlationId: string, processModelId: string): Promise<Array<LogEntry>> {
+    const exectutionContext: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
+    const identity: IIdentity = exectutionContext.getIdentity();
+
+    return this.loggingApiService.readLogForProcessModel(identity, correlationId, processModelId);
+  }
+
+  public async getTokensForFlowNodeInstance(context: ManagementContext,
+                                            processModelId: string,
+                                            correlationId: string,
+                                            flowNodeId: string): Promise<Array<TokenHistoryEntry>> {
+    const exectutionContext: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
+    const identity: IIdentity = exectutionContext.getIdentity();
+
+    return this.tokenHistoryApiService.getTokensForFlowNode(identity, correlationId, processModelId, flowNodeId);
   }
 
   private async _createExecutionContextFacadeFromManagementContext(managementContext: ManagementContext): Promise<IExecutionContextFacade> {

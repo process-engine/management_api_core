@@ -11,8 +11,11 @@ function registerInContainer(container) {
       'CorrelationService',
       'DeploymentApiService',
       'ExecutionContextFacadeFactory',
+      'KpiApiService',
+      'LoggingApiService',
       'ProcessModelFacadeFactory',
-      'ProcessModelService')
+      'ProcessModelService',
+      'TokenHistoryApiService')
     .singleton();
 }
 
