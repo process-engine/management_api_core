@@ -26,7 +26,7 @@
     "@process-engine/logging_api_contracts": "^0.1.0",
     "@process-engine/management_api_contracts": "0.9.0-pre1",
     "@process-engine/token_history_api_contracts": "^0.1.0",
-    "@process-engine/process_engine_contracts": "feature~store_enter_and_exit_token_separately",
+    "@process-engine/process_engine_contracts": "^24.0.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
