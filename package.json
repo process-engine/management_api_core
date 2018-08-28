@@ -23,7 +23,7 @@
     "@process-engine/consumer_api_contracts": "^0.15.0",
     "@process-engine/deployment_api_contracts": "^0.2.0",
     "@process-engine/management_api_contracts": "^0.8.0",
-    "@process-engine/process_engine_contracts": "^20.0.0",
+    "@process-engine/process_engine_contracts": "^24.0.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
