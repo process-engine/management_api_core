@@ -29,7 +29,6 @@ import {
   IProcessModelFacadeFactory,
   IProcessModelService,
   Model,
-  ProcessDefinitionRaw,
   Runtime,
 } from '@process-engine/process_engine_contracts';
 
@@ -110,12 +109,22 @@ export class ManagementApiService implements IManagementApiService {
   // Correlations
   public async getAllActiveCorrelations(context: ManagementContext): Promise<Array<Correlation>> {
 
-    const executionContextFacade: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
-    const activeCorrelations: Array<Runtime.Types.Correlation> = await this.correlationService.getAllActiveCorrelations(executionContextFacade);
+    const activeCorrelations: Array<Runtime.Types.Correlation> = await this.correlationService.getAllActiveCorrelations();
 
     const managementApiCorrelations: Array<Correlation> = activeCorrelations.map(Converters.managementApiCorrelationConverter);
 
     return managementApiCorrelations;
+  }
+
+  public async getProcessModelForCorrelation(context: ManagementContext, correlationId: string): Promise<ProcessModelExecution.ProcessModel> {
+
+    const correlationFromProcessEngine: Runtime.Types.Correlation = await this.correlationService.getByCorrelationId(correlationId);
+
+    const processModel: ProcessModelExecution.ProcessModel = new ProcessModelExecution.ProcessModel();
+    processModel.id = correlationFromProcessEngine.processModelId;
+    processModel.xml = correlationFromProcessEngine.processModelXml;
+
+    return processModel;
   }
 
   // Process models
@@ -279,7 +288,7 @@ export class ManagementApiService implements IManagementApiService {
 
   private async _getRawXmlForProcessModelById(executionContextFacade: IExecutionContextFacade, processModelId: string): Promise<string> {
 
-    const processModelRaw: ProcessDefinitionRaw =
+    const processModelRaw: Runtime.Types.ProcessDefinitionFromRepository =
       await this.processModelService.getProcessDefinitionAsXmlByName(executionContextFacade, processModelId);
 
     return processModelRaw.xml;
