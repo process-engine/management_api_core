@@ -1,6 +1,6 @@
 {
   "name": "@process-engine/management_api_core",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "service implementation for the process-engine.io Management APIs",
   "main": "dist/commonjs/index.js",
   "typings": "dist/index.d.ts",
@@ -20,13 +20,13 @@
   "homepage": "https://github.com/process-engine/management_api_core#readme",
   "dependencies": {
     "@essential-projects/iam_contracts": "3.1.1",
-    "@process-engine/consumer_api_contracts": "0.17.0",
+    "@process-engine/consumer_api_contracts": "feature~async_notifications",
     "@process-engine/deployment_api_contracts": "0.3.2",
     "@process-engine/kpi_api_contracts": "0.1.3",
     "@process-engine/logging_api_contracts": "0.2.1",
-    "@process-engine/management_api_contracts": "0.11.0",
+    "@process-engine/management_api_contracts": "feature~async_notifications",
     "@process-engine/token_history_api_contracts": "0.1.2",
-    "@process-engine/process_engine_contracts": "28.0.0",
+    "@process-engine/process_engine_contracts": "feature~async_notifications",
     "uuid": "3.3.2"
   },
   "devDependencies": {
