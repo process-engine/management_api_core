@@ -31,6 +31,9 @@ import {
   IProcessModelFacade,
   IProcessModelFacadeFactory,
   IProcessModelService,
+  ProcessEndedMessage,
+  UserTaskFinishedMessage,
+  UserTaskWaitingMessage,
   Model,
   Runtime,
 } from '@process-engine/process_engine_contracts';
@@ -252,6 +255,22 @@ export class ManagementApiService implements IManagementApi {
       await this._processModelService.getProcessDefinitionAsXmlByName(identity, processModelId);
 
     return processModelRaw.xml;
+  }
+
+  public onUserTaskWaiting(callback: (userTaskWaiting: UserTaskWaitingMessage) => void|Promise<void>): void {
+    this.consumerApiService.onUserTaskWaiting(callback);
+  }
+
+  public onUserTaskFinished(callback: (userTaskFinished: UserTaskFinishedMessage) => void|Promise<void>): void {
+    this.consumerApiService.onUserTaskFinished(callback);
+  }
+
+  public onProcessTerminated(callback: (processTerminated: ProcessEndedMessage) => void|Promise<void>): void {
+    this.consumerApiService.onProcessTerminated(callback);
+  }
+
+  public onProcessEnded(callback: (processEnded: ProcessEndedMessage) => void|Promise<void>): void {
+    this.consumerApiService.onProcessEnded(callback);
   }
 
 }
