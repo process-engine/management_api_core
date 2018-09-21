@@ -5,17 +5,17 @@ import {ILoggingApiService, LogEntry} from '@process-engine/logging_api_contract
 import {ITokenHistoryApiService, TokenHistoryEntry} from '@process-engine/token_history_api_contracts';
 
 import {
+  ConsumerContext,
   IConsumerApiService,
   ProcessModel as ConsumerApiProcessModel,
   ProcessModelList as ConsumerApiProcessModelList,
 } from '@process-engine/consumer_api_contracts';
-import {DeploymentContext, IDeploymentApiService, ImportProcessDefinitionsRequestPayload} from '@process-engine/deployment_api_contracts';
+import {IDeploymentApi, ImportProcessDefinitionsRequestPayload} from '@process-engine/deployment_api_contracts';
 import {
   Correlation,
   Event,
   EventList,
   IManagementApiService,
-  ManagementContext,
   ProcessModelExecution,
   UserTaskList,
   UserTaskResult,
@@ -41,7 +41,7 @@ export class ManagementApiService implements IManagementApiService {
 
   private _consumerApiService: IConsumerApiService;
   private _correlationService: ICorrelationService;
-  private _deploymentApiService: IDeploymentApiService;
+  private _deploymentApiService: IDeploymentApi;
   private _executionContextFacadeFactory: IExecutionContextFacadeFactory;
   private _kpiApiService: IKpiApiService;
   private _loggingApiService: ILoggingApiService;
@@ -51,7 +51,7 @@ export class ManagementApiService implements IManagementApiService {
 
   constructor(consumerApiService: IConsumerApiService,
               correlationService: ICorrelationService,
-              deploymentApiService: IDeploymentApiService,
+              deploymentApiService: IDeploymentApi,
               executionContextFacadeFactory: IExecutionContextFacadeFactory,
               kpiApiService: IKpiApiService,
               loggingApiService: ILoggingApiService,
@@ -78,7 +78,7 @@ export class ManagementApiService implements IManagementApiService {
     return this._correlationService;
   }
 
-  private get deploymentApiService(): IDeploymentApiService {
+  private get deploymentApiService(): IDeploymentApi {
     return this._deploymentApiService;
   }
 
@@ -107,7 +107,7 @@ export class ManagementApiService implements IManagementApiService {
   }
 
   // Correlations
-  public async getAllActiveCorrelations(context: ManagementContext): Promise<Array<Correlation>> {
+  public async getAllActiveCorrelations(identity: IIdentity): Promise<Array<Correlation>> {
 
     const activeCorrelations: Array<Runtime.Types.Correlation> = await this.correlationService.getAllActiveCorrelations();
 
@@ -116,7 +116,7 @@ export class ManagementApiService implements IManagementApiService {
     return managementApiCorrelations;
   }
 
-  public async getProcessModelForCorrelation(context: ManagementContext, correlationId: string): Promise<ProcessModelExecution.ProcessModel> {
+  public async getProcessModelForCorrelation(identity: IIdentity, correlationId: string): Promise<ProcessModelExecution.ProcessModel> {
 
     const correlationFromProcessEngine: Runtime.Types.Correlation = await this.correlationService.getByCorrelationId(correlationId);
 
@@ -128,10 +128,13 @@ export class ManagementApiService implements IManagementApiService {
   }
 
   // Process models
-  public async getProcessModels(context: ManagementContext): Promise<ProcessModelExecution.ProcessModelList> {
+  public async getProcessModels(identity: IIdentity): Promise<ProcessModelExecution.ProcessModelList> {
 
-    const executionContextFacade: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
-    const consumerApiProcessModels: ConsumerApiProcessModelList = await this.consumerApiService.getProcessModels(context);
+    // TODO: Remove as soon as the ExecutionContext was removed from the ConsumerAPI and ProcessEngine.
+    const consumerContext: ConsumerContext = this._createConsumerContextFacadeFromIdentity(identity);
+    const executionContextFacade: IExecutionContextFacade = this._createExecutionContextFacadeFromIdentity(identity);
+
+    const consumerApiProcessModels: ConsumerApiProcessModelList = await this.consumerApiService.getProcessModels(consumerContext);
 
     const managementApiProcessModels: Array<ProcessModelExecution.ProcessModel> =
       await BluebirdPromise.map(consumerApiProcessModels.processModels, async(processModel: ConsumerApiProcessModel) => {
@@ -145,11 +148,13 @@ export class ManagementApiService implements IManagementApiService {
     };
   }
 
-  public async getProcessModelById(context: ManagementContext, processModelId: string): Promise<ProcessModelExecution.ProcessModel> {
+  public async getProcessModelById(identity: IIdentity, processModelId: string): Promise<ProcessModelExecution.ProcessModel> {
 
-    const executionContextFacade: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
+    // TODO: Remove as soon as the ExecutionContext was removed from the ConsumerAPI and ProcessEngine.
+    const consumerContext: ConsumerContext = this._createConsumerContextFacadeFromIdentity(identity);
+    const executionContextFacade: IExecutionContextFacade = this._createExecutionContextFacadeFromIdentity(identity);
 
-    const consumerApiProcessModel: ConsumerApiProcessModel = await this.consumerApiService.getProcessModelById(context, processModelId);
+    const consumerApiProcessModel: ConsumerApiProcessModel = await this.consumerApiService.getProcessModelById(consumerContext, processModelId);
     const processModelRaw: string = await this._getRawXmlForProcessModelById(executionContextFacade, consumerApiProcessModel.id);
 
     const managementApiProcessModel: ProcessModelExecution.ProcessModel = Converters.convertProcessModel(consumerApiProcessModel, processModelRaw);
@@ -157,7 +162,7 @@ export class ManagementApiService implements IManagementApiService {
     return managementApiProcessModel;
   }
 
-  public async startProcessInstance(context: ManagementContext,
+  public async startProcessInstance(identity: IIdentity,
                                     processModelId: string,
                                     startEventId: string,
                                     payload: ProcessModelExecution.ProcessStartRequestPayload,
@@ -166,12 +171,15 @@ export class ManagementApiService implements IManagementApiService {
                                     endEventId?: string,
                                   ): Promise<ProcessModelExecution.ProcessStartResponsePayload> {
 
-    return this.consumerApiService.startProcessInstance(context, processModelId, startEventId, payload, startCallbackType, endEventId);
+    // TODO: Remove as soon as the ExecutionContext was removed from the ConsumerAPI.
+    const consumerContext: ConsumerContext = this._createConsumerContextFacadeFromIdentity(identity);
+
+    return this.consumerApiService.startProcessInstance(consumerContext, processModelId, startEventId, payload, startCallbackType, endEventId);
   }
 
-  public async getEventsForProcessModel(context: ManagementContext, processModelId: string): Promise<EventList> {
+  public async getEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<EventList> {
 
-    const executionContextFacade: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
+    const executionContextFacade: IExecutionContextFacade = this._createExecutionContextFacadeFromIdentity(identity);
 
     const processModel: Model.Types.Process = await this.processModelService.getProcessModelById(executionContextFacade, processModelId);
     const processModelFacade: IProcessModelFacade = this.processModelFacadeFactory.create(processModel);
@@ -186,7 +194,7 @@ export class ManagementApiService implements IManagementApiService {
     return eventList;
   }
 
-  public async updateProcessDefinitionsByName(context: ManagementContext,
+  public async updateProcessDefinitionsByName(identity: IIdentity,
                                               name: string,
                                               payload: ProcessModelExecution.UpdateProcessDefinitionsRequestPayload,
                                             ): Promise<void> {
@@ -197,90 +205,94 @@ export class ManagementApiService implements IManagementApiService {
       overwriteExisting: payload.overwriteExisting,
     };
 
-    const deploymentContext: DeploymentContext = new DeploymentContext();
-    deploymentContext.identity = context.identity;
-
-    return this.deploymentApiService.importBpmnFromXml(deploymentContext, deploymentApiPayload);
+    return this.deploymentApiService.importBpmnFromXml(identity, deploymentApiPayload);
   }
 
   // UserTasks
-  public async getUserTasksForProcessModel(context: ManagementContext, processModelId: string): Promise<UserTaskList> {
+  public async getUserTasksForProcessModel(identity: IIdentity, processModelId: string): Promise<UserTaskList> {
 
-    return this.consumerApiService.getUserTasksForProcessModel(context, processModelId);
+    // TODO: Remove as soon as the ExecutionContext was removed from the ConsumerAPI.
+    const consumerContext: ConsumerContext = this._createConsumerContextFacadeFromIdentity(identity);
+
+    return this.consumerApiService.getUserTasksForProcessModel(consumerContext, processModelId);
   }
 
-  public async getUserTasksForCorrelation(context: ManagementContext, correlationId: string): Promise<UserTaskList> {
+  public async getUserTasksForCorrelation(identity: IIdentity, correlationId: string): Promise<UserTaskList> {
 
-    return this.consumerApiService.getUserTasksForCorrelation(context, correlationId);
+    // TODO: Remove as soon as the ExecutionContext was removed from the ConsumerAPI.
+    const consumerContext: ConsumerContext = this._createConsumerContextFacadeFromIdentity(identity);
+
+    return this.consumerApiService.getUserTasksForCorrelation(consumerContext, correlationId);
   }
 
-  public async getUserTasksForProcessModelInCorrelation(context: ManagementContext,
+  public async getUserTasksForProcessModelInCorrelation(identity: IIdentity,
                                                         processModelId: string,
                                                         correlationId: string): Promise<UserTaskList> {
 
-    return this.consumerApiService.getUserTasksForProcessModelInCorrelation(context, processModelId, correlationId);
+    // TODO: Remove as soon as the ExecutionContext was removed from the ConsumerAPI.
+    const consumerContext: ConsumerContext = this._createConsumerContextFacadeFromIdentity(identity);
+
+    return this.consumerApiService.getUserTasksForProcessModelInCorrelation(consumerContext, processModelId, correlationId);
   }
 
-  public async finishUserTask(context: ManagementContext,
+  public async finishUserTask(identity: IIdentity,
                               processModelId: string,
                               correlationId: string,
                               userTaskId: string,
                               userTaskResult: UserTaskResult): Promise<void> {
 
-    return this.consumerApiService.finishUserTask(context, processModelId, correlationId, userTaskId, userTaskResult);
+    // TODO: Remove as soon as the ExecutionContext was removed from the ConsumerAPI.
+    const consumerContext: ConsumerContext = this._createConsumerContextFacadeFromIdentity(identity);
+
+    return this.consumerApiService.finishUserTask(consumerContext, processModelId, correlationId, userTaskId, userTaskResult);
   }
 
-  public async getRuntimeInformationForProcessModel(context: ManagementContext, processModelId: string): Promise<Array<FlowNodeRuntimeInformation>> {
-    const exectutionContext: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
-    const identity: IIdentity = exectutionContext.getIdentity();
+  public async getRuntimeInformationForProcessModel(identity: IIdentity, processModelId: string): Promise<Array<FlowNodeRuntimeInformation>> {
 
     return this.kpiApiService.getRuntimeInformationForProcessModel(identity, processModelId);
   }
 
-  public async getRuntimeInformationForFlowNode(context: ManagementContext,
+  public async getRuntimeInformationForFlowNode(identity: IIdentity,
                                                 processModelId: string,
                                                 flowNodeId: string): Promise<FlowNodeRuntimeInformation> {
-    const exectutionContext: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
-    const identity: IIdentity = exectutionContext.getIdentity();
 
     return this.kpiApiService.getRuntimeInformationForFlowNode(identity, processModelId, flowNodeId);
   }
 
-  public async getActiveTokensForProcessModel(context: ManagementContext, processModelId: string): Promise<Array<ActiveToken>> {
-    const exectutionContext: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
-    const identity: IIdentity = exectutionContext.getIdentity();
+  public async getActiveTokensForProcessModel(identity: IIdentity, processModelId: string): Promise<Array<ActiveToken>> {
 
     return this.kpiApiService.getActiveTokensForProcessModel(identity, processModelId);
   }
 
-  public async getActiveTokensForFlowNode(context: ManagementContext, flowNodeId: string): Promise<Array<ActiveToken>> {
-    const exectutionContext: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
-    const identity: IIdentity = exectutionContext.getIdentity();
+  public async getActiveTokensForFlowNode(identity: IIdentity, flowNodeId: string): Promise<Array<ActiveToken>> {
 
     return this.kpiApiService.getActiveTokensForFlowNode(identity, flowNodeId);
   }
 
-  public async getLogsForProcessModel(context: ManagementContext, correlationId: string, processModelId: string): Promise<Array<LogEntry>> {
-    const exectutionContext: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
-    const identity: IIdentity = exectutionContext.getIdentity();
+  public async getLogsForProcessModel(identity: IIdentity, correlationId: string, processModelId: string): Promise<Array<LogEntry>> {
 
     return this.loggingApiService.readLogForProcessModel(identity, correlationId, processModelId);
   }
 
-  public async getTokensForFlowNodeInstance(context: ManagementContext,
+  public async getTokensForFlowNodeInstance(identity: IIdentity,
                                             processModelId: string,
                                             correlationId: string,
                                             flowNodeId: string): Promise<Array<TokenHistoryEntry>> {
-    const exectutionContext: IExecutionContextFacade = await this._createExecutionContextFacadeFromManagementContext(context);
-    const identity: IIdentity = exectutionContext.getIdentity();
 
     return this.tokenHistoryApiService.getTokensForFlowNode(identity, correlationId, processModelId, flowNodeId);
   }
 
-  private async _createExecutionContextFacadeFromManagementContext(managementContext: ManagementContext): Promise<IExecutionContextFacade> {
-    const identity: IIdentity = {
-      token: managementContext.identity,
-    };
+  // TODO: Remove as soon as the ConsumerContext as been removed from the ConsumerApi.
+  private _createConsumerContextFacadeFromIdentity(identity: IIdentity): ConsumerContext {
+
+    const consumerContext: ConsumerContext = new ConsumerContext();
+    consumerContext.identity = identity.token;
+
+    return consumerContext;
+  }
+
+  private _createExecutionContextFacadeFromIdentity(identity: IIdentity): IExecutionContextFacade {
+
     const executionContext: ExecutionContext = new ExecutionContext(identity);
 
     return this.executionContextFacadeFactory.create(executionContext);
