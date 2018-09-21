@@ -15,7 +15,7 @@ import {
   Correlation,
   Event,
   EventList,
-  IManagementApiService,
+  IManagementApi,
   ProcessModelExecution,
   UserTaskList,
   UserTaskResult,
@@ -36,7 +36,7 @@ import * as Converters from './converters/index';
 
 import * as BluebirdPromise from 'bluebird';
 
-export class ManagementApiService implements IManagementApiService {
+export class ManagementApiService implements IManagementApi {
   public config: any = undefined;
 
   private _consumerApiService: IConsumerApiService;
