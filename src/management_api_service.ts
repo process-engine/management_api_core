@@ -15,6 +15,7 @@ import {IDeploymentApi, ImportProcessDefinitionsRequestPayload} from '@process-e
 import {
   ActiveToken,
   Correlation,
+  CorrelationState,
   Event,
   EventList,
   FlowNodeRuntimeInformation,
@@ -80,16 +81,18 @@ export class ManagementApiService implements IManagementApi {
     return managementApiCorrelations;
   }
 
-  public async getProcessModelsForCorrelation(identity: IIdentity, correlationId: string): Promise<Array<ProcessModelExecution.ProcessModel>> {
+  public async getCorrelationById(identity: IIdentity, correlationId: string): Promise<Correlation> {
 
     // TODO: Refactor CorrelationService to get ALL process models for the given correlations.
     const correlationFromProcessEngine: Runtime.Types.Correlation = await this.correlationService.getByCorrelationId(correlationId);
 
-    const processModel: ProcessModelExecution.ProcessModel = new ProcessModelExecution.ProcessModel();
-    processModel.id = correlationFromProcessEngine.processModelId;
-    processModel.xml = correlationFromProcessEngine.processModelXml;
+    const correlation: Correlation = new Correlation();
+    correlation.id = correlationFromProcessEngine.id;
+    correlation.state = CorrelationState[correlationFromProcessEngine.state];
+    correlation.createdAt = correlationFromProcessEngine.createdAt;
+    correlation.processModels = [];
 
-    return [processModel];
+    return correlation;
   }
 
   // Process models
