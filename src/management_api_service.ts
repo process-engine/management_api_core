@@ -1,24 +1,31 @@
 import {IIdentity} from '@essential-projects/iam_contracts';
 
-import {ActiveToken, FlowNodeRuntimeInformation, IKpiApiService} from '@process-engine/kpi_api_contracts';
-import {ILoggingApiService, LogEntry} from '@process-engine/logging_api_contracts';
-import {ITokenHistoryApiService, TokenHistoryEntry} from '@process-engine/token_history_api_contracts';
+import {IKpiApi} from '@process-engine/kpi_api_contracts';
+import {ILoggingApi} from '@process-engine/logging_api_contracts';
+import {ITokenHistoryApi} from '@process-engine/token_history_api_contracts';
 
 import {
   IConsumerApi,
   ProcessModel as ConsumerApiProcessModel,
   ProcessModelList as ConsumerApiProcessModelList,
 } from '@process-engine/consumer_api_contracts';
+
 import {IDeploymentApi, ImportProcessDefinitionsRequestPayload} from '@process-engine/deployment_api_contracts';
+
 import {
+  ActiveToken,
   Correlation,
   Event,
   EventList,
+  FlowNodeRuntimeInformation,
   IManagementApi,
+  LogEntry,
   ProcessModelExecution,
+  TokenHistoryEntry,
   UserTaskList,
   UserTaskResult,
 } from '@process-engine/management_api_contracts';
+
 import {
   ICorrelationService,
   IProcessModelFacade,
@@ -35,64 +42,32 @@ import * as BluebirdPromise from 'bluebird';
 export class ManagementApiService implements IManagementApi {
   public config: any = undefined;
 
-  private _consumerApiService: IConsumerApi;
-  private _correlationService: ICorrelationService;
-  private _deploymentApiService: IDeploymentApi;
-  private _kpiApiService: IKpiApiService;
-  private _loggingApiService: ILoggingApiService;
-  private _processModelFacadeFactory: IProcessModelFacadeFactory;
-  private _processModelService: IProcessModelService;
-  private _tokenHistoryApiService: ITokenHistoryApiService;
+  private consumerApiService: IConsumerApi;
+  private correlationService: ICorrelationService;
+  private deploymentApiService: IDeploymentApi;
+  private kpiApiService: IKpiApi;
+  private loggingApiService: ILoggingApi;
+  private processModelFacadeFactory: IProcessModelFacadeFactory;
+  private processModelService: IProcessModelService;
+  private tokenHistoryApiService: ITokenHistoryApi;
 
   constructor(consumerApiService: IConsumerApi,
               correlationService: ICorrelationService,
               deploymentApiService: IDeploymentApi,
-              kpiApiService: IKpiApiService,
-              loggingApiService: ILoggingApiService,
+              kpiApiService: IKpiApi,
+              loggingApiService: ILoggingApi,
               processModelFacadeFactory: IProcessModelFacadeFactory,
               processModelService: IProcessModelService,
-              tokenHistoryApiService: ITokenHistoryApiService) {
+              tokenHistoryApiService: ITokenHistoryApi) {
 
-    this._consumerApiService = consumerApiService;
-    this._correlationService = correlationService;
-    this._deploymentApiService = deploymentApiService;
-    this._kpiApiService = kpiApiService;
-    this._loggingApiService = loggingApiService;
-    this._processModelFacadeFactory = processModelFacadeFactory;
-    this._processModelService = processModelService;
-    this._tokenHistoryApiService = tokenHistoryApiService;
-  }
-
-  private get consumerApiService(): IConsumerApi {
-    return this._consumerApiService;
-  }
-
-  private get correlationService(): ICorrelationService {
-    return this._correlationService;
-  }
-
-  private get deploymentApiService(): IDeploymentApi {
-    return this._deploymentApiService;
-  }
-
-  private get kpiApiService(): IKpiApiService {
-    return this._kpiApiService;
-  }
-
-  private get loggingApiService(): ILoggingApiService {
-    return this._loggingApiService;
-  }
-
-  private get processModelFacadeFactory(): IProcessModelFacadeFactory {
-    return this._processModelFacadeFactory;
-  }
-
-  private get processModelService(): IProcessModelService {
-    return this._processModelService;
-  }
-
-  private get tokenHistoryApiService(): ITokenHistoryApiService {
-    return this._tokenHistoryApiService;
+    this.consumerApiService = consumerApiService;
+    this.correlationService = correlationService;
+    this.deploymentApiService = deploymentApiService;
+    this.kpiApiService = kpiApiService;
+    this.loggingApiService = loggingApiService;
+    this.processModelFacadeFactory = processModelFacadeFactory;
+    this.processModelService = processModelService;
+    this.tokenHistoryApiService = tokenHistoryApiService;
   }
 
   // Correlations
@@ -105,15 +80,16 @@ export class ManagementApiService implements IManagementApi {
     return managementApiCorrelations;
   }
 
-  public async getProcessModelForCorrelation(identity: IIdentity, correlationId: string): Promise<ProcessModelExecution.ProcessModel> {
+  public async getProcessModelsForCorrelation(identity: IIdentity, correlationId: string): Promise<Array<ProcessModelExecution.ProcessModel>> {
 
+    // TODO: Refactor CorrelationService to get ALL process models for the given correlations.
     const correlationFromProcessEngine: Runtime.Types.Correlation = await this.correlationService.getByCorrelationId(correlationId);
 
     const processModel: ProcessModelExecution.ProcessModel = new ProcessModelExecution.ProcessModel();
     processModel.id = correlationFromProcessEngine.processModelId;
     processModel.xml = correlationFromProcessEngine.processModelXml;
 
-    return processModel;
+    return [processModel];
   }
 
   // Process models
@@ -143,16 +119,9 @@ export class ManagementApiService implements IManagementApi {
     return managementApiProcessModel;
   }
 
-  public async startProcessInstance(identity: IIdentity,
-                                    processModelId: string,
-                                    startEventId: string,
-                                    payload: ProcessModelExecution.ProcessStartRequestPayload,
-                                    startCallbackType: ProcessModelExecution.StartCallbackType =
-                                    ProcessModelExecution.StartCallbackType.CallbackOnProcessInstanceCreated,
-                                    endEventId?: string,
-                                  ): Promise<ProcessModelExecution.ProcessStartResponsePayload> {
-
-    return this.consumerApiService.startProcessInstance(identity, processModelId, startEventId, payload, startCallbackType, endEventId);
+  public async getCorrelationsForProcessModel(identity: IIdentity, processModelId: string): Promise<Array<Correlation>> {
+    // TODO: Implement in ProcessEngine.
+    throw new Error('Method not implemented.');
   }
 
   public async getEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<EventList> {
@@ -168,6 +137,18 @@ export class ManagementApiService implements IManagementApi {
     };
 
     return eventList;
+  }
+
+  public async startProcessInstance(identity: IIdentity,
+                                    processModelId: string,
+                                    startEventId: string,
+                                    payload: ProcessModelExecution.ProcessStartRequestPayload,
+                                    startCallbackType: ProcessModelExecution.StartCallbackType =
+                                    ProcessModelExecution.StartCallbackType.CallbackOnProcessInstanceCreated,
+                                    endEventId?: string,
+                                  ): Promise<ProcessModelExecution.ProcessStartResponsePayload> {
+
+    return this.consumerApiService.startProcessInstance(identity, processModelId, startEventId, payload, startCallbackType, endEventId);
   }
 
   public async updateProcessDefinitionsByName(identity: IIdentity,
@@ -233,9 +214,9 @@ export class ManagementApiService implements IManagementApi {
     return this.kpiApiService.getActiveTokensForFlowNode(identity, flowNodeId);
   }
 
-  public async getLogsForProcessModel(identity: IIdentity, correlationId: string, processModelId: string): Promise<Array<LogEntry>> {
+  public async getProcessModelLog(identity: IIdentity, processModelId: string): Promise<Array<LogEntry>> {
 
-    return this.loggingApiService.readLogForProcessModel(identity, correlationId, processModelId);
+    return this.loggingApiService.readLogForProcessModel(identity, processModelId);
   }
 
   public async getTokensForFlowNodeInstance(identity: IIdentity,
