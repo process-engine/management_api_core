@@ -86,13 +86,9 @@ export class ManagementApiService implements IManagementApi {
     // TODO: Refactor CorrelationService to get ALL process models for the given correlations.
     const correlationFromProcessEngine: Runtime.Types.Correlation = await this.correlationService.getByCorrelationId(correlationId);
 
-    const correlation: Correlation = new Correlation();
-    correlation.id = correlationFromProcessEngine.id;
-    correlation.state = CorrelationState[correlationFromProcessEngine.state];
-    correlation.createdAt = correlationFromProcessEngine.createdAt;
-    correlation.processModels = [];
+    const managementApiCorrelation: Correlation = Converters.managementApiCorrelationConverter(correlationFromProcessEngine);
 
-    return correlation;
+    return managementApiCorrelation;
   }
 
   // Process models
