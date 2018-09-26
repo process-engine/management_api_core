@@ -1,4 +1,4 @@
-import {Correlation, CorrelationState, ProcessModelExecution} from '@process-engine/management_api_contracts';
+import {Correlation, CorrelationProcessModel, CorrelationState} from '@process-engine/management_api_contracts';
 import {Runtime} from '@process-engine/process_engine_contracts';
 
 export function managementApiCorrelationConverter(runtimeCorrelation: Runtime.Types.Correlation): Correlation {
@@ -10,9 +10,13 @@ export function managementApiCorrelationConverter(runtimeCorrelation: Runtime.Ty
 
   managementApiCorrelation.processModels =
     runtimeCorrelation.processModels.map((runtimeProcessModel: any): any => {
-      const managementApiProcessModel: ProcessModelExecution.ProcessModel = new ProcessModelExecution.ProcessModel();
-      managementApiProcessModel.id = runtimeProcessModel.name;
+      const managementApiProcessModel: CorrelationProcessModel = new CorrelationProcessModel();
+      managementApiProcessModel.name = runtimeProcessModel.name;
+      managementApiProcessModel.hash = runtimeProcessModel.hash;
       managementApiProcessModel.xml = runtimeProcessModel.xml;
+      managementApiProcessModel.processInstanceId = runtimeProcessModel.processInstanceId;
+      managementApiProcessModel.identity = runtimeProcessModel.identity;
+      managementApiProcessModel.createdAt = runtimeProcessModel.createdAt;
 
       return managementApiProcessModel;
     });

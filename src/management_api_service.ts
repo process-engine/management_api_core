@@ -15,7 +15,6 @@ import {IDeploymentApi, ImportProcessDefinitionsRequestPayload} from '@process-e
 import {
   ActiveToken,
   Correlation,
-  CorrelationState,
   Event,
   EventList,
   FlowNodeRuntimeInformation,
@@ -72,6 +71,15 @@ export class ManagementApiService implements IManagementApi {
   }
 
   // Correlations
+  public async getAllCorrelations(identity: IIdentity): Promise<Array<Correlation>> {
+
+    const correlations: Array<Runtime.Types.Correlation> = await this.correlationService.getAll();
+
+    const managementApiCorrelations: Array<Correlation> = correlations.map(Converters.managementApiCorrelationConverter);
+
+    return managementApiCorrelations;
+  }
+
   public async getAllActiveCorrelations(identity: IIdentity): Promise<Array<Correlation>> {
 
     const activeCorrelations: Array<Runtime.Types.Correlation> = await this.correlationService.getAllActiveCorrelations();
@@ -83,10 +91,27 @@ export class ManagementApiService implements IManagementApi {
 
   public async getCorrelationById(identity: IIdentity, correlationId: string): Promise<Correlation> {
 
-    // TODO: Refactor CorrelationService to get ALL process models for the given correlations.
     const correlationFromProcessEngine: Runtime.Types.Correlation = await this.correlationService.getByCorrelationId(correlationId);
 
     const managementApiCorrelation: Correlation = Converters.managementApiCorrelationConverter(correlationFromProcessEngine);
+
+    return managementApiCorrelation;
+  }
+
+  public async getCorrelationsByProcessModelId(identity: IIdentity, processModelId: string): Promise<Array<Correlation>> {
+
+    const correlations: Array<Runtime.Types.Correlation> = await this.correlationService.getByProcessModelId(processModelId);
+
+    const managementApiCorrelations: Array<Correlation> = correlations.map(Converters.managementApiCorrelationConverter);
+
+    return managementApiCorrelations;
+  }
+
+  public async getCorrelationByProcessInstanceId(identity: IIdentity, processInstanceId: string): Promise<Correlation> {
+
+    const correlation: Runtime.Types.Correlation = await this.correlationService.getByProcessInstanceId(processInstanceId);
+
+    const managementApiCorrelation: Correlation = Converters.managementApiCorrelationConverter(correlation);
 
     return managementApiCorrelation;
   }
@@ -116,11 +141,6 @@ export class ManagementApiService implements IManagementApi {
     const managementApiProcessModel: ProcessModelExecution.ProcessModel = Converters.convertProcessModel(consumerApiProcessModel, processModelRaw);
 
     return managementApiProcessModel;
-  }
-
-  public async getCorrelationsForProcessModel(identity: IIdentity, processModelId: string): Promise<Array<Correlation>> {
-    // TODO: Implement in ProcessEngine.
-    throw new Error('Method not implemented.');
   }
 
   public async getEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<EventList> {

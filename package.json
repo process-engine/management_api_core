@@ -23,7 +23,7 @@
     "@process-engine/consumer_api_contracts": "0.17.0",
     "@process-engine/deployment_api_contracts": "0.3.0",
     "@process-engine/kpi_api_contracts": "0.1.2",
-    "@process-engine/logging_api_contracts": "feature~add_process_instance_id",
+    "@process-engine/logging_api_contracts": "0.2.0",
     "@process-engine/management_api_contracts": "feature~inspect_correlation_features",
     "@process-engine/token_history_api_contracts": "0.1.1",
     "@process-engine/process_engine_contracts": "feature~inspect_correlation_features",
