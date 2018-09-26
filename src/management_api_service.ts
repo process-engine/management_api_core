@@ -80,9 +80,9 @@ export class ManagementApiService implements IManagementApi {
     return managementApiCorrelations;
   }
 
-  public async getAllActiveCorrelations(identity: IIdentity): Promise<Array<Correlation>> {
+  public async getActiveCorrelations(identity: IIdentity): Promise<Array<Correlation>> {
 
-    const activeCorrelations: Array<Runtime.Types.Correlation> = await this.correlationService.getAllActiveCorrelations();
+    const activeCorrelations: Array<Runtime.Types.Correlation> = await this.correlationService.getActive();
 
     const managementApiCorrelations: Array<Correlation> = activeCorrelations.map(Converters.managementApiCorrelationConverter);
 
