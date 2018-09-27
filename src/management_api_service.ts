@@ -42,14 +42,14 @@ import * as BluebirdPromise from 'bluebird';
 export class ManagementApiService implements IManagementApi {
   public config: any = undefined;
 
-  private consumerApiService: IConsumerApi;
-  private correlationService: ICorrelationService;
-  private deploymentApiService: IDeploymentApi;
-  private kpiApiService: IKpiApi;
-  private loggingApiService: ILoggingApi;
-  private processModelFacadeFactory: IProcessModelFacadeFactory;
-  private processModelService: IProcessModelService;
-  private tokenHistoryApiService: ITokenHistoryApi;
+  private readonly _consumerApiService: IConsumerApi;
+  private readonly _correlationService: ICorrelationService;
+  private readonly _deploymentApiService: IDeploymentApi;
+  private readonly _kpiApiService: IKpiApi;
+  private readonly _loggingApiService: ILoggingApi;
+  private readonly _processModelFacadeFactory: IProcessModelFacadeFactory;
+  private readonly _processModelService: IProcessModelService;
+  private readonly _tokenHistoryApiService: ITokenHistoryApi;
 
   constructor(consumerApiService: IConsumerApi,
               correlationService: ICorrelationService,
@@ -60,20 +60,20 @@ export class ManagementApiService implements IManagementApi {
               processModelService: IProcessModelService,
               tokenHistoryApiService: ITokenHistoryApi) {
 
-    this.consumerApiService = consumerApiService;
-    this.correlationService = correlationService;
-    this.deploymentApiService = deploymentApiService;
-    this.kpiApiService = kpiApiService;
-    this.loggingApiService = loggingApiService;
-    this.processModelFacadeFactory = processModelFacadeFactory;
-    this.processModelService = processModelService;
-    this.tokenHistoryApiService = tokenHistoryApiService;
+    this._consumerApiService = consumerApiService;
+    this._correlationService = correlationService;
+    this._deploymentApiService = deploymentApiService;
+    this._kpiApiService = kpiApiService;
+    this._loggingApiService = loggingApiService;
+    this._processModelFacadeFactory = processModelFacadeFactory;
+    this._processModelService = processModelService;
+    this._tokenHistoryApiService = tokenHistoryApiService;
   }
 
   // Correlations
   public async getAllCorrelations(identity: IIdentity): Promise<Array<Correlation>> {
 
-    const correlations: Array<Runtime.Types.Correlation> = await this.correlationService.getAll();
+    const correlations: Array<Runtime.Types.Correlation> = await this._correlationService.getAll();
 
     const managementApiCorrelations: Array<Correlation> = correlations.map(Converters.managementApiCorrelationConverter);
 
@@ -82,7 +82,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getActiveCorrelations(identity: IIdentity): Promise<Array<Correlation>> {
 
-    const activeCorrelations: Array<Runtime.Types.Correlation> = await this.correlationService.getActive();
+    const activeCorrelations: Array<Runtime.Types.Correlation> = await this._correlationService.getActive();
 
     const managementApiCorrelations: Array<Correlation> = activeCorrelations.map(Converters.managementApiCorrelationConverter);
 
@@ -91,7 +91,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getCorrelationById(identity: IIdentity, correlationId: string): Promise<Correlation> {
 
-    const correlationFromProcessEngine: Runtime.Types.Correlation = await this.correlationService.getByCorrelationId(correlationId);
+    const correlationFromProcessEngine: Runtime.Types.Correlation = await this._correlationService.getByCorrelationId(correlationId);
 
     const managementApiCorrelation: Correlation = Converters.managementApiCorrelationConverter(correlationFromProcessEngine);
 
@@ -100,7 +100,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getCorrelationsByProcessModelId(identity: IIdentity, processModelId: string): Promise<Array<Correlation>> {
 
-    const correlations: Array<Runtime.Types.Correlation> = await this.correlationService.getByProcessModelId(processModelId);
+    const correlations: Array<Runtime.Types.Correlation> = await this._correlationService.getByProcessModelId(processModelId);
 
     const managementApiCorrelations: Array<Correlation> = correlations.map(Converters.managementApiCorrelationConverter);
 
@@ -109,7 +109,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getCorrelationByProcessInstanceId(identity: IIdentity, processInstanceId: string): Promise<Correlation> {
 
-    const correlation: Runtime.Types.Correlation = await this.correlationService.getByProcessInstanceId(processInstanceId);
+    const correlation: Runtime.Types.Correlation = await this._correlationService.getByProcessInstanceId(processInstanceId);
 
     const managementApiCorrelation: Correlation = Converters.managementApiCorrelationConverter(correlation);
 
@@ -119,7 +119,7 @@ export class ManagementApiService implements IManagementApi {
   // Process models
   public async getProcessModels(identity: IIdentity): Promise<ProcessModelExecution.ProcessModelList> {
 
-    const consumerApiProcessModels: ConsumerApiProcessModelList = await this.consumerApiService.getProcessModels(identity);
+    const consumerApiProcessModels: ConsumerApiProcessModelList = await this._consumerApiService.getProcessModels(identity);
 
     const managementApiProcessModels: Array<ProcessModelExecution.ProcessModel> =
       await BluebirdPromise.map(consumerApiProcessModels.processModels, async(processModel: ConsumerApiProcessModel) => {
@@ -135,7 +135,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getProcessModelById(identity: IIdentity, processModelId: string): Promise<ProcessModelExecution.ProcessModel> {
 
-    const consumerApiProcessModel: ConsumerApiProcessModel = await this.consumerApiService.getProcessModelById(identity, processModelId);
+    const consumerApiProcessModel: ConsumerApiProcessModel = await this._consumerApiService.getProcessModelById(identity, processModelId);
     const processModelRaw: string = await this._getRawXmlForProcessModelById(identity, consumerApiProcessModel.id);
 
     const managementApiProcessModel: ProcessModelExecution.ProcessModel = Converters.convertProcessModel(consumerApiProcessModel, processModelRaw);
@@ -145,8 +145,8 @@ export class ManagementApiService implements IManagementApi {
 
   public async getEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<EventList> {
 
-    const processModel: Model.Types.Process = await this.processModelService.getProcessModelById(identity, processModelId);
-    const processModelFacade: IProcessModelFacade = this.processModelFacadeFactory.create(processModel);
+    const processModel: Model.Types.Process = await this._processModelService.getProcessModelById(identity, processModelId);
+    const processModelFacade: IProcessModelFacade = this._processModelFacadeFactory.create(processModel);
 
     const startEvents: Array<Event> = processModelFacade.getStartEvents()
                                                         .map(Converters.managementApiEventConverter);
@@ -167,7 +167,7 @@ export class ManagementApiService implements IManagementApi {
                                     endEventId?: string,
                                   ): Promise<ProcessModelExecution.ProcessStartResponsePayload> {
 
-    return this.consumerApiService.startProcessInstance(identity, processModelId, startEventId, payload, startCallbackType, endEventId);
+    return this._consumerApiService.startProcessInstance(identity, processModelId, startEventId, payload, startCallbackType, endEventId);
   }
 
   public async updateProcessDefinitionsByName(identity: IIdentity,
@@ -181,25 +181,25 @@ export class ManagementApiService implements IManagementApi {
       overwriteExisting: payload.overwriteExisting,
     };
 
-    return this.deploymentApiService.importBpmnFromXml(identity, deploymentApiPayload);
+    return this._deploymentApiService.importBpmnFromXml(identity, deploymentApiPayload);
   }
 
   // UserTasks
   public async getUserTasksForProcessModel(identity: IIdentity, processModelId: string): Promise<UserTaskList> {
 
-    return this.consumerApiService.getUserTasksForProcessModel(identity, processModelId);
+    return this._consumerApiService.getUserTasksForProcessModel(identity, processModelId);
   }
 
   public async getUserTasksForCorrelation(identity: IIdentity, correlationId: string): Promise<UserTaskList> {
 
-    return this.consumerApiService.getUserTasksForCorrelation(identity, correlationId);
+    return this._consumerApiService.getUserTasksForCorrelation(identity, correlationId);
   }
 
   public async getUserTasksForProcessModelInCorrelation(identity: IIdentity,
                                                         processModelId: string,
                                                         correlationId: string): Promise<UserTaskList> {
 
-    return this.consumerApiService.getUserTasksForProcessModelInCorrelation(identity, processModelId, correlationId);
+    return this._consumerApiService.getUserTasksForProcessModelInCorrelation(identity, processModelId, correlationId);
   }
 
   public async finishUserTask(identity: IIdentity,
@@ -208,34 +208,34 @@ export class ManagementApiService implements IManagementApi {
                               userTaskId: string,
                               userTaskResult: UserTaskResult): Promise<void> {
 
-    return this.consumerApiService.finishUserTask(identity, processModelId, correlationId, userTaskId, userTaskResult);
+    return this._consumerApiService.finishUserTask(identity, processModelId, correlationId, userTaskId, userTaskResult);
   }
 
   public async getRuntimeInformationForProcessModel(identity: IIdentity, processModelId: string): Promise<Array<FlowNodeRuntimeInformation>> {
 
-    return this.kpiApiService.getRuntimeInformationForProcessModel(identity, processModelId);
+    return this._kpiApiService.getRuntimeInformationForProcessModel(identity, processModelId);
   }
 
   public async getRuntimeInformationForFlowNode(identity: IIdentity,
                                                 processModelId: string,
                                                 flowNodeId: string): Promise<FlowNodeRuntimeInformation> {
 
-    return this.kpiApiService.getRuntimeInformationForFlowNode(identity, processModelId, flowNodeId);
+    return this._kpiApiService.getRuntimeInformationForFlowNode(identity, processModelId, flowNodeId);
   }
 
   public async getActiveTokensForProcessModel(identity: IIdentity, processModelId: string): Promise<Array<ActiveToken>> {
 
-    return this.kpiApiService.getActiveTokensForProcessModel(identity, processModelId);
+    return this._kpiApiService.getActiveTokensForProcessModel(identity, processModelId);
   }
 
   public async getActiveTokensForFlowNode(identity: IIdentity, flowNodeId: string): Promise<Array<ActiveToken>> {
 
-    return this.kpiApiService.getActiveTokensForFlowNode(identity, flowNodeId);
+    return this._kpiApiService.getActiveTokensForFlowNode(identity, flowNodeId);
   }
 
   public async getProcessModelLog(identity: IIdentity, processModelId: string): Promise<Array<LogEntry>> {
 
-    return this.loggingApiService.readLogForProcessModel(identity, processModelId);
+    return this._loggingApiService.readLogForProcessModel(identity, processModelId);
   }
 
   public async getTokensForFlowNodeInstance(identity: IIdentity,
@@ -243,13 +243,13 @@ export class ManagementApiService implements IManagementApi {
                                             correlationId: string,
                                             flowNodeId: string): Promise<Array<TokenHistoryEntry>> {
 
-    return this.tokenHistoryApiService.getTokensForFlowNode(identity, correlationId, processModelId, flowNodeId);
+    return this._tokenHistoryApiService.getTokensForFlowNode(identity, correlationId, processModelId, flowNodeId);
   }
 
   private async _getRawXmlForProcessModelById(identity: IIdentity, processModelId: string): Promise<string> {
 
     const processModelRaw: Runtime.Types.ProcessDefinitionFromRepository =
-      await this.processModelService.getProcessDefinitionAsXmlByName(identity, processModelId);
+      await this._processModelService.getProcessDefinitionAsXmlByName(identity, processModelId);
 
     return processModelRaw.xml;
   }

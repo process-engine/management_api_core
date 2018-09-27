@@ -11,6 +11,7 @@ export function managementApiCorrelationConverter(runtimeCorrelation: Runtime.Ty
 
   managementApiCorrelation.processModels =
     runtimeCorrelation.processModels.map((runtimeProcessModel: any): any => {
+
       const managementApiProcessModel: CorrelationProcessModel = new CorrelationProcessModel();
       managementApiProcessModel.name = runtimeProcessModel.name;
       managementApiProcessModel.hash = runtimeProcessModel.hash;
