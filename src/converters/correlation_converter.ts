@@ -6,6 +6,7 @@ export function managementApiCorrelationConverter(runtimeCorrelation: Runtime.Ty
   const managementApiCorrelation: Correlation = new Correlation();
   managementApiCorrelation.id = runtimeCorrelation.id;
   managementApiCorrelation.state = CorrelationState[runtimeCorrelation.state];
+  managementApiCorrelation.identity = runtimeCorrelation.identity;
   managementApiCorrelation.createdAt = runtimeCorrelation.createdAt;
 
   managementApiCorrelation.processModels =
@@ -15,7 +16,6 @@ export function managementApiCorrelationConverter(runtimeCorrelation: Runtime.Ty
       managementApiProcessModel.hash = runtimeProcessModel.hash;
       managementApiProcessModel.xml = runtimeProcessModel.xml;
       managementApiProcessModel.processInstanceId = runtimeProcessModel.processInstanceId;
-      managementApiProcessModel.identity = runtimeProcessModel.identity;
       managementApiProcessModel.createdAt = runtimeProcessModel.createdAt;
 
       return managementApiProcessModel;
