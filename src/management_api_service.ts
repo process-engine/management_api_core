@@ -20,6 +20,7 @@ import {
   FlowNodeRuntimeInformation,
   IManagementApi,
   LogEntry,
+  Messages,
   ProcessModelExecution,
   TokenHistoryEntry,
   UserTaskList,
@@ -31,9 +32,6 @@ import {
   IProcessModelFacade,
   IProcessModelFacadeFactory,
   IProcessModelService,
-  ProcessEndedMessage,
-  UserTaskFinishedMessage,
-  UserTaskWaitingMessage,
   Model,
   Runtime,
 } from '@process-engine/process_engine_contracts';
@@ -257,20 +255,20 @@ export class ManagementApiService implements IManagementApi {
     return processModelRaw.xml;
   }
 
-  public onUserTaskWaiting(callback: (userTaskWaiting: UserTaskWaitingMessage) => void|Promise<void>): void {
-    this.consumerApiService.onUserTaskWaiting(callback);
+  public onUserTaskWaiting(callback: Messages.CallbackTypes.OnUserTaskWaitingCallback): void {
+    this._consumerApiService.onUserTaskWaiting(callback);
   }
 
-  public onUserTaskFinished(callback: (userTaskFinished: UserTaskFinishedMessage) => void|Promise<void>): void {
-    this.consumerApiService.onUserTaskFinished(callback);
+  public onUserTaskFinished(callback: Messages.CallbackTypes.OnUserTaskFinishedCallback): void {
+    this._consumerApiService.onUserTaskFinished(callback);
   }
 
-  public onProcessTerminated(callback: (processTerminated: ProcessEndedMessage) => void|Promise<void>): void {
-    this.consumerApiService.onProcessTerminated(callback);
+  public onProcessTerminated(callback: Messages.CallbackTypes.OnProcessTerminatedCallback): void {
+    this._consumerApiService.onProcessTerminated(callback);
   }
 
-  public onProcessEnded(callback: (processEnded: ProcessEndedMessage) => void|Promise<void>): void {
-    this.consumerApiService.onProcessEnded(callback);
+  public onProcessEnded(callback: Messages.CallbackTypes.OnProcessEndedCallback): void {
+    this._consumerApiService.onProcessEnded(callback);
   }
 
 }
