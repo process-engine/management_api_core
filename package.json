@@ -33,13 +33,13 @@
     "@essential-projects/tslint-config": "1.1.1",
     "@types/node": "8.10.10",
     "bluebird": "3.5.1",
-    "clone": "2.1.1",
+    "clone": "2.1.2",
     "gulp": "3.9.1",
     "gulptraum": "2.3.0",
     "gulptraum-typescript": "1.5.0",
     "moment": "2.22.2",
     "tsconfig": "7.0.0",
-    "tslint": "5.10.0",
+    "tslint": "5.11.0",
     "typescript": "2.8.3"
   },
   "scripts": {
