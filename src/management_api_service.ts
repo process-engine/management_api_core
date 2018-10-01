@@ -20,6 +20,7 @@ import {
   FlowNodeRuntimeInformation,
   IManagementApi,
   LogEntry,
+  Messages,
   ProcessModelExecution,
   TokenHistoryEntry,
   UserTaskList,
@@ -252,6 +253,22 @@ export class ManagementApiService implements IManagementApi {
       await this._processModelService.getProcessDefinitionAsXmlByName(identity, processModelId);
 
     return processModelRaw.xml;
+  }
+
+  public onUserTaskWaiting(callback: Messages.CallbackTypes.OnUserTaskWaitingCallback): void {
+    this._consumerApiService.onUserTaskWaiting(callback);
+  }
+
+  public onUserTaskFinished(callback: Messages.CallbackTypes.OnUserTaskFinishedCallback): void {
+    this._consumerApiService.onUserTaskFinished(callback);
+  }
+
+  public onProcessTerminated(callback: Messages.CallbackTypes.OnProcessTerminatedCallback): void {
+    this._consumerApiService.onProcessTerminated(callback);
+  }
+
+  public onProcessEnded(callback: Messages.CallbackTypes.OnProcessEndedCallback): void {
+    this._consumerApiService.onProcessEnded(callback);
   }
 
 }
