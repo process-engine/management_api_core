@@ -71,6 +71,23 @@ export class ManagementApiService implements IManagementApi {
     this._tokenHistoryApiService = tokenHistoryApiService;
   }
 
+  // Notifications
+  public onUserTaskWaiting(callback: Messages.CallbackTypes.OnUserTaskWaitingCallback): void {
+    this._consumerApiService.onUserTaskWaiting(callback);
+  }
+
+  public onUserTaskFinished(callback: Messages.CallbackTypes.OnUserTaskFinishedCallback): void {
+    this._consumerApiService.onUserTaskFinished(callback);
+  }
+
+  public onProcessTerminated(callback: Messages.CallbackTypes.OnProcessTerminatedCallback): void {
+    this._consumerApiService.onProcessTerminated(callback);
+  }
+
+  public onProcessEnded(callback: Messages.CallbackTypes.OnProcessEndedCallback): void {
+    this._consumerApiService.onProcessEnded(callback);
+  }
+
   // Correlations
   public async getAllCorrelations(identity: IIdentity): Promise<Array<Correlation>> {
 
@@ -234,14 +251,22 @@ export class ManagementApiService implements IManagementApi {
     return this._kpiApiService.getActiveTokensForFlowNode(identity, flowNodeId);
   }
 
-  public async getProcessModelLog(identity: IIdentity, processModelId: string): Promise<Array<LogEntry>> {
+  public async getProcessModelLog(identity: IIdentity, processModelId: string, correlationId?: string): Promise<Array<LogEntry>> {
 
-    return this._loggingApiService.readLogForProcessModel(identity, processModelId);
+    let logs: Array<LogEntry> = await this._loggingApiService.readLogForProcessModel(identity, processModelId);
+
+    if (correlationId) {
+      logs = logs.filter((entry: LogEntry): boolean => {
+        return entry.correlationId === correlationId;
+      });
+    }
+
+    return logs;
   }
 
   public async getTokensForFlowNodeInstance(identity: IIdentity,
-                                            processModelId: string,
                                             correlationId: string,
+                                            processModelId: string,
                                             flowNodeId: string): Promise<Array<TokenHistoryEntry>> {
 
     return this._tokenHistoryApiService.getTokensForFlowNode(identity, correlationId, processModelId, flowNodeId);
@@ -253,22 +278,6 @@ export class ManagementApiService implements IManagementApi {
       await this._processModelService.getProcessDefinitionAsXmlByName(identity, processModelId);
 
     return processModelRaw.xml;
-  }
-
-  public onUserTaskWaiting(callback: Messages.CallbackTypes.OnUserTaskWaitingCallback): void {
-    this._consumerApiService.onUserTaskWaiting(callback);
-  }
-
-  public onUserTaskFinished(callback: Messages.CallbackTypes.OnUserTaskFinishedCallback): void {
-    this._consumerApiService.onUserTaskFinished(callback);
-  }
-
-  public onProcessTerminated(callback: Messages.CallbackTypes.OnProcessTerminatedCallback): void {
-    this._consumerApiService.onProcessTerminated(callback);
-  }
-
-  public onProcessEnded(callback: Messages.CallbackTypes.OnProcessEndedCallback): void {
-    this._consumerApiService.onProcessEnded(callback);
   }
 
 }
