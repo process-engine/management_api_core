@@ -20,7 +20,7 @@
   "homepage": "https://github.com/process-engine/management_api_core#readme",
   "dependencies": {
     "@essential-projects/iam_contracts": "~3.2.0",
-    "@process-engine/consumer_api_contracts": "~1.1.0",
+    "@process-engine/consumer_api_contracts": "feature~implement_manual-task",
     "@process-engine/deployment_api_contracts": "~0.4.0",
     "@process-engine/kpi_api_contracts": "~0.2.0",
     "@process-engine/logging_api_contracts": "~0.3.0",
