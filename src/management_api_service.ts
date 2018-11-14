@@ -214,9 +214,9 @@ export class ManagementApiService implements IManagementApi {
   public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
     await this._iamService.ensureHasClaim(identity, this._canDeleteProcessModel);
 
-    this._processModelService.deleteProcessDefinitionById(processModelId);
-    this._correlationService.deleteCorrelationByProcessModelId(processModelId);
-    this._flowNodeInstanceService.deleteByProcessModelId(processModelId);
+    await this._processModelService.deleteProcessDefinitionById(processModelId);
+    await this._correlationService.deleteCorrelationByProcessModelId(processModelId);
+    await this._flowNodeInstanceService.deleteByProcessModelId(processModelId);
   }
 
   // UserTasks
