@@ -30,7 +30,6 @@ import {
 import {
   ICorrelationService,
   IDeleteProcessModelService,
-  IFlowNodeInstanceService,
   IProcessModelFacade,
   IProcessModelFacadeFactory,
   IProcessModelService,
@@ -49,7 +48,6 @@ export class ManagementApiService implements IManagementApi {
   private readonly _correlationService: ICorrelationService;
   private readonly _deleteProcessModelService: IDeleteProcessModelService;
   private readonly _deploymentApiService: IDeploymentApi;
-  private readonly _flowNodeInstanceService: IFlowNodeInstanceService;
   private readonly _iamService: IIAMService;
   private readonly _kpiApiService: IKpiApi;
   private readonly _loggingApiService: ILoggingApi;
@@ -63,7 +61,6 @@ export class ManagementApiService implements IManagementApi {
               correlationService: ICorrelationService,
               deleteProcessModelService: IDeleteProcessModelService,
               deploymentApiService: IDeploymentApi,
-              flowNodeInstanceService: IFlowNodeInstanceService,
               iamService: IIAMService,
               kpiApiService: IKpiApi,
               loggingApiService: ILoggingApi,
@@ -75,7 +72,6 @@ export class ManagementApiService implements IManagementApi {
     this._correlationService = correlationService;
     this._deleteProcessModelService = deleteProcessModelService;
     this._deploymentApiService = deploymentApiService;
-    this._flowNodeInstanceService = flowNodeInstanceService;
     this._iamService = iamService;
     this._kpiApiService = kpiApiService;
     this._loggingApiService = loggingApiService;
