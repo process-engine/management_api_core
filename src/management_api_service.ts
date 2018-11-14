@@ -1,4 +1,4 @@
-import {IIdentity} from '@essential-projects/iam_contracts';
+import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
 
 import {IKpiApi} from '@process-engine/kpi_api_contracts';
 import {ILoggingApi} from '@process-engine/logging_api_contracts';
@@ -53,6 +53,9 @@ export class ManagementApiService implements IManagementApi {
   private readonly _processModelService: IProcessModelService;
   private readonly _tokenHistoryApiService: ITokenHistoryApi;
   private readonly _flowNodeInstanceService: IFlowNodeInstanceService;
+  private readonly _iamService: IIAMService;
+
+  private _canDeleteProcessModel: string = 'can_delete_process_model';
 
   constructor(consumerApiService: IConsumerApi,
               correlationService: ICorrelationService,
@@ -62,7 +65,8 @@ export class ManagementApiService implements IManagementApi {
               processModelFacadeFactory: IProcessModelFacadeFactory,
               processModelService: IProcessModelService,
               tokenHistoryApiService: ITokenHistoryApi,
-              flowNodeInstanceService: IFlowNodeInstanceService) {
+              flowNodeInstanceService: IFlowNodeInstanceService,
+              iamService: IIAMService) {
 
     this._consumerApiService = consumerApiService;
     this._correlationService = correlationService;
@@ -73,6 +77,7 @@ export class ManagementApiService implements IManagementApi {
     this._processModelService = processModelService;
     this._tokenHistoryApiService = tokenHistoryApiService;
     this._flowNodeInstanceService = flowNodeInstanceService;
+    this._iamService = iamService;
   }
 
   // Notifications
@@ -207,6 +212,8 @@ export class ManagementApiService implements IManagementApi {
   }
 
   public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
+    await this._iamService.ensureHasClaim(identity, this._canDeleteProcessModel);
+
     this._processModelService.deleteProcessDefinitionById(processModelId);
     this._correlationService.deleteCorrelationByProcessModelId(processModelId);
     this._flowNodeInstanceService.deleteByProcessModelId(processModelId);
