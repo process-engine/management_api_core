@@ -29,6 +29,7 @@ import {
 
 import {
   ICorrelationService,
+  IDeleteProcessModelService,
   IFlowNodeInstanceService,
   IProcessModelFacade,
   IProcessModelFacadeFactory,
@@ -46,6 +47,7 @@ export class ManagementApiService implements IManagementApi {
 
   private readonly _consumerApiService: IConsumerApi;
   private readonly _correlationService: ICorrelationService;
+  private readonly _deleteProcessModelService: IDeleteProcessModelService;
   private readonly _deploymentApiService: IDeploymentApi;
   private readonly _flowNodeInstanceService: IFlowNodeInstanceService;
   private readonly _iamService: IIAMService;
@@ -59,6 +61,7 @@ export class ManagementApiService implements IManagementApi {
 
   constructor(consumerApiService: IConsumerApi,
               correlationService: ICorrelationService,
+              deleteProcessModelService: IDeleteProcessModelService,
               deploymentApiService: IDeploymentApi,
               flowNodeInstanceService: IFlowNodeInstanceService,
               iamService: IIAMService,
@@ -70,6 +73,7 @@ export class ManagementApiService implements IManagementApi {
 
     this._consumerApiService = consumerApiService;
     this._correlationService = correlationService;
+    this._deleteProcessModelService = deleteProcessModelService;
     this._deploymentApiService = deploymentApiService;
     this._flowNodeInstanceService = flowNodeInstanceService;
     this._iamService = iamService;
@@ -214,9 +218,7 @@ export class ManagementApiService implements IManagementApi {
   public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
     await this._iamService.ensureHasClaim(identity, this._canDeleteProcessModel);
 
-    await this._processModelService.deleteProcessDefinitionById(processModelId);
-    await this._correlationService.deleteCorrelationByProcessModelId(processModelId);
-    await this._flowNodeInstanceService.deleteByProcessModelId(processModelId);
+    this._deleteProcessModelService.deleteProcessModel(processModelId);
   }
 
   // UserTasks
