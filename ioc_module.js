@@ -14,7 +14,8 @@ function registerInContainer(container) {
       'LoggingApiService',
       'ProcessModelFacadeFactory',
       'ProcessModelService',
-      'TokenHistoryApiService')
+      'TokenHistoryApiService',
+      'FlowNodeInstanceService')
     .singleton();
 }
 

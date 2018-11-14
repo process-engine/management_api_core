@@ -29,6 +29,7 @@ import {
 
 import {
   ICorrelationService,
+  IFlowNodeInstanceService,
   IProcessModelFacade,
   IProcessModelFacadeFactory,
   IProcessModelService,
@@ -51,6 +52,7 @@ export class ManagementApiService implements IManagementApi {
   private readonly _processModelFacadeFactory: IProcessModelFacadeFactory;
   private readonly _processModelService: IProcessModelService;
   private readonly _tokenHistoryApiService: ITokenHistoryApi;
+  private readonly _flowNodeInstanceService: IFlowNodeInstanceService;
 
   constructor(consumerApiService: IConsumerApi,
               correlationService: ICorrelationService,
@@ -59,7 +61,8 @@ export class ManagementApiService implements IManagementApi {
               loggingApiService: ILoggingApi,
               processModelFacadeFactory: IProcessModelFacadeFactory,
               processModelService: IProcessModelService,
-              tokenHistoryApiService: ITokenHistoryApi) {
+              tokenHistoryApiService: ITokenHistoryApi,
+              flowNodeInstanceService: IFlowNodeInstanceService) {
 
     this._consumerApiService = consumerApiService;
     this._correlationService = correlationService;
@@ -69,6 +72,7 @@ export class ManagementApiService implements IManagementApi {
     this._processModelFacadeFactory = processModelFacadeFactory;
     this._processModelService = processModelService;
     this._tokenHistoryApiService = tokenHistoryApiService;
+    this._flowNodeInstanceService = flowNodeInstanceService;
   }
 
   // Notifications
@@ -200,6 +204,12 @@ export class ManagementApiService implements IManagementApi {
     };
 
     return this._deploymentApiService.importBpmnFromXml(identity, deploymentApiPayload);
+  }
+
+  public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
+    this._processModelService.deleteProcessDefinitionById(processModelId);
+    this._correlationService.deleteCorrelationByProcessModelId(processModelId);
+    this._flowNodeInstanceService.deleteByProcessModelId(processModelId);
   }
 
   // UserTasks
