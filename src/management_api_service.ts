@@ -47,37 +47,37 @@ export class ManagementApiService implements IManagementApi {
   private readonly _consumerApiService: IConsumerApi;
   private readonly _correlationService: ICorrelationService;
   private readonly _deploymentApiService: IDeploymentApi;
+  private readonly _flowNodeInstanceService: IFlowNodeInstanceService;
+  private readonly _iamService: IIAMService;
   private readonly _kpiApiService: IKpiApi;
   private readonly _loggingApiService: ILoggingApi;
   private readonly _processModelFacadeFactory: IProcessModelFacadeFactory;
   private readonly _processModelService: IProcessModelService;
   private readonly _tokenHistoryApiService: ITokenHistoryApi;
-  private readonly _flowNodeInstanceService: IFlowNodeInstanceService;
-  private readonly _iamService: IIAMService;
 
   private _canDeleteProcessModel: string = 'can_delete_process_model';
 
   constructor(consumerApiService: IConsumerApi,
               correlationService: ICorrelationService,
               deploymentApiService: IDeploymentApi,
+              flowNodeInstanceService: IFlowNodeInstanceService,
+              iamService: IIAMService,
               kpiApiService: IKpiApi,
               loggingApiService: ILoggingApi,
               processModelFacadeFactory: IProcessModelFacadeFactory,
               processModelService: IProcessModelService,
-              tokenHistoryApiService: ITokenHistoryApi,
-              flowNodeInstanceService: IFlowNodeInstanceService,
-              iamService: IIAMService) {
+              tokenHistoryApiService: ITokenHistoryApi) {
 
     this._consumerApiService = consumerApiService;
     this._correlationService = correlationService;
     this._deploymentApiService = deploymentApiService;
+    this._flowNodeInstanceService = flowNodeInstanceService;
+    this._iamService = iamService;
     this._kpiApiService = kpiApiService;
     this._loggingApiService = loggingApiService;
     this._processModelFacadeFactory = processModelFacadeFactory;
     this._processModelService = processModelService;
     this._tokenHistoryApiService = tokenHistoryApiService;
-    this._flowNodeInstanceService = flowNodeInstanceService;
-    this._iamService = iamService;
   }
 
   // Notifications

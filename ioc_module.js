@@ -10,13 +10,13 @@ function registerInContainer(container) {
       'ConsumerApiService',
       'CorrelationService',
       'DeploymentApiService',
+      'FlowNodeInstanceService',
+      'IamService',
       'KpiApiService',
       'LoggingApiService',
       'ProcessModelFacadeFactory',
       'ProcessModelService',
-      'TokenHistoryApiService',
-      'FlowNodeInstanceService',
-      'IamService')
+      'TokenHistoryApiService')
     .singleton();
 }
 
