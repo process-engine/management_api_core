@@ -9,6 +9,7 @@ function registerInContainer(container) {
     .dependencies(
       'ConsumerApiService',
       'CorrelationService',
+      'DeleteProcessModelService',
       'DeploymentApiService',
       'KpiApiService',
       'LoggingApiService',

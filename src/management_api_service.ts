@@ -29,6 +29,7 @@ import {
 
 import {
   ICorrelationService,
+  IDeleteProcessModelService,
   IProcessModelFacade,
   IProcessModelFacadeFactory,
   IProcessModelService,
@@ -45,6 +46,7 @@ export class ManagementApiService implements IManagementApi {
 
   private readonly _consumerApiService: IConsumerApi;
   private readonly _correlationService: ICorrelationService;
+  private readonly _deleteProcessModelService: IDeleteProcessModelService;
   private readonly _deploymentApiService: IDeploymentApi;
   private readonly _kpiApiService: IKpiApi;
   private readonly _loggingApiService: ILoggingApi;
@@ -54,6 +56,7 @@ export class ManagementApiService implements IManagementApi {
 
   constructor(consumerApiService: IConsumerApi,
               correlationService: ICorrelationService,
+              deleteProcessModelService: IDeleteProcessModelService,
               deploymentApiService: IDeploymentApi,
               kpiApiService: IKpiApi,
               loggingApiService: ILoggingApi,
@@ -63,6 +66,7 @@ export class ManagementApiService implements IManagementApi {
 
     this._consumerApiService = consumerApiService;
     this._correlationService = correlationService;
+    this._deleteProcessModelService = deleteProcessModelService;
     this._deploymentApiService = deploymentApiService;
     this._kpiApiService = kpiApiService;
     this._loggingApiService = loggingApiService;
@@ -200,6 +204,10 @@ export class ManagementApiService implements IManagementApi {
     };
 
     return this._deploymentApiService.importBpmnFromXml(identity, deploymentApiPayload);
+  }
+
+  public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
+    this._deleteProcessModelService.deleteProcessModel(identity, processModelId);
   }
 
   // UserTasks
