@@ -207,7 +207,7 @@ export class ManagementApiService implements IManagementApi {
   }
 
   public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
-    this._deleteProcessModelService.deleteProcessModel(processModelId);
+    this._deleteProcessModelService.deleteProcessModel(identity, processModelId);
   }
 
   // UserTasks
