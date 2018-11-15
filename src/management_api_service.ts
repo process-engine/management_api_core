@@ -1,4 +1,4 @@
-import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
 
 import {IKpiApi} from '@process-engine/kpi_api_contracts';
 import {ILoggingApi} from '@process-engine/logging_api_contracts';
@@ -48,7 +48,6 @@ export class ManagementApiService implements IManagementApi {
   private readonly _correlationService: ICorrelationService;
   private readonly _deleteProcessModelService: IDeleteProcessModelService;
   private readonly _deploymentApiService: IDeploymentApi;
-  private readonly _iamService: IIAMService;
   private readonly _kpiApiService: IKpiApi;
   private readonly _loggingApiService: ILoggingApi;
   private readonly _processModelFacadeFactory: IProcessModelFacadeFactory;
@@ -61,7 +60,6 @@ export class ManagementApiService implements IManagementApi {
               correlationService: ICorrelationService,
               deleteProcessModelService: IDeleteProcessModelService,
               deploymentApiService: IDeploymentApi,
-              iamService: IIAMService,
               kpiApiService: IKpiApi,
               loggingApiService: ILoggingApi,
               processModelFacadeFactory: IProcessModelFacadeFactory,
@@ -72,7 +70,6 @@ export class ManagementApiService implements IManagementApi {
     this._correlationService = correlationService;
     this._deleteProcessModelService = deleteProcessModelService;
     this._deploymentApiService = deploymentApiService;
-    this._iamService = iamService;
     this._kpiApiService = kpiApiService;
     this._loggingApiService = loggingApiService;
     this._processModelFacadeFactory = processModelFacadeFactory;
@@ -212,8 +209,6 @@ export class ManagementApiService implements IManagementApi {
   }
 
   public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
-    await this._iamService.ensureHasClaim(identity, this._canDeleteProcessModel);
-
     this._deleteProcessModelService.deleteProcessModel(processModelId);
   }
 
