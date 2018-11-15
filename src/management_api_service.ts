@@ -54,8 +54,6 @@ export class ManagementApiService implements IManagementApi {
   private readonly _processModelService: IProcessModelService;
   private readonly _tokenHistoryApiService: ITokenHistoryApi;
 
-  private _canDeleteProcessModel: string = 'can_delete_process_model';
-
   constructor(consumerApiService: IConsumerApi,
               correlationService: ICorrelationService,
               deleteProcessModelService: IDeleteProcessModelService,

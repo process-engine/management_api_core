@@ -11,7 +11,6 @@ function registerInContainer(container) {
       'CorrelationService',
       'DeleteProcessModelService',
       'DeploymentApiService',
-      'IamService',
       'KpiApiService',
       'LoggingApiService',
       'ProcessModelFacadeFactory',
