@@ -17,6 +17,7 @@ import {
   Correlation,
   Event,
   EventList,
+  EventTriggerPayload,
   FlowNodeRuntimeInformation,
   IManagementApi,
   LogEntry,
@@ -165,7 +166,7 @@ export class ManagementApiService implements IManagementApi {
     return managementApiProcessModel;
   }
 
-  public async getEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<EventList> {
+  public async getStartEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<EventList> {
 
     const processModel: Model.Types.Process = await this._processModelService.getProcessModelById(identity, processModelId);
     const processModelFacade: IProcessModelFacade = this._processModelFacadeFactory.create(processModel);
@@ -208,6 +209,32 @@ export class ManagementApiService implements IManagementApi {
 
   public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
     this._deleteProcessModelService.deleteProcessModel(identity, processModelId);
+  }
+
+  // Events
+  public async getWaitingEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<EventList> {
+
+    return this._consumerApiService.getEventsForProcessModel(identity, processModelId);
+  }
+
+  public async getWaitingEventsForCorrelation(identity: IIdentity, correlationId: string): Promise<EventList> {
+
+    return this._consumerApiService.getEventsForCorrelation(identity, correlationId);
+  }
+
+  public async getWaitingEventsForProcessModelInCorrelation(identity: IIdentity, processModelId: string, correlationId: string): Promise<EventList> {
+
+    return this._consumerApiService.getEventsForProcessModelInCorrelation(identity, processModelId, correlationId);
+  }
+
+  public async triggerMessageEvent(identity: IIdentity, messageName: string, payload?: EventTriggerPayload): Promise<void> {
+
+    return this._consumerApiService.triggerMessageEvent(identity, messageName, payload);
+  }
+
+  public async triggerSignalEvent(identity: IIdentity, signalName: string, payload?: EventTriggerPayload): Promise<void> {
+
+    return this._consumerApiService.triggerSignalEvent(identity, signalName, payload);
   }
 
   // UserTasks
