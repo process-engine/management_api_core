@@ -90,6 +90,10 @@ export class ManagementApiService implements IManagementApi {
     this._consumerApiService.onManualTaskWaiting(identity, callback);
   }
 
+  public onProcessStarted(identity: IIdentity, callback: Messages.CallbackTypes.OnProcessEndedCallback): void {
+    this._consumerApiService.onProcessStarted(identity, callback);
+  }
+
   public onManualTaskFinished(identity: IIdentity, callback: Messages.CallbackTypes.OnManualTaskFinishedCallback): void {
     this._consumerApiService.onManualTaskFinished(identity, callback);
   }
