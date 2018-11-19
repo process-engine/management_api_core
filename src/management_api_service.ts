@@ -292,11 +292,11 @@ export class ManagementApiService implements IManagementApi {
   }
 
   public async finishManualTask(identity: IIdentity,
-                                processModelId: string,
+                                processInstanceId: string,
                                 correlationId: string,
-                                manualTaskId: string): Promise<void> {
+                                manualTaskInstanceId: string): Promise<void> {
 
-    return this._consumerApiService.finishManualTask(identity, processModelId, correlationId, manualTaskId);
+    return this._consumerApiService.finishManualTask(identity, processInstanceId, correlationId, manualTaskInstanceId);
   }
 
   public async getRuntimeInformationForProcessModel(identity: IIdentity, processModelId: string): Promise<Array<FlowNodeRuntimeInformation>> {
