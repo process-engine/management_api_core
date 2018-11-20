@@ -21,6 +21,7 @@ import {
   FlowNodeRuntimeInformation,
   IManagementApi,
   LogEntry,
+  ManualTaskList,
   Messages,
   ProcessModelExecution,
   TokenHistoryEntry,
@@ -83,6 +84,14 @@ export class ManagementApiService implements IManagementApi {
 
   public onUserTaskFinished(identity: IIdentity, callback: Messages.CallbackTypes.OnUserTaskFinishedCallback): void {
     this._consumerApiService.onUserTaskFinished(identity, callback);
+  }
+
+  public onManualTaskWaiting(identity: IIdentity, callback: Messages.CallbackTypes.OnManualTaskWaitingCallback): void {
+    this._consumerApiService.onManualTaskWaiting(identity, callback);
+  }
+
+  public onManualTaskFinished(identity: IIdentity, callback: Messages.CallbackTypes.OnManualTaskFinishedCallback): void {
+    this._consumerApiService.onManualTaskFinished(identity, callback);
   }
 
   public onProcessTerminated(identity: IIdentity, callback: Messages.CallbackTypes.OnProcessTerminatedCallback): void {
@@ -262,6 +271,32 @@ export class ManagementApiService implements IManagementApi {
                               userTaskResult: UserTaskResult): Promise<void> {
 
     return this._consumerApiService.finishUserTask(identity, processInstanceId, correlationId, userTaskInstanceId, userTaskResult);
+  }
+
+  // ManualTasks
+  public async getManualTasksForProcessModel(identity: IIdentity, processModelId: string): Promise<ManualTaskList> {
+
+    return this._consumerApiService.getManualTasksForProcessModel(identity, processModelId);
+  }
+
+  public async getManualTasksForCorrelation(identity: IIdentity, correlationId: string): Promise<ManualTaskList> {
+
+    return this._consumerApiService.getManualTasksForCorrelation(identity, correlationId);
+  }
+
+  public async getManualTasksForProcessModelInCorrelation(identity: IIdentity,
+                                                          processModelId: string,
+                                                          correlationId: string): Promise<ManualTaskList> {
+
+    return this._consumerApiService.getManualTasksForProcessModelInCorrelation(identity, processModelId, correlationId);
+  }
+
+  public async finishManualTask(identity: IIdentity,
+                                processInstanceId: string,
+                                correlationId: string,
+                                manualTaskInstanceId: string): Promise<void> {
+
+    return this._consumerApiService.finishManualTask(identity, processInstanceId, correlationId, manualTaskInstanceId);
   }
 
   public async getRuntimeInformationForProcessModel(identity: IIdentity, processModelId: string): Promise<Array<FlowNodeRuntimeInformation>> {
