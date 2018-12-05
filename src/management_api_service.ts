@@ -363,9 +363,10 @@ export class ManagementApiService implements IManagementApi {
 
   public async getTokensForCorrelationAndProcessModel(identity: IIdentity,
                                                       correlationId: string,
-                                                      processModelId: string): Promise<Array<Array<TokenHistoryEntry>>> {
+                                                      processModelId: string): Promise<Array<TokenHistoryEntry>> {
 
-    return this._tokenHistoryApiService.getTokensForCorrelationAndProcessModel(identity, correlationId, processModelId);
+    // TODO: Fix return type in TokenHistoryApi!
+    return this._tokenHistoryApiService.getTokensForCorrelationAndProcessModel(identity, correlationId, processModelId) as any;
 }
 
   private async _getRawXmlForProcessModelById(identity: IIdentity, processModelId: string): Promise<string> {
