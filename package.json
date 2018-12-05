@@ -26,7 +26,7 @@
     "@process-engine/logging_api_contracts": "~1.0.0",
     "@process-engine/management_api_contracts": "~1.4.0",
     "@process-engine/token_history_api_contracts": "~1.1.0",
-    "@process-engine/process_engine_contracts": "~34.2.0",
+    "@process-engine/process_engine_contracts": "~34.3.0",
     "bluebird": "3.5.2",
     "clone": "2.1.2",
     "moment": "2.22.2",
