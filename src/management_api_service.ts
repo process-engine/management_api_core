@@ -25,6 +25,7 @@ import {
   Messages,
   ProcessModelExecution,
   TokenHistoryEntry,
+  TokenHistoryGroup,
   UserTaskList,
   UserTaskResult,
 } from '@process-engine/management_api_contracts';
