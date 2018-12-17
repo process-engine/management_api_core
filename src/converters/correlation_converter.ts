@@ -13,10 +13,13 @@ export function managementApiCorrelationConverter(runtimeCorrelation: Runtime.Ty
     runtimeCorrelation.processModels.map((runtimeProcessModel: Runtime.Types.CorrelationProcessModel): any => {
 
       const managementApiProcessModel: CorrelationProcessModel = new CorrelationProcessModel();
-      managementApiProcessModel.name = runtimeProcessModel.processDefinitionName;
+      managementApiProcessModel.processDefinitionName = runtimeProcessModel.processDefinitionName;
       managementApiProcessModel.hash = runtimeProcessModel.hash;
       managementApiProcessModel.xml = runtimeProcessModel.xml;
+      managementApiProcessModel.processModelId = runtimeProcessModel.processModelId;
       managementApiProcessModel.processInstanceId = runtimeProcessModel.processInstanceId;
+      managementApiProcessModel.parentProcessInstanceId = runtimeProcessModel.parentProcessInstanceId;
+      managementApiProcessModel.state = CorrelationState[runtimeProcessModel.state];
       managementApiProcessModel.createdAt = runtimeProcessModel.createdAt;
 
       return managementApiProcessModel;
