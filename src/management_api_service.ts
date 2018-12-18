@@ -42,8 +42,6 @@ import {
 
 import * as Converters from './converters/index';
 
-import * as BluebirdPromise from 'bluebird';
-
 export class ManagementApiService implements IManagementApi {
   public config: any = undefined;
 
@@ -167,7 +165,7 @@ export class ManagementApiService implements IManagementApi {
     const consumerApiProcessModels: ConsumerApiProcessModelList = await this._consumerApiService.getProcessModels(identity);
 
     const managementApiProcessModels: Array<ProcessModelExecution.ProcessModel> =
-      await BluebirdPromise.map(consumerApiProcessModels.processModels, async(processModel: ConsumerApiProcessModel) => {
+      await Promise.map(consumerApiProcessModels.processModels, async(processModel: ConsumerApiProcessModel) => {
         const processModelRaw: string = await this._getRawXmlForProcessModelById(identity, processModel.id);
 
         return Converters.convertProcessModel(processModel, processModelRaw);
