@@ -334,6 +334,12 @@ export class ManagementApiService implements IManagementApi {
     return this._kpiApiService.getActiveTokensForCorrelationAndProcessModel(identity, correlationId, processModelId);
   }
 
+  public async getActiveTokensForProcessInstance(identity: IIdentity,
+                                                 processInstanceId: string): Promise<Array<ActiveToken>> {
+
+    return this._kpiApiService.getActiveTokensForProcessInstance(identity, processInstanceId);
+  }
+
   public async getActiveTokensForFlowNode(identity: IIdentity, flowNodeId: string): Promise<Array<ActiveToken>> {
 
     return this._kpiApiService.getActiveTokensForFlowNode(identity, flowNodeId);
@@ -365,7 +371,13 @@ export class ManagementApiService implements IManagementApi {
                                                       processModelId: string): Promise<TokenHistoryGroup> {
 
     return this._tokenHistoryApiService.getTokensForCorrelationAndProcessModel(identity, correlationId, processModelId);
-}
+  }
+
+  public async getTokensForProcessInstance(identity: IIdentity,
+                                           processInstanceId: string): Promise<TokenHistoryGroup> {
+
+    return this._tokenHistoryApiService.getTokensForProcessInstance(identity, processInstanceId);
+  }
 
   private async _getRawXmlForProcessModelById(identity: IIdentity, processModelId: string): Promise<string> {
 
