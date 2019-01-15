@@ -12,23 +12,7 @@ import {
 
 import {IDeploymentApi, ImportProcessDefinitionsRequestPayload} from '@process-engine/deployment_api_contracts';
 
-import {
-  ActiveToken,
-  Correlation,
-  Event,
-  EventList,
-  EventTriggerPayload,
-  FlowNodeRuntimeInformation,
-  IManagementApi,
-  LogEntry,
-  ManualTaskList,
-  Messages,
-  ProcessModelExecution,
-  TokenHistoryEntry,
-  TokenHistoryGroup,
-  UserTaskList,
-  UserTaskResult,
-} from '@process-engine/management_api_contracts';
+import {DataModels, IManagementApi, Messages} from '@process-engine/management_api_contracts';
 
 import {
   ICorrelationService,
@@ -114,87 +98,88 @@ export class ManagementApiService implements IManagementApi {
   }
 
   // Correlations
-  public async getAllCorrelations(identity: IIdentity): Promise<Array<Correlation>> {
+  public async getAllCorrelations(identity: IIdentity): Promise<Array<DataModels.Correlations.Correlation>> {
 
     const correlations: Array<Runtime.Types.Correlation> = await this._correlationService.getAll();
 
-    const managementApiCorrelations: Array<Correlation> = correlations.map(Converters.managementApiCorrelationConverter);
+    const managementApiCorrelations: Array<DataModels.Correlations.Correlation> = correlations.map(Converters.managementApiCorrelationConverter);
 
     return managementApiCorrelations;
   }
 
-  public async getActiveCorrelations(identity: IIdentity): Promise<Array<Correlation>> {
+  public async getActiveCorrelations(identity: IIdentity): Promise<Array<DataModels.Correlations.Correlation>> {
 
     const activeCorrelations: Array<Runtime.Types.Correlation> = await this._correlationService.getActive();
 
-    const managementApiCorrelations: Array<Correlation> = activeCorrelations.map(Converters.managementApiCorrelationConverter);
+    const managementApiCorrelations: Array<DataModels.Correlations.Correlation> =
+      activeCorrelations.map(Converters.managementApiCorrelationConverter);
 
     return managementApiCorrelations;
   }
 
-  public async getCorrelationById(identity: IIdentity, correlationId: string): Promise<Correlation> {
+  public async getCorrelationById(identity: IIdentity, correlationId: string): Promise<DataModels.Correlations.Correlation> {
 
     const correlationFromProcessEngine: Runtime.Types.Correlation = await this._correlationService.getByCorrelationId(correlationId);
 
-    const managementApiCorrelation: Correlation = Converters.managementApiCorrelationConverter(correlationFromProcessEngine);
+    const managementApiCorrelation: DataModels.Correlations.Correlation = Converters.managementApiCorrelationConverter(correlationFromProcessEngine);
 
     return managementApiCorrelation;
   }
 
-  public async getCorrelationsByProcessModelId(identity: IIdentity, processModelId: string): Promise<Array<Correlation>> {
+  public async getCorrelationsByProcessModelId(identity: IIdentity, processModelId: string): Promise<Array<DataModels.Correlations.Correlation>> {
 
     const correlations: Array<Runtime.Types.Correlation> = await this._correlationService.getByProcessModelId(processModelId);
 
-    const managementApiCorrelations: Array<Correlation> = correlations.map(Converters.managementApiCorrelationConverter);
+    const managementApiCorrelations: Array<DataModels.Correlations.Correlation> = correlations.map(Converters.managementApiCorrelationConverter);
 
     return managementApiCorrelations;
   }
 
-  public async getCorrelationByProcessInstanceId(identity: IIdentity, processInstanceId: string): Promise<Correlation> {
+  public async getCorrelationByProcessInstanceId(identity: IIdentity, processInstanceId: string): Promise<DataModels.Correlations.Correlation> {
 
     const correlation: Runtime.Types.Correlation = await this._correlationService.getByProcessInstanceId(processInstanceId);
 
-    const managementApiCorrelation: Correlation = Converters.managementApiCorrelationConverter(correlation);
+    const managementApiCorrelation: DataModels.Correlations.Correlation = Converters.managementApiCorrelationConverter(correlation);
 
     return managementApiCorrelation;
   }
 
   // Process models
-  public async getProcessModels(identity: IIdentity): Promise<ProcessModelExecution.ProcessModelList> {
+  public async getProcessModels(identity: IIdentity): Promise<DataModels.ProcessModels.ProcessModelList> {
 
     const consumerApiProcessModels: ConsumerApiProcessModelList = await this._consumerApiService.getProcessModels(identity);
 
-    const managementApiProcessModels: Array<ProcessModelExecution.ProcessModel> =
+    const managementApiProcessModels: Array<DataModels.ProcessModels.ProcessModel> =
       await Promise.map(consumerApiProcessModels.processModels, async(processModel: ConsumerApiProcessModel) => {
         const processModelRaw: string = await this._getRawXmlForProcessModelById(identity, processModel.id);
 
         return Converters.convertProcessModel(processModel, processModelRaw);
       });
 
-    return <ProcessModelExecution.ProcessModelList> {
+    return <DataModels.ProcessModels.ProcessModelList> {
       processModels: managementApiProcessModels,
     };
   }
 
-  public async getProcessModelById(identity: IIdentity, processModelId: string): Promise<ProcessModelExecution.ProcessModel> {
+  public async getProcessModelById(identity: IIdentity, processModelId: string): Promise<DataModels.ProcessModels.ProcessModel> {
 
     const consumerApiProcessModel: ConsumerApiProcessModel = await this._consumerApiService.getProcessModelById(identity, processModelId);
     const processModelRaw: string = await this._getRawXmlForProcessModelById(identity, consumerApiProcessModel.id);
 
-    const managementApiProcessModel: ProcessModelExecution.ProcessModel = Converters.convertProcessModel(consumerApiProcessModel, processModelRaw);
+    const managementApiProcessModel: DataModels.ProcessModels.ProcessModel = Converters.convertProcessModel(consumerApiProcessModel, processModelRaw);
 
     return managementApiProcessModel;
   }
 
-  public async getStartEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<EventList> {
+  public async getStartEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.Events.EventList> {
 
     const processModel: Model.Types.Process = await this._processModelService.getProcessModelById(identity, processModelId);
     const processModelFacade: IProcessModelFacade = this._processModelFacadeFactory.create(processModel);
 
-    const startEvents: Array<Event> = processModelFacade.getStartEvents()
+    const startEvents: Array<DataModels.Events.Event> = processModelFacade.getStartEvents()
                                                         .map(Converters.managementApiEventConverter);
 
-    const eventList: EventList = {
+    const eventList: DataModels.Events.EventList = {
       events: startEvents,
     };
 
@@ -204,18 +189,18 @@ export class ManagementApiService implements IManagementApi {
   public async startProcessInstance(identity: IIdentity,
                                     processModelId: string,
                                     startEventId: string,
-                                    payload: ProcessModelExecution.ProcessStartRequestPayload,
-                                    startCallbackType: ProcessModelExecution.StartCallbackType =
-                                    ProcessModelExecution.StartCallbackType.CallbackOnProcessInstanceCreated,
+                                    payload: DataModels.ProcessModels.ProcessStartRequestPayload,
+                                    startCallbackType: DataModels.ProcessModels.StartCallbackType =
+                                    DataModels.ProcessModels.StartCallbackType.CallbackOnProcessInstanceCreated,
                                     endEventId?: string,
-                                  ): Promise<ProcessModelExecution.ProcessStartResponsePayload> {
+                                  ): Promise<DataModels.ProcessModels.ProcessStartResponsePayload> {
 
     return this._consumerApiService.startProcessInstance(identity, processModelId, startEventId, payload, startCallbackType, endEventId);
   }
 
   public async updateProcessDefinitionsByName(identity: IIdentity,
                                               name: string,
-                                              payload: ProcessModelExecution.UpdateProcessDefinitionsRequestPayload,
+                                              payload: DataModels.ProcessModels.UpdateProcessDefinitionsRequestPayload,
                                             ): Promise<void> {
 
     const deploymentApiPayload: ImportProcessDefinitionsRequestPayload = {
@@ -232,72 +217,78 @@ export class ManagementApiService implements IManagementApi {
   }
 
   // Events
-  public async getWaitingEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<EventList> {
+  public async getWaitingEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.Events.EventList> {
 
     return this._consumerApiService.getEventsForProcessModel(identity, processModelId);
   }
 
-  public async getWaitingEventsForCorrelation(identity: IIdentity, correlationId: string): Promise<EventList> {
+  public async getWaitingEventsForCorrelation(identity: IIdentity, correlationId: string): Promise<DataModels.Events.EventList> {
 
     return this._consumerApiService.getEventsForCorrelation(identity, correlationId);
   }
 
-  public async getWaitingEventsForProcessModelInCorrelation(identity: IIdentity, processModelId: string, correlationId: string): Promise<EventList> {
+  public async getWaitingEventsForProcessModelInCorrelation(
+    identity: IIdentity,
+    processModelId: string,
+    correlationId: string,
+  ): Promise<DataModels.Events.EventList> {
 
     return this._consumerApiService.getEventsForProcessModelInCorrelation(identity, processModelId, correlationId);
   }
 
-  public async triggerMessageEvent(identity: IIdentity, messageName: string, payload?: EventTriggerPayload): Promise<void> {
+  public async triggerMessageEvent(identity: IIdentity, messageName: string, payload?: DataModels.Events.EventTriggerPayload): Promise<void> {
 
     return this._consumerApiService.triggerMessageEvent(identity, messageName, payload);
   }
 
-  public async triggerSignalEvent(identity: IIdentity, signalName: string, payload?: EventTriggerPayload): Promise<void> {
+  public async triggerSignalEvent(identity: IIdentity, signalName: string, payload?: DataModels.Events.EventTriggerPayload): Promise<void> {
 
     return this._consumerApiService.triggerSignalEvent(identity, signalName, payload);
   }
 
   // UserTasks
-  public async getUserTasksForProcessModel(identity: IIdentity, processModelId: string): Promise<UserTaskList> {
+  public async getUserTasksForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.UserTasks.UserTaskList> {
 
     return this._consumerApiService.getUserTasksForProcessModel(identity, processModelId);
   }
 
-  public async getUserTasksForCorrelation(identity: IIdentity, correlationId: string): Promise<UserTaskList> {
+  public async getUserTasksForCorrelation(identity: IIdentity, correlationId: string): Promise<DataModels.UserTasks.UserTaskList> {
 
     return this._consumerApiService.getUserTasksForCorrelation(identity, correlationId);
   }
 
   public async getUserTasksForProcessModelInCorrelation(identity: IIdentity,
                                                         processModelId: string,
-                                                        correlationId: string): Promise<UserTaskList> {
+                                                        correlationId: string): Promise<DataModels.UserTasks.UserTaskList> {
 
     return this._consumerApiService.getUserTasksForProcessModelInCorrelation(identity, processModelId, correlationId);
   }
 
-  public async finishUserTask(identity: IIdentity,
-                              processInstanceId: string,
-                              correlationId: string,
-                              userTaskInstanceId: string,
-                              userTaskResult: UserTaskResult): Promise<void> {
+  public async finishUserTask(
+    identity: IIdentity,
+    processInstanceId: string,
+    correlationId: string,
+    userTaskInstanceId: string,
+    userTaskResult: DataModels.UserTasks.UserTaskResult,
+  ): Promise<void> {
 
     return this._consumerApiService.finishUserTask(identity, processInstanceId, correlationId, userTaskInstanceId, userTaskResult);
   }
 
   // ManualTasks
-  public async getManualTasksForProcessModel(identity: IIdentity, processModelId: string): Promise<ManualTaskList> {
+  public async getManualTasksForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.ManualTasks.ManualTaskList> {
 
     return this._consumerApiService.getManualTasksForProcessModel(identity, processModelId);
   }
 
-  public async getManualTasksForCorrelation(identity: IIdentity, correlationId: string): Promise<ManualTaskList> {
+  public async getManualTasksForCorrelation(identity: IIdentity, correlationId: string): Promise<DataModels.ManualTasks.ManualTaskList> {
 
     return this._consumerApiService.getManualTasksForCorrelation(identity, correlationId);
   }
 
   public async getManualTasksForProcessModelInCorrelation(identity: IIdentity,
                                                           processModelId: string,
-                                                          correlationId: string): Promise<ManualTaskList> {
+                                                          correlationId: string): Promise<DataModels.ManualTasks.ManualTaskList> {
 
     return this._consumerApiService.getManualTasksForProcessModelInCorrelation(identity, processModelId, correlationId);
   }
@@ -310,47 +301,52 @@ export class ManagementApiService implements IManagementApi {
     return this._consumerApiService.finishManualTask(identity, processInstanceId, correlationId, manualTaskInstanceId);
   }
 
-  public async getRuntimeInformationForProcessModel(identity: IIdentity, processModelId: string): Promise<Array<FlowNodeRuntimeInformation>> {
+  public async getRuntimeInformationForProcessModel(
+    identity: IIdentity,
+    processModelId: string,
+  ): Promise<Array<DataModels.Kpi.FlowNodeRuntimeInformation>> {
 
     return this._kpiApiService.getRuntimeInformationForProcessModel(identity, processModelId);
   }
 
-  public async getRuntimeInformationForFlowNode(identity: IIdentity,
-                                                processModelId: string,
-                                                flowNodeId: string): Promise<FlowNodeRuntimeInformation> {
+  public async getRuntimeInformationForFlowNode(
+    identity: IIdentity,
+    processModelId: string,
+    flowNodeId: string,
+  ): Promise<DataModels.Kpi.FlowNodeRuntimeInformation> {
 
     return this._kpiApiService.getRuntimeInformationForFlowNode(identity, processModelId, flowNodeId);
   }
 
-  public async getActiveTokensForProcessModel(identity: IIdentity, processModelId: string): Promise<Array<ActiveToken>> {
+  public async getActiveTokensForProcessModel(identity: IIdentity, processModelId: string): Promise<Array<DataModels.Kpi.ActiveToken>> {
 
     return this._kpiApiService.getActiveTokensForProcessModel(identity, processModelId);
   }
 
   public async getActiveTokensForCorrelationAndProcessModel(identity: IIdentity,
                                                             correlationId: string,
-                                                            processModelId: string): Promise<Array<ActiveToken>> {
+                                                            processModelId: string): Promise<Array<DataModels.Kpi.ActiveToken>> {
 
     return this._kpiApiService.getActiveTokensForCorrelationAndProcessModel(identity, correlationId, processModelId);
   }
 
   public async getActiveTokensForProcessInstance(identity: IIdentity,
-                                                 processInstanceId: string): Promise<Array<ActiveToken>> {
+                                                 processInstanceId: string): Promise<Array<DataModels.Kpi.ActiveToken>> {
 
     return this._kpiApiService.getActiveTokensForProcessInstance(identity, processInstanceId);
   }
 
-  public async getActiveTokensForFlowNode(identity: IIdentity, flowNodeId: string): Promise<Array<ActiveToken>> {
+  public async getActiveTokensForFlowNode(identity: IIdentity, flowNodeId: string): Promise<Array<DataModels.Kpi.ActiveToken>> {
 
     return this._kpiApiService.getActiveTokensForFlowNode(identity, flowNodeId);
   }
 
-  public async getProcessModelLog(identity: IIdentity, processModelId: string, correlationId?: string): Promise<Array<LogEntry>> {
+  public async getProcessModelLog(identity: IIdentity, processModelId: string, correlationId?: string): Promise<Array<DataModels.Logging.LogEntry>> {
 
-    let logs: Array<LogEntry> = await this._loggingApiService.readLogForProcessModel(identity, processModelId);
+    let logs: Array<DataModels.Logging.LogEntry> = await this._loggingApiService.readLogForProcessModel(identity, processModelId);
 
     if (correlationId) {
-      logs = logs.filter((entry: LogEntry): boolean => {
+      logs = logs.filter((entry: DataModels.Logging.LogEntry): boolean => {
         return entry.correlationId === correlationId;
       });
     }
@@ -358,23 +354,29 @@ export class ManagementApiService implements IManagementApi {
     return logs;
   }
 
-  public async getTokensForFlowNodeInstance(identity: IIdentity,
-                                            correlationId: string,
-                                            processModelId: string,
-                                            flowNodeId: string): Promise<Array<TokenHistoryEntry>> {
+  public async getTokensForFlowNodeInstance(
+    identity: IIdentity,
+    correlationId: string,
+    processModelId: string,
+    flowNodeId: string,
+  ): Promise<Array<DataModels.TokenHistory.TokenHistoryEntry>> {
 
     return this._tokenHistoryApiService.getTokensForFlowNode(identity, correlationId, processModelId, flowNodeId);
   }
 
-  public async getTokensForCorrelationAndProcessModel(identity: IIdentity,
-                                                      correlationId: string,
-                                                      processModelId: string): Promise<TokenHistoryGroup> {
+  public async getTokensForCorrelationAndProcessModel(
+    identity: IIdentity,
+    correlationId: string,
+    processModelId: string,
+  ): Promise<DataModels.TokenHistory.TokenHistoryGroup> {
 
     return this._tokenHistoryApiService.getTokensForCorrelationAndProcessModel(identity, correlationId, processModelId);
   }
 
-  public async getTokensForProcessInstance(identity: IIdentity,
-                                           processInstanceId: string): Promise<TokenHistoryGroup> {
+  public async getTokensForProcessInstance(
+    identity: IIdentity,
+    processInstanceId: string,
+  ): Promise<DataModels.TokenHistory.TokenHistoryGroup> {
 
     return this._tokenHistoryApiService.getTokensForProcessInstance(identity, processInstanceId);
   }
@@ -386,5 +388,4 @@ export class ManagementApiService implements IManagementApi {
 
     return processModelRaw.xml;
   }
-
 }
