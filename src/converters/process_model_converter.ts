@@ -1,10 +1,10 @@
 import * as clone from 'clone';
 
-import {ProcessModel as ConsumerApiProcessModel} from '@process-engine/consumer_api_contracts';
+import {DataModels as ConsumerApiTypes} from '@process-engine/consumer_api_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
 
 export function convertProcessModel(
-  consumerApiProcessModel: ConsumerApiProcessModel,
+  consumerApiProcessModel: ConsumerApiTypes.ProcessModels.ProcessModel,
   processModelRaw: string,
 ): DataModels.ProcessModels.ProcessModel {
 

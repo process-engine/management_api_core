@@ -4,11 +4,7 @@ import {IKpiApi} from '@process-engine/kpi_api_contracts';
 import {ILoggingApi} from '@process-engine/logging_api_contracts';
 import {ITokenHistoryApi} from '@process-engine/token_history_api_contracts';
 
-import {
-  IConsumerApi,
-  ProcessModel as ConsumerApiProcessModel,
-  ProcessModelList as ConsumerApiProcessModelList,
-} from '@process-engine/consumer_api_contracts';
+import {DataModels as ConsumerApiTypes, IConsumerApi} from '@process-engine/consumer_api_contracts';
 
 import {IDeploymentApi, ImportProcessDefinitionsRequestPayload} from '@process-engine/deployment_api_contracts';
 
@@ -147,10 +143,10 @@ export class ManagementApiService implements IManagementApi {
   // Process models
   public async getProcessModels(identity: IIdentity): Promise<DataModels.ProcessModels.ProcessModelList> {
 
-    const consumerApiProcessModels: ConsumerApiProcessModelList = await this._consumerApiService.getProcessModels(identity);
+    const consumerApiProcessModels: ConsumerApiTypes.ProcessModels.ProcessModelList = await this._consumerApiService.getProcessModels(identity);
 
     const managementApiProcessModels: Array<DataModels.ProcessModels.ProcessModel> =
-      await Promise.map(consumerApiProcessModels.processModels, async(processModel: ConsumerApiProcessModel) => {
+      await Promise.map(consumerApiProcessModels.processModels, async(processModel: ConsumerApiTypes.ProcessModels.ProcessModel) => {
         const processModelRaw: string = await this._getRawXmlForProcessModelById(identity, processModel.id);
 
         return Converters.convertProcessModel(processModel, processModelRaw);
@@ -163,7 +159,9 @@ export class ManagementApiService implements IManagementApi {
 
   public async getProcessModelById(identity: IIdentity, processModelId: string): Promise<DataModels.ProcessModels.ProcessModel> {
 
-    const consumerApiProcessModel: ConsumerApiProcessModel = await this._consumerApiService.getProcessModelById(identity, processModelId);
+    const consumerApiProcessModel: ConsumerApiTypes.ProcessModels.ProcessModel =
+      await this._consumerApiService.getProcessModelById(identity, processModelId);
+
     const processModelRaw: string = await this._getRawXmlForProcessModelById(identity, consumerApiProcessModel.id);
 
     const managementApiProcessModel: DataModels.ProcessModels.ProcessModel = Converters.convertProcessModel(consumerApiProcessModel, processModelRaw);
