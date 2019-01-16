@@ -235,6 +235,18 @@ export class ManagementApiService implements IManagementApi {
     return managementApiProcessModel;
   }
 
+  public async getProcessModelByProcessInstanceId(identity: IIdentity, processInstanceId: string): Promise<DataModels.ProcessModels.ProcessModel> {
+
+    const consumerApiProcessModel: ConsumerApiTypes.ProcessModels.ProcessModel =
+      await this._consumerApiService.getProcessModelByProcessInstanceId(identity, processInstanceId);
+
+    const processModelRaw: string = await this._getRawXmlForProcessModelById(identity, consumerApiProcessModel.id);
+
+    const managementApiProcessModel: DataModels.ProcessModels.ProcessModel = Converters.convertProcessModel(consumerApiProcessModel, processModelRaw);
+
+    return managementApiProcessModel;
+  }
+
   public async getStartEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.Events.EventList> {
 
     const processModel: Model.Types.Process = await this._processModelService.getProcessModelById(identity, processModelId);
