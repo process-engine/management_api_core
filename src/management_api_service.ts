@@ -1,3 +1,4 @@
+import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 
 import {IKpiApi} from '@process-engine/kpi_api_contracts';
@@ -57,40 +58,40 @@ export class ManagementApiService implements IManagementApi {
   }
 
   // Notifications
-  public onUserTaskWaiting(identity: IIdentity, callback: Messages.CallbackTypes.OnUserTaskWaitingCallback): void {
-    this._consumerApiService.onUserTaskWaiting(identity, callback);
+  public async onUserTaskWaiting(identity: IIdentity, callback: Messages.CallbackTypes.OnUserTaskWaitingCallback): Promise<Subscription> {
+    return this._consumerApiService.onUserTaskWaiting(identity, callback);
   }
 
-  public onUserTaskFinished(identity: IIdentity, callback: Messages.CallbackTypes.OnUserTaskFinishedCallback): void {
-    this._consumerApiService.onUserTaskFinished(identity, callback);
+  public async onUserTaskFinished(identity: IIdentity, callback: Messages.CallbackTypes.OnUserTaskFinishedCallback): Promise<Subscription> {
+    return this._consumerApiService.onUserTaskFinished(identity, callback);
   }
 
-  public onManualTaskWaiting(identity: IIdentity, callback: Messages.CallbackTypes.OnManualTaskWaitingCallback): void {
-    this._consumerApiService.onManualTaskWaiting(identity, callback);
+  public async onManualTaskWaiting(identity: IIdentity, callback: Messages.CallbackTypes.OnManualTaskWaitingCallback): Promise<Subscription> {
+    return this._consumerApiService.onManualTaskWaiting(identity, callback);
   }
 
-  public onProcessStarted(identity: IIdentity, callback: Messages.CallbackTypes.OnProcessEndedCallback): void {
-    this._consumerApiService.onProcessStarted(identity, callback);
+  public async onProcessStarted(identity: IIdentity, callback: Messages.CallbackTypes.OnProcessEndedCallback): Promise<Subscription> {
+    return this._consumerApiService.onProcessStarted(identity, callback);
   }
 
-  public onProcessWithProcessModelIdStarted(
+  public async onProcessWithProcessModelIdStarted(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnProcessEndedCallback,
     processModelId: string,
-  ): void {
-    this._consumerApiService.onProcessWithProcessModelIdStarted(identity, callback, processModelId);
+  ): Promise<Subscription> {
+    return this._consumerApiService.onProcessWithProcessModelIdStarted(identity, callback, processModelId);
   }
 
-  public onManualTaskFinished(identity: IIdentity, callback: Messages.CallbackTypes.OnManualTaskFinishedCallback): void {
-    this._consumerApiService.onManualTaskFinished(identity, callback);
+  public async onManualTaskFinished(identity: IIdentity, callback: Messages.CallbackTypes.OnManualTaskFinishedCallback): Promise<Subscription> {
+    return this._consumerApiService.onManualTaskFinished(identity, callback);
   }
 
-  public onProcessTerminated(identity: IIdentity, callback: Messages.CallbackTypes.OnProcessTerminatedCallback): void {
-    this._consumerApiService.onProcessTerminated(identity, callback);
+  public async onProcessTerminated(identity: IIdentity, callback: Messages.CallbackTypes.OnProcessTerminatedCallback): Promise<Subscription> {
+    return this._consumerApiService.onProcessTerminated(identity, callback);
   }
 
-  public onProcessEnded(identity: IIdentity, callback: Messages.CallbackTypes.OnProcessEndedCallback): void {
-    this._consumerApiService.onProcessEnded(identity, callback);
+  public async onProcessEnded(identity: IIdentity, callback: Messages.CallbackTypes.OnProcessEndedCallback): Promise<Subscription> {
+    return this._consumerApiService.onProcessEnded(identity, callback);
   }
 
   // Correlations
