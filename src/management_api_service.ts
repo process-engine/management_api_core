@@ -1,3 +1,4 @@
+import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 
 import {IKpiApi} from '@process-engine/kpi_api_contracts';
@@ -57,40 +58,105 @@ export class ManagementApiService implements IManagementApi {
   }
 
   // Notifications
-  public onUserTaskWaiting(identity: IIdentity, callback: Messages.CallbackTypes.OnUserTaskWaitingCallback): void {
-    this._consumerApiService.onUserTaskWaiting(identity, callback);
+  public async onUserTaskWaiting(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnUserTaskWaitingCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this._consumerApiService.onUserTaskWaiting(identity, callback, subscribeOnce);
   }
 
-  public onUserTaskFinished(identity: IIdentity, callback: Messages.CallbackTypes.OnUserTaskFinishedCallback): void {
-    this._consumerApiService.onUserTaskFinished(identity, callback);
+  public async onUserTaskFinished(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnUserTaskFinishedCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this._consumerApiService.onUserTaskFinished(identity, callback, subscribeOnce);
   }
 
-  public onManualTaskWaiting(identity: IIdentity, callback: Messages.CallbackTypes.OnManualTaskWaitingCallback): void {
-    this._consumerApiService.onManualTaskWaiting(identity, callback);
+  public async onUserTaskForIdentityWaiting(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnUserTaskWaitingCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this._consumerApiService.onUserTaskForIdentityWaiting(identity, callback, subscribeOnce);
   }
 
-  public onProcessStarted(identity: IIdentity, callback: Messages.CallbackTypes.OnProcessEndedCallback): void {
-    this._consumerApiService.onProcessStarted(identity, callback);
+  public async onUserTaskForIdentityFinished(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnUserTaskFinishedCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this._consumerApiService.onUserTaskForIdentityFinished(identity, callback, subscribeOnce);
   }
 
-  public onProcessWithProcessModelIdStarted(
+  public async onManualTaskWaiting(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnManualTaskWaitingCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this._consumerApiService.onManualTaskWaiting(identity, callback, subscribeOnce);
+  }
+
+  public async onManualTaskFinished(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnManualTaskFinishedCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this._consumerApiService.onManualTaskFinished(identity, callback, subscribeOnce);
+  }
+
+  public async onManualTaskForIdentityWaiting(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnManualTaskWaitingCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this._consumerApiService.onManualTaskForIdentityWaiting(identity, callback, subscribeOnce);
+  }
+
+  public async onManualTaskForIdentityFinished(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnManualTaskFinishedCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this._consumerApiService.onManualTaskForIdentityFinished(identity, callback, subscribeOnce);
+  }
+
+  public async onProcessStarted(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnProcessEndedCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this._consumerApiService.onProcessStarted(identity, callback, subscribeOnce);
+  }
+
+  public async onProcessWithProcessModelIdStarted(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnProcessEndedCallback,
     processModelId: string,
-  ): void {
-    this._consumerApiService.onProcessWithProcessModelIdStarted(identity, callback, processModelId);
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this._consumerApiService.onProcessWithProcessModelIdStarted(identity, callback, processModelId, subscribeOnce);
   }
 
-  public onManualTaskFinished(identity: IIdentity, callback: Messages.CallbackTypes.OnManualTaskFinishedCallback): void {
-    this._consumerApiService.onManualTaskFinished(identity, callback);
+  public async onProcessTerminated(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnProcessTerminatedCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this._consumerApiService.onProcessTerminated(identity, callback, subscribeOnce);
   }
 
-  public onProcessTerminated(identity: IIdentity, callback: Messages.CallbackTypes.OnProcessTerminatedCallback): void {
-    this._consumerApiService.onProcessTerminated(identity, callback);
+  public async onProcessEnded(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnProcessEndedCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this._consumerApiService.onProcessEnded(identity, callback, subscribeOnce);
   }
 
-  public onProcessEnded(identity: IIdentity, callback: Messages.CallbackTypes.OnProcessEndedCallback): void {
-    this._consumerApiService.onProcessEnded(identity, callback);
+  public async removeSubscription(identity: IIdentity, subscription: Subscription): Promise<void> {
+    return this._consumerApiService.removeSubscription(identity, subscription);
   }
 
   // Correlations
