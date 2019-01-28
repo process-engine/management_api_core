@@ -162,7 +162,7 @@ export class ManagementApiService implements IManagementApi {
   // Correlations
   public async getAllCorrelations(identity: IIdentity): Promise<Array<DataModels.Correlations.Correlation>> {
 
-    const correlations: Array<Runtime.Types.Correlation> = await this._correlationService.getAll();
+    const correlations: Array<Runtime.Types.Correlation> = await this._correlationService.getAll(identity);
 
     const managementApiCorrelations: Array<DataModels.Correlations.Correlation> = correlations.map(Converters.managementApiCorrelationConverter);
 
@@ -171,7 +171,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getActiveCorrelations(identity: IIdentity): Promise<Array<DataModels.Correlations.Correlation>> {
 
-    const activeCorrelations: Array<Runtime.Types.Correlation> = await this._correlationService.getActive();
+    const activeCorrelations: Array<Runtime.Types.Correlation> = await this._correlationService.getActive(identity);
 
     const managementApiCorrelations: Array<DataModels.Correlations.Correlation> =
       activeCorrelations.map(Converters.managementApiCorrelationConverter);
@@ -181,7 +181,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getCorrelationById(identity: IIdentity, correlationId: string): Promise<DataModels.Correlations.Correlation> {
 
-    const correlationFromProcessEngine: Runtime.Types.Correlation = await this._correlationService.getByCorrelationId(correlationId);
+    const correlationFromProcessEngine: Runtime.Types.Correlation = await this._correlationService.getByCorrelationId(identity, correlationId);
 
     const managementApiCorrelation: DataModels.Correlations.Correlation = Converters.managementApiCorrelationConverter(correlationFromProcessEngine);
 
@@ -190,7 +190,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getCorrelationsByProcessModelId(identity: IIdentity, processModelId: string): Promise<Array<DataModels.Correlations.Correlation>> {
 
-    const correlations: Array<Runtime.Types.Correlation> = await this._correlationService.getByProcessModelId(processModelId);
+    const correlations: Array<Runtime.Types.Correlation> = await this._correlationService.getByProcessModelId(identity, processModelId);
 
     const managementApiCorrelations: Array<DataModels.Correlations.Correlation> = correlations.map(Converters.managementApiCorrelationConverter);
 
@@ -199,7 +199,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getCorrelationByProcessInstanceId(identity: IIdentity, processInstanceId: string): Promise<DataModels.Correlations.Correlation> {
 
-    const correlation: Runtime.Types.Correlation = await this._correlationService.getByProcessInstanceId(processInstanceId);
+    const correlation: Runtime.Types.Correlation = await this._correlationService.getByProcessInstanceId(identity, processInstanceId);
 
     const managementApiCorrelation: DataModels.Correlations.Correlation = Converters.managementApiCorrelationConverter(correlation);
 
