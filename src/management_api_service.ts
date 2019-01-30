@@ -235,6 +235,18 @@ export class ManagementApiService implements IManagementApi {
     return managementApiProcessModel;
   }
 
+  public async getProcessModelByProcessInstanceId(identity: IIdentity, processInstanceId: string): Promise<DataModels.ProcessModels.ProcessModel> {
+
+    const consumerApiProcessModel: ConsumerApiTypes.ProcessModels.ProcessModel =
+      await this._consumerApiService.getProcessModelByProcessInstanceId(identity, processInstanceId);
+
+    const processModelRaw: string = await this._getRawXmlForProcessModelById(identity, consumerApiProcessModel.id);
+
+    const managementApiProcessModel: DataModels.ProcessModels.ProcessModel = Converters.convertProcessModel(consumerApiProcessModel, processModelRaw);
+
+    return managementApiProcessModel;
+  }
+
   public async getStartEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.Events.EventList> {
 
     const processModel: Model.Types.Process = await this._processModelService.getProcessModelById(identity, processModelId);
@@ -316,6 +328,11 @@ export class ManagementApiService implements IManagementApi {
     return this._consumerApiService.getUserTasksForProcessModel(identity, processModelId);
   }
 
+  public async getUserTasksForProcessInstance(identity: IIdentity, processInstanceId: string): Promise<DataModels.UserTasks.UserTaskList> {
+
+    return this._consumerApiService.getUserTasksForProcessInstance(identity, processInstanceId);
+  }
+
   public async getUserTasksForCorrelation(identity: IIdentity, correlationId: string): Promise<DataModels.UserTasks.UserTaskList> {
 
     return this._consumerApiService.getUserTasksForCorrelation(identity, correlationId);
@@ -343,6 +360,11 @@ export class ManagementApiService implements IManagementApi {
   public async getManualTasksForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.ManualTasks.ManualTaskList> {
 
     return this._consumerApiService.getManualTasksForProcessModel(identity, processModelId);
+  }
+
+  public async getManualTasksForProcessInstance(identity: IIdentity, processInstanceId: string): Promise<DataModels.ManualTasks.ManualTaskList> {
+
+    return this._consumerApiService.getManualTasksForProcessInstance(identity, processInstanceId);
   }
 
   public async getManualTasksForCorrelation(identity: IIdentity, correlationId: string): Promise<DataModels.ManualTasks.ManualTaskList> {
