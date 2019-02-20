@@ -6,20 +6,11 @@ import {ILoggingApi} from '@process-engine/logging_api_contracts';
 import {ITokenHistoryApi} from '@process-engine/token_history_api_contracts';
 
 import {DataModels as ConsumerApiTypes, IConsumerApi} from '@process-engine/consumer_api_contracts';
-
+import {Correlation, ICorrelationService} from '@process-engine/correlation.contracts';
 import {IDeploymentApi, ImportProcessDefinitionsRequestPayload} from '@process-engine/deployment_api_contracts';
-
 import {DataModels, IManagementApi, Messages} from '@process-engine/management_api_contracts';
-
-import {
-  ICorrelationService,
-  IDeleteProcessModelService,
-  IProcessModelFacade,
-  IProcessModelFacadeFactory,
-  IProcessModelService,
-  Model,
-  Runtime,
-} from '@process-engine/process_engine_contracts';
+import {IProcessModelFacade, IProcessModelFacadeFactory} from '@process-engine/process_engine_contracts';
+import {IProcessModelUseCases, Model, ProcessDefinitionFromRepository} from '@process-engine/process_model.contracts';
 
 import * as Converters from './converters/index';
 
@@ -28,32 +19,29 @@ export class ManagementApiService implements IManagementApi {
 
   private readonly _consumerApiService: IConsumerApi;
   private readonly _correlationService: ICorrelationService;
-  private readonly _deleteProcessModelService: IDeleteProcessModelService;
   private readonly _deploymentApiService: IDeploymentApi;
   private readonly _kpiApiService: IKpiApi;
   private readonly _loggingApiService: ILoggingApi;
   private readonly _processModelFacadeFactory: IProcessModelFacadeFactory;
-  private readonly _processModelService: IProcessModelService;
+  private readonly _processModelUseCases: IProcessModelUseCases;
   private readonly _tokenHistoryApiService: ITokenHistoryApi;
 
   constructor(consumerApiService: IConsumerApi,
               correlationService: ICorrelationService,
-              deleteProcessModelService: IDeleteProcessModelService,
               deploymentApiService: IDeploymentApi,
               kpiApiService: IKpiApi,
               loggingApiService: ILoggingApi,
               processModelFacadeFactory: IProcessModelFacadeFactory,
-              processModelService: IProcessModelService,
+              processModelUseCases: IProcessModelUseCases,
               tokenHistoryApiService: ITokenHistoryApi) {
 
     this._consumerApiService = consumerApiService;
     this._correlationService = correlationService;
-    this._deleteProcessModelService = deleteProcessModelService;
     this._deploymentApiService = deploymentApiService;
     this._kpiApiService = kpiApiService;
     this._loggingApiService = loggingApiService;
     this._processModelFacadeFactory = processModelFacadeFactory;
-    this._processModelService = processModelService;
+    this._processModelUseCases = processModelUseCases;
     this._tokenHistoryApiService = tokenHistoryApiService;
   }
 
@@ -162,7 +150,7 @@ export class ManagementApiService implements IManagementApi {
   // Correlations
   public async getAllCorrelations(identity: IIdentity): Promise<Array<DataModels.Correlations.Correlation>> {
 
-    const correlations: Array<Runtime.Types.Correlation> = await this._correlationService.getAll(identity);
+    const correlations: Array<Correlation> = await this._correlationService.getAll(identity);
 
     const managementApiCorrelations: Array<DataModels.Correlations.Correlation> = correlations.map(Converters.managementApiCorrelationConverter);
 
@@ -171,7 +159,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getActiveCorrelations(identity: IIdentity): Promise<Array<DataModels.Correlations.Correlation>> {
 
-    const activeCorrelations: Array<Runtime.Types.Correlation> = await this._correlationService.getActive(identity);
+    const activeCorrelations: Array<Correlation> = await this._correlationService.getActive(identity);
 
     const managementApiCorrelations: Array<DataModels.Correlations.Correlation> =
       activeCorrelations.map(Converters.managementApiCorrelationConverter);
@@ -181,7 +169,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getCorrelationById(identity: IIdentity, correlationId: string): Promise<DataModels.Correlations.Correlation> {
 
-    const correlationFromProcessEngine: Runtime.Types.Correlation = await this._correlationService.getByCorrelationId(identity, correlationId);
+    const correlationFromProcessEngine: Correlation = await this._correlationService.getByCorrelationId(identity, correlationId);
 
     const managementApiCorrelation: DataModels.Correlations.Correlation = Converters.managementApiCorrelationConverter(correlationFromProcessEngine);
 
@@ -190,7 +178,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getCorrelationsByProcessModelId(identity: IIdentity, processModelId: string): Promise<Array<DataModels.Correlations.Correlation>> {
 
-    const correlations: Array<Runtime.Types.Correlation> = await this._correlationService.getByProcessModelId(identity, processModelId);
+    const correlations: Array<Correlation> = await this._correlationService.getByProcessModelId(identity, processModelId);
 
     const managementApiCorrelations: Array<DataModels.Correlations.Correlation> = correlations.map(Converters.managementApiCorrelationConverter);
 
@@ -199,7 +187,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getCorrelationByProcessInstanceId(identity: IIdentity, processInstanceId: string): Promise<DataModels.Correlations.Correlation> {
 
-    const correlation: Runtime.Types.Correlation = await this._correlationService.getByProcessInstanceId(identity, processInstanceId);
+    const correlation: Correlation = await this._correlationService.getByProcessInstanceId(identity, processInstanceId);
 
     const managementApiCorrelation: DataModels.Correlations.Correlation = Converters.managementApiCorrelationConverter(correlation);
 
@@ -249,7 +237,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getStartEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.Events.EventList> {
 
-    const processModel: Model.Types.Process = await this._processModelService.getProcessModelById(identity, processModelId);
+    const processModel: Model.Types.Process = await this._processModelUseCases.getProcessModelById(identity, processModelId);
     const processModelFacade: IProcessModelFacade = this._processModelFacadeFactory.create(processModel);
 
     const startEvents: Array<DataModels.Events.Event> = processModelFacade.getStartEvents()
@@ -289,7 +277,7 @@ export class ManagementApiService implements IManagementApi {
   }
 
   public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
-    this._deleteProcessModelService.deleteProcessModel(identity, processModelId);
+    this._processModelUseCases.deleteProcessModel(identity, processModelId);
   }
 
   // Events
@@ -469,8 +457,8 @@ export class ManagementApiService implements IManagementApi {
 
   private async _getRawXmlForProcessModelById(identity: IIdentity, processModelId: string): Promise<string> {
 
-    const processModelRaw: Runtime.Types.ProcessDefinitionFromRepository =
-      await this._processModelService.getProcessDefinitionAsXmlByName(identity, processModelId);
+    const processModelRaw: ProcessDefinitionFromRepository =
+      await this._processModelUseCases.getProcessDefinitionAsXmlByName(identity, processModelId);
 
     return processModelRaw.xml;
   }
