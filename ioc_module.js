@@ -9,12 +9,11 @@ function registerInContainer(container) {
     .dependencies(
       'ConsumerApiService',
       'CorrelationService',
-      'DeleteProcessModelService',
       'DeploymentApiService',
       'KpiApiService',
       'LoggingApiService',
       'ProcessModelFacadeFactory',
-      'ProcessModelService',
+      'ProcessModelUseCases',
       'TokenHistoryApiService')
     .singleton();
 }
