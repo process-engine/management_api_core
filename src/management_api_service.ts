@@ -237,7 +237,7 @@ export class ManagementApiService implements IManagementApi {
 
   public async getStartEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.Events.EventList> {
 
-    const processModel: Model.Types.Process = await this._processModelUseCases.getProcessModelById(identity, processModelId);
+    const processModel: Model.Process = await this._processModelUseCases.getProcessModelById(identity, processModelId);
     const processModelFacade: IProcessModelFacade = this._processModelFacadeFactory.create(processModel);
 
     const startEvents: Array<DataModels.Events.Event> = processModelFacade.getStartEvents()
