@@ -56,6 +56,7 @@ export class ManagementApiService implements IManagementApi {
   ): Promise<Subscription> {
     return this._consumerApiService.onEmptyActivityWaiting(identity, callback, subscribeOnce);
   }
+  
   public async onEmptyActivityFinished(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnEmptyActivityFinishedCallback,
@@ -63,6 +64,7 @@ export class ManagementApiService implements IManagementApi {
   ): Promise<Subscription> {
     return this._consumerApiService.onEmptyActivityFinished(identity, callback, subscribeOnce);
   }
+  
   public async onEmptyActivityForIdentityWaiting(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnEmptyActivityWaitingCallback,
@@ -70,6 +72,7 @@ export class ManagementApiService implements IManagementApi {
   ): Promise<Subscription> {
     return this._consumerApiService.onEmptyActivityForIdentityWaiting(identity, callback, subscribeOnce);
   }
+  
   public async onEmptyActivityForIdentityFinished(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnEmptyActivityFinishedCallback,
