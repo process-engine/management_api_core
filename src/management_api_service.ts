@@ -1,6 +1,6 @@
 // tslint:disable:max-file-line-count
-import {Subscription} from '@essential-projects/event_aggregator_contracts';
-import {IIdentity} from '@essential-projects/iam_contracts';
+import {IEventAggregator, Subscription} from '@essential-projects/event_aggregator_contracts';
+import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
 
 import {IKpiApi} from '@process-engine/kpi_api_contracts';
 import {ILoggingApi} from '@process-engine/logging_api_contracts';
@@ -21,6 +21,8 @@ export class ManagementApiService implements IManagementApi {
   private readonly _consumerApiService: IConsumerApi;
   private readonly _correlationService: ICorrelationService;
   private readonly _deploymentApiService: IDeploymentApi;
+  private readonly _eventAggregator: IEventAggregator;
+  private readonly _iamService: IIAMService;
   private readonly _kpiApiService: IKpiApi;
   private readonly _loggingApiService: ILoggingApi;
   private readonly _processModelFacadeFactory: IProcessModelFacadeFactory;
@@ -31,16 +33,19 @@ export class ManagementApiService implements IManagementApi {
     consumerApiService: IConsumerApi,
     correlationService: ICorrelationService,
     deploymentApiService: IDeploymentApi,
+    eventAggregator: IEventAggregator,
+    iamService: IIAMService,
     kpiApiService: IKpiApi,
     loggingApiService: ILoggingApi,
     processModelFacadeFactory: IProcessModelFacadeFactory,
     processModelUseCases: IProcessModelUseCases,
     tokenHistoryApiService: ITokenHistoryApi,
   ) {
-
     this._consumerApiService = consumerApiService;
     this._correlationService = correlationService;
     this._deploymentApiService = deploymentApiService;
+    this._eventAggregator = eventAggregator;
+    this._iamService = iamService;
     this._kpiApiService = kpiApiService;
     this._loggingApiService = loggingApiService;
     this._processModelFacadeFactory = processModelFacadeFactory;
@@ -56,7 +61,7 @@ export class ManagementApiService implements IManagementApi {
   ): Promise<Subscription> {
     return this._consumerApiService.onEmptyActivityWaiting(identity, callback, subscribeOnce);
   }
-  
+
   public async onEmptyActivityFinished(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnEmptyActivityFinishedCallback,
