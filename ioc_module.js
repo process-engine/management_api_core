@@ -11,6 +11,7 @@ function registerInContainer(container) {
       'CorrelationService',
       'DeploymentApiService',
       'EventAggregator',
+      'IamService',
       'KpiApiService',
       'LoggingApiService',
       'ProcessModelFacadeFactory',
