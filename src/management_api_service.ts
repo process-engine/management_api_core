@@ -69,7 +69,7 @@ export class ManagementApiService implements IManagementApi {
   ): Promise<Subscription> {
     return this._consumerApiService.onEmptyActivityFinished(identity, callback, subscribeOnce);
   }
-  
+
   public async onEmptyActivityForIdentityWaiting(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnEmptyActivityWaitingCallback,
@@ -77,7 +77,7 @@ export class ManagementApiService implements IManagementApi {
   ): Promise<Subscription> {
     return this._consumerApiService.onEmptyActivityForIdentityWaiting(identity, callback, subscribeOnce);
   }
-  
+
   public async onEmptyActivityForIdentityFinished(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnEmptyActivityFinishedCallback,
@@ -519,6 +519,18 @@ export class ManagementApiService implements IManagementApi {
     processInstanceId: string,
   ): Promise<DataModels.TokenHistory.TokenHistoryGroup> {
     return this._tokenHistoryApiService.getTokensForProcessInstance(identity, processInstanceId);
+  }
+
+  public async terminateProcess(
+    identity: IIdentity,
+    processInstanceId: string,
+  ): Promise<void> {
+    await this._iamService.ensureHasClaim(identity, 'can_terminate_process');
+
+    const terminateEvent: string = Messages.EventAggregatorSettings.messagePaths.terminateProcess
+      .replace(Messages.EventAggregatorSettings.messageParams.processInstanceId, processInstanceId);
+
+    this._eventAggregator.publish(terminateEvent);
   }
 
   private async _getRawXmlForProcessModelById(identity: IIdentity, processModelId: string): Promise<string> {
