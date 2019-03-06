@@ -521,13 +521,13 @@ export class ManagementApiService implements IManagementApi {
     return this._tokenHistoryApiService.getTokensForProcessInstance(identity, processInstanceId);
   }
 
-  public async terminateProcess(
+  public async terminateProcessInstance(
     identity: IIdentity,
     processInstanceId: string,
   ): Promise<void> {
     await this._iamService.ensureHasClaim(identity, 'can_terminate_process');
 
-    const terminateEvent: string = Messages.EventAggregatorSettings.messagePaths.terminateProcess
+    const terminateEvent: string = Messages.EventAggregatorSettings.messagePaths.terminateProcessInstance
       .replace(Messages.EventAggregatorSettings.messageParams.processInstanceId, processInstanceId);
 
     this._eventAggregator.publish(terminateEvent);
