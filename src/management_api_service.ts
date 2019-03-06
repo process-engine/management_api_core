@@ -1,6 +1,6 @@
 // tslint:disable:max-file-line-count
-import {Subscription} from '@essential-projects/event_aggregator_contracts';
-import {IIdentity} from '@essential-projects/iam_contracts';
+import {IEventAggregator, Subscription} from '@essential-projects/event_aggregator_contracts';
+import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
 
 import {IKpiApi} from '@process-engine/kpi_api_contracts';
 import {ILoggingApi} from '@process-engine/logging_api_contracts';
@@ -21,6 +21,8 @@ export class ManagementApiService implements IManagementApi {
   private readonly _consumerApiService: IConsumerApi;
   private readonly _correlationService: ICorrelationService;
   private readonly _deploymentApiService: IDeploymentApi;
+  private readonly _eventAggregator: IEventAggregator;
+  private readonly _iamService: IIAMService;
   private readonly _kpiApiService: IKpiApi;
   private readonly _loggingApiService: ILoggingApi;
   private readonly _processModelFacadeFactory: IProcessModelFacadeFactory;
@@ -31,16 +33,19 @@ export class ManagementApiService implements IManagementApi {
     consumerApiService: IConsumerApi,
     correlationService: ICorrelationService,
     deploymentApiService: IDeploymentApi,
+    eventAggregator: IEventAggregator,
+    iamService: IIAMService,
     kpiApiService: IKpiApi,
     loggingApiService: ILoggingApi,
     processModelFacadeFactory: IProcessModelFacadeFactory,
     processModelUseCases: IProcessModelUseCases,
     tokenHistoryApiService: ITokenHistoryApi,
   ) {
-
     this._consumerApiService = consumerApiService;
     this._correlationService = correlationService;
     this._deploymentApiService = deploymentApiService;
+    this._eventAggregator = eventAggregator;
+    this._iamService = iamService;
     this._kpiApiService = kpiApiService;
     this._loggingApiService = loggingApiService;
     this._processModelFacadeFactory = processModelFacadeFactory;
@@ -56,7 +61,7 @@ export class ManagementApiService implements IManagementApi {
   ): Promise<Subscription> {
     return this._consumerApiService.onEmptyActivityWaiting(identity, callback, subscribeOnce);
   }
-  
+
   public async onEmptyActivityFinished(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnEmptyActivityFinishedCallback,
@@ -64,7 +69,7 @@ export class ManagementApiService implements IManagementApi {
   ): Promise<Subscription> {
     return this._consumerApiService.onEmptyActivityFinished(identity, callback, subscribeOnce);
   }
-  
+
   public async onEmptyActivityForIdentityWaiting(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnEmptyActivityWaitingCallback,
@@ -72,7 +77,7 @@ export class ManagementApiService implements IManagementApi {
   ): Promise<Subscription> {
     return this._consumerApiService.onEmptyActivityForIdentityWaiting(identity, callback, subscribeOnce);
   }
-  
+
   public async onEmptyActivityForIdentityFinished(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnEmptyActivityFinishedCallback,
@@ -514,6 +519,18 @@ export class ManagementApiService implements IManagementApi {
     processInstanceId: string,
   ): Promise<DataModels.TokenHistory.TokenHistoryGroup> {
     return this._tokenHistoryApiService.getTokensForProcessInstance(identity, processInstanceId);
+  }
+
+  public async terminateProcessInstance(
+    identity: IIdentity,
+    processInstanceId: string,
+  ): Promise<void> {
+    await this._iamService.ensureHasClaim(identity, 'can_terminate_process');
+
+    const terminateEvent: string = Messages.EventAggregatorSettings.messagePaths.terminateProcessInstance
+      .replace(Messages.EventAggregatorSettings.messageParams.processInstanceId, processInstanceId);
+
+    this._eventAggregator.publish(terminateEvent);
   }
 
   private async _getRawXmlForProcessModelById(identity: IIdentity, processModelId: string): Promise<string> {
