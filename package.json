@@ -27,7 +27,7 @@
     "@process-engine/logging_api_contracts": "^1.0.0",
     "@process-engine/management_api_contracts": "feature~make_process_interruptable",
     "@process-engine/token_history_api_contracts": "^1.4.0",
-    "@process-engine/process_engine_contracts": "^41.1.0",
+    "@process-engine/process_engine_contracts": "^42.0.0",
     "@process-engine/process_model.contracts": "^2.1.0",
     "bluebird": "~3.5.2",
     "bluebird-global": "~1.0.1",
