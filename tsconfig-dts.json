@@ -1,8 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  "typingOptions": {
-    "enableAutoDiscovery": true
-  },
   "compilerOptions": {
     "target": "es2017",
     "lib": [

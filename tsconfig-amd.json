@@ -1,8 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  "typingOptions": {
-    "enableAutoDiscovery": true
-  },
   "compilerOptions": {
     "outDir": "./dist/amd",
     "module": "amd",
