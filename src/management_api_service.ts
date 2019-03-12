@@ -207,7 +207,7 @@ export class ManagementApiService implements IManagementApi {
     return managementApiCorrelations;
   }
 
-  public async getCorrelationById(identity: IIdentity  , correlationId: string): Promise<DataModels.Correlations.Correlation> {
+  public async getCorrelationById(identity: IIdentity, correlationId: string): Promise<DataModels.Correlations.Correlation> {
 
     const correlationFromProcessEngine: Correlation = await this._correlationService.getByCorrelationId(identity, correlationId);
 
