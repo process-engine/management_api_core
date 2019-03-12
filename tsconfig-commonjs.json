@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "typingOptions": {
+    "enableAutoDiscovery": true
+  },
+  "compilerOptions": {
+    "outDir": "./dist/commonjs",
+    "module": "commonjs",
+    "target": "es2017",
+    "lib": [
+      "es2017"
+    ]
+  }
+}

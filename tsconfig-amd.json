@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "typingOptions": {
+    "enableAutoDiscovery": true
+  },
+  "compilerOptions": {
+    "outDir": "./dist/amd",
+    "module": "amd",
+    "target": "es2017",
+    "lib": [
+      "es2017"
+    ]
+  }
+}
