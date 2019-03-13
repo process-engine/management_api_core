@@ -371,10 +371,6 @@ export class ManagementApiService implements IManagementApi {
     return this._consumerApiService.getEmptyActivitiesForProcessModelInCorrelation(identity, processModelId, correlationId);
   }
 
-  public async getWaitingEmptyActivitiesByIdentity(identity: IIdentity): Promise<DataModels.EmptyActivities.EmptyActivityList> {
-    return this._consumerApiService.getWaitingEmptyActivitiesByIdentity(identity);
-  }
-
   public async finishEmptyActivity(
     identity: IIdentity,
     processInstanceId: string,
