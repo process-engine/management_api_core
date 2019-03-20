@@ -22,7 +22,7 @@
     "@process-engine/flow_node_instance.contracts": "^2.0.0",
     "@process-engine/management_api_contracts": "feature~add_events_for_call-activities_and_intermediate-events",
     "@process-engine/token_history_api_contracts": "^2.0.0",
-    "@process-engine/consumer_api_contracts": "^5.2.0",
+    "@process-engine/consumer_api_contracts": "feature~add_events_for_call-activities_and_intermediate-events",
     "@process-engine/correlation.contracts": "^2.0.0",
     "@process-engine/deployment_api_contracts": "^1.0.0",
     "@process-engine/kpi_api_contracts": "^1.3.0",
