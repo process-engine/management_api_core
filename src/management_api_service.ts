@@ -493,6 +493,18 @@ export class ManagementApiService implements IManagementApi {
     return logs;
   }
 
+  public async getProcessInstanceLog(
+    identity: IIdentity,
+    processModelId: string,
+    processInstanceId: string,
+  ): Promise<Array<DataModels.Logging.LogEntry>> {
+
+    const logs: Array<DataModels.Logging.LogEntry> =
+      await this._loggingApiService.readLogForProcessInstance(identity, processModelId, processInstanceId);
+
+    return logs;
+  }
+
   public async getTokensForFlowNodeInstance(
     identity: IIdentity,
     correlationId: string,
