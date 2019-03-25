@@ -499,10 +499,15 @@ export class ManagementApiService implements IManagementApi {
     processInstanceId: string,
   ): Promise<Array<DataModels.Logging.LogEntry>> {
 
-    const logs: Array<DataModels.Logging.LogEntry> =
-      await this._loggingApiService.readLogForProcessInstance(identity, processModelId, processInstanceId);
+    const processModelLog: Array<DataModels.Logging.LogEntry> =
+      await this._loggingApiService.readLogForProcessModel(identity, processModelId);
 
-    return logs;
+    const processInstanceLog: Array<DataModels.Logging.LogEntry> =
+      processModelLog.filter((logEntry: DataModels.Logging.LogEntry) => {
+        return logEntry.processInstanceId === processInstanceId;
+      });
+
+    return processInstanceLog;
   }
 
   public async getTokensForFlowNodeInstance(
