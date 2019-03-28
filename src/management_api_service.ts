@@ -510,7 +510,7 @@ export class ManagementApiService implements IManagementApi {
     return processInstanceLog;
   }
 
-  public async getTokensForFlowNodeInstance(
+  public async getTokensForFlowNode(
     identity: IIdentity,
     correlationId: string,
     processModelId: string,
