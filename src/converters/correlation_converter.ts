@@ -7,14 +7,13 @@ export function managementApiCorrelationConverter(runtimeCorrelation: Correlatio
   managementApiCorrelation.id = runtimeCorrelation.id;
   managementApiCorrelation.state = ManagementApiTypes.Correlations.CorrelationState[runtimeCorrelation.state];
   managementApiCorrelation.error = runtimeCorrelation.error;
-  managementApiCorrelation.identity = runtimeCorrelation.identity;
   managementApiCorrelation.createdAt = runtimeCorrelation.createdAt;
 
-  managementApiCorrelation.processModels =
-    runtimeCorrelation.processModels.map((runtimeProcessModel: CorrelationProcessInstance): any => {
+  managementApiCorrelation.processInstances =
+    runtimeCorrelation.processInstances.map((runtimeProcessModel: CorrelationProcessInstance): any => {
 
-      const managementApiProcessModel: ManagementApiTypes.Correlations.CorrelationProcessModel =
-        new ManagementApiTypes.Correlations.CorrelationProcessModel();
+      const managementApiProcessModel: ManagementApiTypes.Correlations.CorrelationProcessInstance =
+        new ManagementApiTypes.Correlations.CorrelationProcessInstance();
 
       managementApiProcessModel.processDefinitionName = runtimeProcessModel.processDefinitionName;
       managementApiProcessModel.hash = runtimeProcessModel.hash;
@@ -23,7 +22,8 @@ export function managementApiCorrelationConverter(runtimeCorrelation: Correlatio
       managementApiProcessModel.processInstanceId = runtimeProcessModel.processInstanceId;
       managementApiProcessModel.parentProcessInstanceId = runtimeProcessModel.parentProcessInstanceId;
       managementApiProcessModel.state = ManagementApiTypes.Correlations.CorrelationState[runtimeProcessModel.state];
-      managementApiProcessModel.error = managementApiProcessModel.error;
+      managementApiProcessModel.error = runtimeProcessModel.error;
+      managementApiProcessModel.identity = runtimeProcessModel.identity;
       managementApiProcessModel.createdAt = runtimeProcessModel.createdAt;
 
       return managementApiProcessModel;
