@@ -19,9 +19,9 @@
   },
   "homepage": "https://github.com/process-engine/management_api_core#readme",
   "dependencies": {
-    "@process-engine/flow_node_instance.contracts": "feature~add_getTokenForFlowNodeByProcessInstanceId",
-    "@process-engine/management_api_contracts": "feature~add_getTokenForFlowNodeByProcessInstanceId",
-    "@process-engine/token_history_api_contracts": "feature~add_getTokenForFlowNodeByProcessInstanceId",
+    "@process-engine/flow_node_instance.contracts": "1.2.0-9537af2d-b6",
+    "@process-engine/management_api_contracts": "7.0.0-589434c1-b6",
+    "@process-engine/token_history_api_contracts": "1.4.2-57371b44-b6",
     "@process-engine/consumer_api_contracts": "^5.1.1",
     "@process-engine/correlation.contracts": "^2.0.0",
     "@process-engine/deployment_api_contracts": "^1.0.0",
