@@ -132,6 +132,22 @@ export class ManagementApiService implements IManagementApi {
     return this._consumerApiService.onBoundaryEventFinished(identity, callback, subscribeOnce);
   }
 
+  public async onIntermediateEventWaiting(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnIntermediateEventWaitingCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this._consumerApiService.onIntermediateEventWaiting(identity, callback, subscribeOnce);
+  }
+
+  public async onIntermediateEventFinished(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnIntermediateEventFinishedCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this._consumerApiService.onIntermediateEventFinished(identity, callback, subscribeOnce);
+  }
+
   public async onCallActivityWaiting(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnCallActivityWaitingCallback,
