@@ -8,7 +8,7 @@ export function convertProcessModel(
   processModelRaw: string,
 ): DataModels.ProcessModels.ProcessModel {
 
-  const processModel: DataModels.ProcessModels.ProcessModel = <DataModels.ProcessModels.ProcessModel> clone(consumerApiProcessModel);
+  const processModel = <DataModels.ProcessModels.ProcessModel> clone(consumerApiProcessModel);
   processModel.xml = processModelRaw;
 
   return processModel;
