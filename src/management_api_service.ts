@@ -544,12 +544,33 @@ export class ManagementApiService implements IManagementApi {
     identity: IIdentity,
     processInstanceId: string,
   ): Promise<void> {
-    await this.iamService.ensureHasClaim(identity, 'can_terminate_process');
+    await this.ensureUserHasClaim(identity, 'can_terminate_process');
 
     const terminateEvent = Messages.EventAggregatorSettings.messagePaths.terminateProcessInstance
       .replace(Messages.EventAggregatorSettings.messageParams.processInstanceId, processInstanceId);
 
     this.eventAggregator.publish(terminateEvent);
+  }
+
+  private async ensureUserHasClaim(identity: IIdentity, claimName: string): Promise<void> {
+
+    const userIsSuperAdmin = await this.checkIfUserIsSuperAdmin(identity);
+    if (userIsSuperAdmin) {
+      return;
+    }
+
+    await this.iamService.ensureHasClaim(identity, claimName);
+  }
+
+  private async checkIfUserIsSuperAdmin(identity: IIdentity): Promise<boolean> {
+    try {
+      const superAdminClaim = 'can_manage_process_instances';
+      await this.iamService.ensureHasClaim(identity, superAdminClaim);
+
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   private async getRawXmlForProcessModelById(identity: IIdentity, processModelId: string): Promise<string> {
