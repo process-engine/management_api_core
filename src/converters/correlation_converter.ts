@@ -3,17 +3,17 @@ import {DataModels as ManagementApiTypes} from '@process-engine/management_api_c
 
 export function managementApiCorrelationConverter(runtimeCorrelation: Correlation): ManagementApiTypes.Correlations.Correlation {
 
-  const managementApiCorrelation: ManagementApiTypes.Correlations.Correlation = new ManagementApiTypes.Correlations.Correlation();
+  const managementApiCorrelation = new ManagementApiTypes.Correlations.Correlation();
   managementApiCorrelation.id = runtimeCorrelation.id;
   managementApiCorrelation.state = ManagementApiTypes.Correlations.CorrelationState[runtimeCorrelation.state];
   managementApiCorrelation.error = runtimeCorrelation.error;
   managementApiCorrelation.createdAt = runtimeCorrelation.createdAt;
 
-  managementApiCorrelation.processInstances =
-    runtimeCorrelation.processInstances.map((runtimeProcessModel: CorrelationProcessInstance): any => {
+  managementApiCorrelation.processInstances = runtimeCorrelation
+    .processInstances
+    .map((runtimeProcessModel: CorrelationProcessInstance): ManagementApiTypes.Correlations.CorrelationProcessInstance => {
 
-      const managementApiProcessModel: ManagementApiTypes.Correlations.CorrelationProcessInstance =
-        new ManagementApiTypes.Correlations.CorrelationProcessInstance();
+      const managementApiProcessModel = new ManagementApiTypes.Correlations.CorrelationProcessInstance();
 
       managementApiProcessModel.processDefinitionName = runtimeProcessModel.processDefinitionName;
       managementApiProcessModel.hash = runtimeProcessModel.hash;
