@@ -116,36 +116,28 @@ export class ManagementApiService implements IManagementApi {
     return this.consumerApiService.onUserTaskForIdentityFinished(identity, callback, subscribeOnce);
   }
 
-  public async onBoundaryEventWaiting(
+  public async onBoundaryEventTriggered(
     identity: IIdentity,
-    callback: Messages.CallbackTypes.OnBoundaryEventWaitingCallback,
+    callback: Messages.CallbackTypes.OnBoundaryEventTriggeredCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this._consumerApiService.onBoundaryEventWaiting(identity, callback, subscribeOnce);
+    return this.consumerApiService.onBoundaryEventTriggered(identity, callback, subscribeOnce);
   }
 
-  public async onBoundaryEventFinished(
+  public async onIntermediateEventTriggered(
     identity: IIdentity,
-    callback: Messages.CallbackTypes.OnBoundaryEventFinishedCallback,
+    callback: Messages.CallbackTypes.OnIntermediateEventTriggeredCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this._consumerApiService.onBoundaryEventFinished(identity, callback, subscribeOnce);
+    return this.consumerApiService.onIntermediateEventTriggered(identity, callback, subscribeOnce);
   }
 
-  public async onIntermediateEventWaiting(
+  public async onIntermediateCatchEventFinished(
     identity: IIdentity,
-    callback: Messages.CallbackTypes.OnIntermediateEventWaitingCallback,
+    callback: Messages.CallbackTypes.OnIntermediateCatchEventFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this._consumerApiService.onIntermediateEventWaiting(identity, callback, subscribeOnce);
-  }
-
-  public async onIntermediateEventFinished(
-    identity: IIdentity,
-    callback: Messages.CallbackTypes.OnIntermediateEventFinishedCallback,
-    subscribeOnce?: boolean,
-  ): Promise<Subscription> {
-    return this._consumerApiService.onIntermediateEventFinished(identity, callback, subscribeOnce);
+    return this.consumerApiService.onIntermediateCatchEventFinished(identity, callback, subscribeOnce);
   }
 
   public async onCallActivityWaiting(
@@ -153,7 +145,7 @@ export class ManagementApiService implements IManagementApi {
     callback: Messages.CallbackTypes.OnCallActivityWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this._consumerApiService.onCallActivityWaiting(identity, callback, subscribeOnce);
+    return this.consumerApiService.onCallActivityWaiting(identity, callback, subscribeOnce);
   }
 
   public async onCallActivityFinished(
@@ -161,7 +153,7 @@ export class ManagementApiService implements IManagementApi {
     callback: Messages.CallbackTypes.OnCallActivityFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this._consumerApiService.onCallActivityFinished(identity, callback, subscribeOnce);
+    return this.consumerApiService.onCallActivityFinished(identity, callback, subscribeOnce);
   }
 
   public async onManualTaskWaiting(
