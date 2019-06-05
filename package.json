@@ -20,7 +20,7 @@
   "homepage": "https://github.com/process-engine/management_api_core#readme",
   "dependencies": {
     "@process-engine/flow_node_instance.contracts": "^2.0.0",
-    "@process-engine/management_api_contracts": "^9.0.0",
+    "@process-engine/management_api_contracts": "feature~colorize-elements-where-process-stopped",
     "@process-engine/token_history_api_contracts": "^2.0.0",
     "@process-engine/consumer_api_contracts": "^6.0.0",
     "@process-engine/correlation.contracts": "^2.0.0",

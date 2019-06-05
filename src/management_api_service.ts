@@ -531,7 +531,7 @@ export class ManagementApiService implements IManagementApi {
     return this.kpiApiService.getActiveTokensForFlowNode(identity, flowNodeId);
   }
 
-  public async getFlowNodeInstancesForProcessInstance(identity: IIdentity, processInstanceId: string): Promise<Array<FlowNodeInstance>> {
+  public async getFlowNodeInstancesForProcessInstance(identity: IIdentity, processInstanceId: string): Promise<Array<DataModels.FlowNodes.FlowNodeInstance>> {
     // TODO: check identity
 
     return this.flowNodeInstanceService.queryByProcessInstance(processInstanceId);
