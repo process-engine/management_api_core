@@ -11,6 +11,7 @@ import {IDeploymentApi} from '@process-engine/deployment_api_contracts';
 import {DataModels, IManagementApi, Messages} from '@process-engine/management_api_contracts';
 import {IProcessModelFacadeFactory} from '@process-engine/process_engine_contracts';
 import {IProcessModelUseCases} from '@process-engine/process_model.contracts';
+import {IFlowNodeInstanceService, FlowNodeInstance} from '@process-engine/flow_node_instance.contracts';
 
 import * as Converters from './converters/index';
 
@@ -20,6 +21,7 @@ export class ManagementApiService implements IManagementApi {
   private readonly correlationService: ICorrelationService;
   private readonly deploymentApiService: IDeploymentApi;
   private readonly eventAggregator: IEventAggregator;
+  private readonly flowNodeInstanceService: IFlowNodeInstanceService;
   private readonly iamService: IIAMService;
   private readonly kpiApiService: IKpiApi;
   private readonly loggingApiService: ILoggingApi;
@@ -32,6 +34,7 @@ export class ManagementApiService implements IManagementApi {
     correlationService: ICorrelationService,
     deploymentApiService: IDeploymentApi,
     eventAggregator: IEventAggregator,
+    flowNodeInstanceService: IFlowNodeInstanceService,
     iamService: IIAMService,
     kpiApiService: IKpiApi,
     loggingApiService: ILoggingApi,
@@ -43,6 +46,7 @@ export class ManagementApiService implements IManagementApi {
     this.correlationService = correlationService;
     this.deploymentApiService = deploymentApiService;
     this.eventAggregator = eventAggregator;
+    this.flowNodeInstanceService = flowNodeInstanceService;
     this.iamService = iamService;
     this.kpiApiService = kpiApiService;
     this.loggingApiService = loggingApiService;
@@ -525,6 +529,12 @@ export class ManagementApiService implements IManagementApi {
 
   public async getActiveTokensForFlowNode(identity: IIdentity, flowNodeId: string): Promise<Array<DataModels.Kpi.ActiveToken>> {
     return this.kpiApiService.getActiveTokensForFlowNode(identity, flowNodeId);
+  }
+
+  public async getFlowNodeInstancesForProcessInstance(identity: IIdentity, processInstanceId: string): Promise<Array<FlowNodeInstance>> {
+    // TODO: check identity
+
+    return this.flowNodeInstanceService.queryByProcessInstance(processInstanceId);
   }
 
   public async getProcessModelLog(identity: IIdentity, processModelId: string, correlationId?: string): Promise<Array<DataModels.Logging.LogEntry>> {
