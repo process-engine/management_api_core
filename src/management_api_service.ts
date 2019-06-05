@@ -11,7 +11,7 @@ import {IDeploymentApi} from '@process-engine/deployment_api_contracts';
 import {DataModels, IManagementApi, Messages} from '@process-engine/management_api_contracts';
 import {IProcessModelFacadeFactory} from '@process-engine/process_engine_contracts';
 import {IProcessModelUseCases} from '@process-engine/process_model.contracts';
-import {IFlowNodeInstanceService, FlowNodeInstance} from '@process-engine/flow_node_instance.contracts';
+import {FlowNodeInstance, IFlowNodeInstanceService} from '@process-engine/flow_node_instance.contracts';
 
 import * as Converters from './converters/index';
 
