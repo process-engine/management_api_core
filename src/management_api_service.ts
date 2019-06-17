@@ -535,8 +535,6 @@ export class ManagementApiService implements IManagementApi {
     identity: IIdentity,
     processInstanceId: string,
   ): Promise<Array<DataModels.FlowNodeInstances.FlowNodeInstance>> {
-    // TODO: check identity
-
     return this.flowNodeInstanceService.queryByProcessInstance(processInstanceId);
   }
 
