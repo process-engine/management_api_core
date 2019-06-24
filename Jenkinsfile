@@ -13,6 +13,8 @@ def cleanup_workspace() {
   }
 }
 
+def npm_install_command = 'npm install --ignore-scripts'
+
 pipeline {
   agent any
   tools {
@@ -27,13 +29,18 @@ pipeline {
     stage('prepare') {
       steps {
         script {
-          raw_package_version = sh(script: 'node --print --eval "require(\'./package.json\').version"', returnStdout: true).trim()
+          raw_package_version = sh(script: 'node --print --eval "require(\'./package.json\').version"', returnStdout: true).trim();
           package_version = raw_package_version.trim()
           echo("Package version is '${package_version}'")
+
+          def run_clean_install = env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'develop';
+          if (run_clean_install) {
+            npm_install_command = 'npm ci --ignore-scripts'
+          }
         }
         nodejs(configId: env.NPM_RC_FILE, nodeJSInstallationName: env.NODE_JS_VERSION) {
           sh('node --version')
-          sh('npm ci --ignore-scripts')
+          sh(npm_install_command)
         }
       }
     }
@@ -73,7 +80,7 @@ pipeline {
                 }
               }
 
-              def raw_package_name = sh(script: 'node --print --eval "require(\'./package.json\').name"', returnStdout: true).trim()
+              def raw_package_name = sh(script: 'node --print --eval "require(\'./package.json\').name"', returnStdout: true).trim();
               def current_published_version = sh(script: "npm show ${raw_package_name} version", returnStdout: true).trim();
               def version_has_changed = current_published_version != raw_package_version;
 
