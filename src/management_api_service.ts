@@ -11,6 +11,7 @@ import {IDeploymentApi} from '@process-engine/deployment_api_contracts';
 import {DataModels, IManagementApi, Messages} from '@process-engine/management_api_contracts';
 import {IProcessModelFacadeFactory} from '@process-engine/process_engine_contracts';
 import {IProcessModelUseCases} from '@process-engine/process_model.contracts';
+import {FlowNodeInstance, IFlowNodeInstanceService} from '@process-engine/flow_node_instance.contracts';
 
 import * as Converters from './converters/index';
 
@@ -20,6 +21,7 @@ export class ManagementApiService implements IManagementApi {
   private readonly correlationService: ICorrelationService;
   private readonly deploymentApiService: IDeploymentApi;
   private readonly eventAggregator: IEventAggregator;
+  private readonly flowNodeInstanceService: IFlowNodeInstanceService;
   private readonly iamService: IIAMService;
   private readonly kpiApiService: IKpiApi;
   private readonly loggingApiService: ILoggingApi;
@@ -32,6 +34,7 @@ export class ManagementApiService implements IManagementApi {
     correlationService: ICorrelationService,
     deploymentApiService: IDeploymentApi,
     eventAggregator: IEventAggregator,
+    flowNodeInstanceService: IFlowNodeInstanceService,
     iamService: IIAMService,
     kpiApiService: IKpiApi,
     loggingApiService: ILoggingApi,
@@ -43,6 +46,7 @@ export class ManagementApiService implements IManagementApi {
     this.correlationService = correlationService;
     this.deploymentApiService = deploymentApiService;
     this.eventAggregator = eventAggregator;
+    this.flowNodeInstanceService = flowNodeInstanceService;
     this.iamService = iamService;
     this.kpiApiService = kpiApiService;
     this.loggingApiService = loggingApiService;
@@ -52,6 +56,42 @@ export class ManagementApiService implements IManagementApi {
   }
 
   // Notifications
+  public async onActivityReached(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnActivityReachedCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this.consumerApiService.onActivityReached(identity, callback, subscribeOnce);
+  }
+
+  public async onActivityFinished(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnActivityFinishedCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this.consumerApiService.onActivityFinished(identity, callback, subscribeOnce);
+  }
+
+  // -------------- For backwards compatibility only
+
+  public async onCallActivityWaiting(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnCallActivityWaitingCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this.consumerApiService.onCallActivityWaiting(identity, callback, subscribeOnce);
+  }
+
+  public async onCallActivityFinished(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnCallActivityFinishedCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this.consumerApiService.onCallActivityFinished(identity, callback, subscribeOnce);
+  }
+
+  // --------------
+
   public async onEmptyActivityWaiting(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnEmptyActivityWaitingCallback,
@@ -148,22 +188,6 @@ export class ManagementApiService implements IManagementApi {
     return this.consumerApiService.onIntermediateCatchEventFinished(identity, callback, subscribeOnce);
   }
 
-  public async onCallActivityWaiting(
-    identity: IIdentity,
-    callback: Messages.CallbackTypes.OnCallActivityWaitingCallback,
-    subscribeOnce?: boolean,
-  ): Promise<Subscription> {
-    return this.consumerApiService.onCallActivityWaiting(identity, callback, subscribeOnce);
-  }
-
-  public async onCallActivityFinished(
-    identity: IIdentity,
-    callback: Messages.CallbackTypes.OnCallActivityFinishedCallback,
-    subscribeOnce?: boolean,
-  ): Promise<Subscription> {
-    return this.consumerApiService.onCallActivityFinished(identity, callback, subscribeOnce);
-  }
-
   public async onManualTaskWaiting(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnManualTaskWaitingCallback,
@@ -219,6 +243,14 @@ export class ManagementApiService implements IManagementApi {
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
     return this.consumerApiService.onProcessTerminated(identity, callback, subscribeOnce);
+  }
+
+  public async onProcessError(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnProcessErrorCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    return this.consumerApiService.onProcessError(identity, callback, subscribeOnce);
   }
 
   public async onProcessEnded(
@@ -525,6 +557,13 @@ export class ManagementApiService implements IManagementApi {
 
   public async getActiveTokensForFlowNode(identity: IIdentity, flowNodeId: string): Promise<Array<DataModels.Kpi.ActiveToken>> {
     return this.kpiApiService.getActiveTokensForFlowNode(identity, flowNodeId);
+  }
+
+  public async getFlowNodeInstancesForProcessInstance(
+    identity: IIdentity,
+    processInstanceId: string,
+  ): Promise<Array<DataModels.FlowNodeInstances.FlowNodeInstance>> {
+    return this.flowNodeInstanceService.queryByProcessInstance(processInstanceId);
   }
 
   public async getProcessModelLog(identity: IIdentity, processModelId: string, correlationId?: string): Promise<Array<DataModels.Logging.LogEntry>> {

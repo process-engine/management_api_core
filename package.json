@@ -1,6 +1,6 @@
 {
   "name": "@process-engine/management_api_core",
-  "version": "5.5.0",
+  "version": "5.6.0",
   "description": "service implementation for the process-engine.io Management APIs",
   "main": "dist/commonjs/index.js",
   "typings": "dist/index.d.ts",
@@ -9,8 +9,17 @@
     "url": "git+https://github.com/process-engine/management_api_core.git"
   },
   "author": "5Minds IT-Solutions GmbH & Co. KG",
-  "contributors": [
+  "maintainers": [
+    "Alexander Kasten <alexander.kasten@5minds.de>",
     "Christian Werner <christian.werner@5minds.de>",
+    "René Föhring <rene.foehring@5minds.de>",
+    "Steffen Knaup <steffen.knaup@5minds.de>"
+  ],
+  "contributors": [
+    "Bastian Schnittger <bastian.schnittger@5minds.de>",
+    "Christoph Gnip <christoph.gnip@5minds.de>",
+    "Robin Lenz <robin.lenz@5minds.de>",
+    "Robin Palkovits <robin.palkovits@5minds.de>",
     "Sebastian Meier <sebastian.meier@5minds.de>"
   ],
   "license": "MIT",
@@ -20,15 +29,15 @@
   "homepage": "https://github.com/process-engine/management_api_core#readme",
   "dependencies": {
     "@process-engine/flow_node_instance.contracts": "^2.0.0",
-    "@process-engine/management_api_contracts": "^9.0.0",
-    "@process-engine/token_history_api_contracts": "^2.0.0",
-    "@process-engine/consumer_api_contracts": "^6.0.0",
+    "@process-engine/consumer_api_contracts": "^7.0.0",
     "@process-engine/correlation.contracts": "^2.0.0",
     "@process-engine/deployment_api_contracts": "^1.0.0",
     "@process-engine/kpi_api_contracts": "^1.3.0",
     "@process-engine/logging_api_contracts": "^1.0.3",
-    "@process-engine/process_engine_contracts": "^44.0.0",
+    "@process-engine/management_api_contracts": "^10.0.0",
+    "@process-engine/process_engine_contracts": "^45.0.0",
     "@process-engine/process_model.contracts": "^2.3.0",
+    "@process-engine/token_history_api_contracts": "^2.0.0",
     "bluebird": "~3.5.2",
     "bluebird-global": "~1.0.1",
     "clone": "~2.1.2",
