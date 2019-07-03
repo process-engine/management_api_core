@@ -9,6 +9,7 @@ function registerInContainer(container) {
     .dependencies(
       'ConsumerApiService',
       'CorrelationService',
+      'CronjobService',
       'DeploymentApiService',
       'EventAggregator',
       'FlowNodeInstanceService',

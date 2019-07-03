@@ -9,9 +9,9 @@ import {DataModels as ConsumerApiTypes, IConsumerApi} from '@process-engine/cons
 import {ICorrelationService} from '@process-engine/correlation.contracts';
 import {IDeploymentApi} from '@process-engine/deployment_api_contracts';
 import {DataModels, IManagementApi, Messages} from '@process-engine/management_api_contracts';
-import {IProcessModelFacadeFactory} from '@process-engine/process_engine_contracts';
+import {ICronjobService, IProcessModelFacadeFactory} from '@process-engine/process_engine_contracts';
 import {IProcessModelUseCases} from '@process-engine/process_model.contracts';
-import {FlowNodeInstance, IFlowNodeInstanceService} from '@process-engine/flow_node_instance.contracts';
+import {IFlowNodeInstanceService} from '@process-engine/flow_node_instance.contracts';
 
 import * as Converters from './converters/index';
 
@@ -19,6 +19,7 @@ export class ManagementApiService implements IManagementApi {
 
   private readonly consumerApiService: IConsumerApi;
   private readonly correlationService: ICorrelationService;
+  private readonly cronjobService: ICronjobService;
   private readonly deploymentApiService: IDeploymentApi;
   private readonly eventAggregator: IEventAggregator;
   private readonly flowNodeInstanceService: IFlowNodeInstanceService;
@@ -32,6 +33,7 @@ export class ManagementApiService implements IManagementApi {
   constructor(
     consumerApiService: IConsumerApi,
     correlationService: ICorrelationService,
+    cronjobService: ICronjobService,
     deploymentApiService: IDeploymentApi,
     eventAggregator: IEventAggregator,
     flowNodeInstanceService: IFlowNodeInstanceService,
@@ -44,6 +46,7 @@ export class ManagementApiService implements IManagementApi {
   ) {
     this.consumerApiService = consumerApiService;
     this.correlationService = correlationService;
+    this.cronjobService = cronjobService;
     this.deploymentApiService = deploymentApiService;
     this.eventAggregator = eventAggregator;
     this.flowNodeInstanceService = flowNodeInstanceService;
