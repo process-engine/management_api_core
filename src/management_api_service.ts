@@ -385,10 +385,18 @@ export class ManagementApiService implements IManagementApi {
     name: string,
     payload: DataModels.ProcessModels.UpdateProcessDefinitionsRequestPayload,
   ): Promise<void> {
-    return this.processModelUseCases.persistProcessDefinitions(identity, name, payload.xml, payload.overwriteExisting);
+    await this.processModelUseCases.persistProcessDefinitions(identity, name, payload.xml, payload.overwriteExisting);
+
+    // NOTE: This will only work so lang as ProcessDefinitionName and ProcessModelId remain the same.
+    // As soon as we refactor the ProcessEngine core to allow different names fore each, this will have to be refactored accordingly.
+    const processModel = await this.processModelUseCases.getProcessModelById(identity, name);
+
+    await this.cronjobService.addOrUpdate(processModel);
   }
 
   public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
+    await this.cronjobService.remove(processModelId);
+
     return this.processModelUseCases.deleteProcessModel(identity, processModelId);
   }
 
