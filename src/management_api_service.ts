@@ -395,9 +395,9 @@ export class ManagementApiService implements IManagementApi {
   }
 
   public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
-    await this.cronjobService.remove(processModelId);
+    await this.processModelUseCases.deleteProcessModel(identity, processModelId);
 
-    return this.processModelUseCases.deleteProcessModel(identity, processModelId);
+    await this.cronjobService.remove(processModelId);
   }
 
   // Events
