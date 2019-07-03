@@ -10,7 +10,6 @@ function registerInContainer(container) {
       'ConsumerApiService',
       'CorrelationService',
       'CronjobService',
-      'DeploymentApiService',
       'EventAggregator',
       'FlowNodeInstanceService',
       'IamService',

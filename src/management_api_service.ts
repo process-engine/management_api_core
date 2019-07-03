@@ -20,7 +20,6 @@ export class ManagementApiService implements IManagementApi {
   private readonly consumerApiService: IConsumerApi;
   private readonly correlationService: ICorrelationService;
   private readonly cronjobService: ICronjobService;
-  private readonly deploymentApiService: IDeploymentApi;
   private readonly eventAggregator: IEventAggregator;
   private readonly flowNodeInstanceService: IFlowNodeInstanceService;
   private readonly iamService: IIAMService;
@@ -34,7 +33,6 @@ export class ManagementApiService implements IManagementApi {
     consumerApiService: IConsumerApi,
     correlationService: ICorrelationService,
     cronjobService: ICronjobService,
-    deploymentApiService: IDeploymentApi,
     eventAggregator: IEventAggregator,
     flowNodeInstanceService: IFlowNodeInstanceService,
     iamService: IIAMService,
@@ -47,7 +45,6 @@ export class ManagementApiService implements IManagementApi {
     this.consumerApiService = consumerApiService;
     this.correlationService = correlationService;
     this.cronjobService = cronjobService;
-    this.deploymentApiService = deploymentApiService;
     this.eventAggregator = eventAggregator;
     this.flowNodeInstanceService = flowNodeInstanceService;
     this.iamService = iamService;
@@ -389,14 +386,7 @@ export class ManagementApiService implements IManagementApi {
     name: string,
     payload: DataModels.ProcessModels.UpdateProcessDefinitionsRequestPayload,
   ): Promise<void> {
-
-    const deploymentApiPayload = {
-      name: name,
-      xml: payload.xml,
-      overwriteExisting: payload.overwriteExisting,
-    };
-
-    return this.deploymentApiService.importBpmnFromXml(identity, deploymentApiPayload);
+    return this.processModelUseCases.persistProcessDefinitions(identity, name, payload.xml, payload.overwriteExisting);
   }
 
   public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
