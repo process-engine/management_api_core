@@ -7,7 +7,6 @@ import {ITokenHistoryApi} from '@process-engine/token_history_api_contracts';
 
 import {DataModels as ConsumerApiTypes, IConsumerApi} from '@process-engine/consumer_api_contracts';
 import {ICorrelationService} from '@process-engine/correlation.contracts';
-import {IDeploymentApi} from '@process-engine/deployment_api_contracts';
 import {DataModels, IManagementApi, Messages} from '@process-engine/management_api_contracts';
 import {ICronjobService, IProcessModelFacadeFactory} from '@process-engine/process_engine_contracts';
 import {IProcessModelUseCases} from '@process-engine/process_model.contracts';
