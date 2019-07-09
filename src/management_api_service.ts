@@ -7,6 +7,7 @@ import {ITokenHistoryApi} from '@process-engine/token_history_api_contracts';
 
 import {DataModels as ConsumerApiTypes, IConsumerApi} from '@process-engine/consumer_api_contracts';
 import {ICorrelationService} from '@process-engine/correlation.contracts';
+import {ICronjobHistoryService} from '@process-engine/cronjob_history.contracts';
 import {DataModels, IManagementApi, Messages} from '@process-engine/management_api_contracts';
 import {ICronjobService, IProcessModelFacadeFactory} from '@process-engine/process_engine_contracts';
 import {IProcessModelUseCases} from '@process-engine/process_model.contracts';
@@ -19,6 +20,7 @@ export class ManagementApiService implements IManagementApi {
   private readonly consumerApiService: IConsumerApi;
   private readonly correlationService: ICorrelationService;
   private readonly cronjobService: ICronjobService;
+  private readonly cronjobHistoryService: ICronjobHistoryService;
   private readonly eventAggregator: IEventAggregator;
   private readonly flowNodeInstanceService: IFlowNodeInstanceService;
   private readonly iamService: IIAMService;
@@ -32,6 +34,7 @@ export class ManagementApiService implements IManagementApi {
     consumerApiService: IConsumerApi,
     correlationService: ICorrelationService,
     cronjobService: ICronjobService,
+    cronjobHistoryService: ICronjobHistoryService,
     eventAggregator: IEventAggregator,
     flowNodeInstanceService: IFlowNodeInstanceService,
     iamService: IIAMService,
@@ -43,6 +46,7 @@ export class ManagementApiService implements IManagementApi {
   ) {
     this.consumerApiService = consumerApiService;
     this.correlationService = correlationService;
+    this.cronjobHistoryService = cronjobHistoryService;
     this.cronjobService = cronjobService;
     this.eventAggregator = eventAggregator;
     this.flowNodeInstanceService = flowNodeInstanceService;
@@ -267,6 +271,21 @@ export class ManagementApiService implements IManagementApi {
   // Cronjobs
   public async getAllActiveCronjobs(identity: IIdentity): Promise<Array<DataModels.Cronjobs.CronjobConfiguration>> {
     return this.cronjobService.getActive();
+  }
+
+  public async getCronjobExecutionHistoryForProcessModel(
+    identity: IIdentity,
+    processModelId: string,
+    startEventId?: string,
+  ): Promise<Array<DataModels.Cronjobs.CronjobHistoryEntry>> {
+    return this.cronjobHistoryService.getByProcessModelId(identity, processModelId, startEventId);
+  }
+
+  public async getCronjobExecutionHistoryForCrontab(
+    identity: IIdentity,
+    crontab: string,
+  ): Promise<Array<DataModels.Cronjobs.CronjobHistoryEntry>> {
+    return this.cronjobHistoryService.getByCrontab(identity, crontab);
   }
 
   // Correlations
