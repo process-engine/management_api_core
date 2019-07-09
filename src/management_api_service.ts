@@ -285,7 +285,7 @@ export class ManagementApiService implements IManagementApi {
     identity: IIdentity,
     crontab: string,
   ): Promise<Array<DataModels.Cronjobs.CronjobHistoryEntry>> {
-    return this.cronjobHistoryService.getByProcessModelId(identity, crontab);
+    return this.cronjobHistoryService.getByCrontab(identity, crontab);
   }
 
   // Correlations
