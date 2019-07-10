@@ -7,11 +7,11 @@ import {ITokenHistoryApi} from '@process-engine/token_history_api_contracts';
 
 import {DataModels as ConsumerApiTypes, IConsumerApi} from '@process-engine/consumer_api_contracts';
 import {ICorrelationService} from '@process-engine/correlation.contracts';
-import {IDeploymentApi} from '@process-engine/deployment_api_contracts';
+import {ICronjobHistoryService} from '@process-engine/cronjob_history.contracts';
 import {DataModels, IManagementApi, Messages} from '@process-engine/management_api_contracts';
-import {IProcessModelFacadeFactory} from '@process-engine/process_engine_contracts';
+import {ICronjobService, IProcessModelFacadeFactory} from '@process-engine/process_engine_contracts';
 import {IProcessModelUseCases} from '@process-engine/process_model.contracts';
-import {FlowNodeInstance, IFlowNodeInstanceService} from '@process-engine/flow_node_instance.contracts';
+import {IFlowNodeInstanceService} from '@process-engine/flow_node_instance.contracts';
 
 import * as Converters from './converters/index';
 
@@ -19,7 +19,8 @@ export class ManagementApiService implements IManagementApi {
 
   private readonly consumerApiService: IConsumerApi;
   private readonly correlationService: ICorrelationService;
-  private readonly deploymentApiService: IDeploymentApi;
+  private readonly cronjobService: ICronjobService;
+  private readonly cronjobHistoryService: ICronjobHistoryService;
   private readonly eventAggregator: IEventAggregator;
   private readonly flowNodeInstanceService: IFlowNodeInstanceService;
   private readonly iamService: IIAMService;
@@ -32,7 +33,8 @@ export class ManagementApiService implements IManagementApi {
   constructor(
     consumerApiService: IConsumerApi,
     correlationService: ICorrelationService,
-    deploymentApiService: IDeploymentApi,
+    cronjobService: ICronjobService,
+    cronjobHistoryService: ICronjobHistoryService,
     eventAggregator: IEventAggregator,
     flowNodeInstanceService: IFlowNodeInstanceService,
     iamService: IIAMService,
@@ -44,7 +46,8 @@ export class ManagementApiService implements IManagementApi {
   ) {
     this.consumerApiService = consumerApiService;
     this.correlationService = correlationService;
-    this.deploymentApiService = deploymentApiService;
+    this.cronjobHistoryService = cronjobHistoryService;
+    this.cronjobService = cronjobService;
     this.eventAggregator = eventAggregator;
     this.flowNodeInstanceService = flowNodeInstanceService;
     this.iamService = iamService;
@@ -265,6 +268,26 @@ export class ManagementApiService implements IManagementApi {
     return this.consumerApiService.removeSubscription(identity, subscription);
   }
 
+  // Cronjobs
+  public async getAllActiveCronjobs(identity: IIdentity): Promise<Array<DataModels.Cronjobs.CronjobConfiguration>> {
+    return this.cronjobService.getActive();
+  }
+
+  public async getCronjobExecutionHistoryForProcessModel(
+    identity: IIdentity,
+    processModelId: string,
+    startEventId?: string,
+  ): Promise<Array<DataModels.Cronjobs.CronjobHistoryEntry>> {
+    return this.cronjobHistoryService.getByProcessModelId(identity, processModelId, startEventId);
+  }
+
+  public async getCronjobExecutionHistoryForCrontab(
+    identity: IIdentity,
+    crontab: string,
+  ): Promise<Array<DataModels.Cronjobs.CronjobHistoryEntry>> {
+    return this.cronjobHistoryService.getByCrontab(identity, crontab);
+  }
+
   // Correlations
   public async getAllCorrelations(identity: IIdentity): Promise<Array<DataModels.Correlations.Correlation>> {
 
@@ -386,18 +409,19 @@ export class ManagementApiService implements IManagementApi {
     name: string,
     payload: DataModels.ProcessModels.UpdateProcessDefinitionsRequestPayload,
   ): Promise<void> {
+    await this.processModelUseCases.persistProcessDefinitions(identity, name, payload.xml, payload.overwriteExisting);
 
-    const deploymentApiPayload = {
-      name: name,
-      xml: payload.xml,
-      overwriteExisting: payload.overwriteExisting,
-    };
+    // NOTE: This will only work as long as ProcessDefinitionName and ProcessModelId remain the same.
+    // As soon as we refactor the ProcessEngine core to allow different names for each, this will have to be refactored accordingly.
+    const processModel = await this.processModelUseCases.getProcessModelById(identity, name);
 
-    return this.deploymentApiService.importBpmnFromXml(identity, deploymentApiPayload);
+    await this.cronjobService.addOrUpdate(processModel);
   }
 
   public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
-    return this.processModelUseCases.deleteProcessModel(identity, processModelId);
+    await this.processModelUseCases.deleteProcessModel(identity, processModelId);
+
+    await this.cronjobService.remove(processModelId);
   }
 
   // Events
