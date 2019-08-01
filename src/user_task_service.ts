@@ -1,27 +1,27 @@
 import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 
-import {IConsumerApi} from '@process-engine/consumer_api_contracts';
+import {APIs as ConsumerApis} from '@process-engine/consumer_api_contracts';
 import {APIs, DataModels, Messages} from '@process-engine/management_api_contracts';
 
 export class UserTaskService implements APIs.IUserTaskManagementApi {
 
-  private readonly consumerApiService: IConsumerApi;
+  private readonly consumerApiUserTaskService: ConsumerApis.IUserTaskConsumerApi;
 
-  constructor(consumerApiService: IConsumerApi) {
-    this.consumerApiService = consumerApiService;
+  constructor(consumerApiUserTaskService: ConsumerApis.IUserTaskConsumerApi) {
+    this.consumerApiUserTaskService = consumerApiUserTaskService;
   }
 
   public async getUserTasksForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.UserTasks.UserTaskList> {
-    return this.consumerApiService.getUserTasksForProcessModel(identity, processModelId);
+    return this.consumerApiUserTaskService.getUserTasksForProcessModel(identity, processModelId);
   }
 
   public async getUserTasksForProcessInstance(identity: IIdentity, processInstanceId: string): Promise<DataModels.UserTasks.UserTaskList> {
-    return this.consumerApiService.getUserTasksForProcessInstance(identity, processInstanceId);
+    return this.consumerApiUserTaskService.getUserTasksForProcessInstance(identity, processInstanceId);
   }
 
   public async getUserTasksForCorrelation(identity: IIdentity, correlationId: string): Promise<DataModels.UserTasks.UserTaskList> {
-    return this.consumerApiService.getUserTasksForCorrelation(identity, correlationId);
+    return this.consumerApiUserTaskService.getUserTasksForCorrelation(identity, correlationId);
   }
 
   public async getUserTasksForProcessModelInCorrelation(
@@ -29,7 +29,7 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
     processModelId: string,
     correlationId: string,
   ): Promise<DataModels.UserTasks.UserTaskList> {
-    return this.consumerApiService.getUserTasksForProcessModelInCorrelation(identity, processModelId, correlationId);
+    return this.consumerApiUserTaskService.getUserTasksForProcessModelInCorrelation(identity, processModelId, correlationId);
   }
 
   public async finishUserTask(
@@ -39,7 +39,7 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
     userTaskInstanceId: string,
     userTaskResult: DataModels.UserTasks.UserTaskResult,
   ): Promise<void> {
-    return this.consumerApiService.finishUserTask(identity, processInstanceId, correlationId, userTaskInstanceId, userTaskResult);
+    return this.consumerApiUserTaskService.finishUserTask(identity, processInstanceId, correlationId, userTaskInstanceId, userTaskResult);
   }
 
   // Notifications
@@ -48,7 +48,7 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
     callback: Messages.CallbackTypes.OnUserTaskWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onUserTaskWaiting(identity, callback, subscribeOnce);
+    return this.consumerApiUserTaskService.onUserTaskWaiting(identity, callback, subscribeOnce);
   }
 
   public async onUserTaskFinished(
@@ -56,7 +56,7 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
     callback: Messages.CallbackTypes.OnUserTaskFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onUserTaskFinished(identity, callback, subscribeOnce);
+    return this.consumerApiUserTaskService.onUserTaskFinished(identity, callback, subscribeOnce);
   }
 
   public async onUserTaskForIdentityWaiting(
@@ -64,7 +64,7 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
     callback: Messages.CallbackTypes.OnUserTaskWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onUserTaskForIdentityWaiting(identity, callback, subscribeOnce);
+    return this.consumerApiUserTaskService.onUserTaskForIdentityWaiting(identity, callback, subscribeOnce);
   }
 
   public async onUserTaskForIdentityFinished(
@@ -72,7 +72,7 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
     callback: Messages.CallbackTypes.OnUserTaskFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onUserTaskForIdentityFinished(identity, callback, subscribeOnce);
+    return this.consumerApiUserTaskService.onUserTaskForIdentityFinished(identity, callback, subscribeOnce);
   }
 
 }

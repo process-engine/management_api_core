@@ -1,22 +1,22 @@
 import {IIdentity} from '@essential-projects/iam_contracts';
 
-import {IConsumerApi} from '@process-engine/consumer_api_contracts';
+import {APIs as ConsumerApis} from '@process-engine/consumer_api_contracts';
 import {APIs, DataModels} from '@process-engine/management_api_contracts';
 
 export class EventService implements APIs.IEventManagementApi {
 
-  private readonly consumerApiService: IConsumerApi;
+  private readonly consumerApiEventService: ConsumerApis.IEventConsumerApi;
 
-  constructor(consumerApiService: IConsumerApi) {
-    this.consumerApiService = consumerApiService;
+  constructor(consumerApiEventService: ConsumerApis.IEventConsumerApi) {
+    this.consumerApiEventService = consumerApiEventService;
   }
 
   public async getWaitingEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.Events.EventList> {
-    return this.consumerApiService.getEventsForProcessModel(identity, processModelId);
+    return this.consumerApiEventService.getEventsForProcessModel(identity, processModelId);
   }
 
   public async getWaitingEventsForCorrelation(identity: IIdentity, correlationId: string): Promise<DataModels.Events.EventList> {
-    return this.consumerApiService.getEventsForCorrelation(identity, correlationId);
+    return this.consumerApiEventService.getEventsForCorrelation(identity, correlationId);
   }
 
   public async getWaitingEventsForProcessModelInCorrelation(
@@ -25,15 +25,15 @@ export class EventService implements APIs.IEventManagementApi {
     correlationId: string,
   ): Promise<DataModels.Events.EventList> {
 
-    return this.consumerApiService.getEventsForProcessModelInCorrelation(identity, processModelId, correlationId);
+    return this.consumerApiEventService.getEventsForProcessModelInCorrelation(identity, processModelId, correlationId);
   }
 
   public async triggerMessageEvent(identity: IIdentity, messageName: string, payload?: DataModels.Events.EventTriggerPayload): Promise<void> {
-    return this.consumerApiService.triggerMessageEvent(identity, messageName, payload);
+    return this.consumerApiEventService.triggerMessageEvent(identity, messageName, payload);
   }
 
   public async triggerSignalEvent(identity: IIdentity, signalName: string, payload?: DataModels.Events.EventTriggerPayload): Promise<void> {
-    return this.consumerApiService.triggerSignalEvent(identity, signalName, payload);
+    return this.consumerApiEventService.triggerSignalEvent(identity, signalName, payload);
   }
 
 }

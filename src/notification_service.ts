@@ -1,15 +1,15 @@
 import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 
-import {IConsumerApi} from '@process-engine/consumer_api_contracts';
+import {APIs as ConsumerApis} from '@process-engine/consumer_api_contracts';
 import {APIs, Messages} from '@process-engine/management_api_contracts';
 
 export class NotificationService implements APIs.INotificationManagementApi {
 
-  private readonly consumerApiService: IConsumerApi;
+  private readonly consumerApiNotificationService: ConsumerApis.INotificationConsumerApi;
 
-  constructor(consumerApiService: IConsumerApi) {
-    this.consumerApiService = consumerApiService;
+  constructor(consumerApiNotificationService: ConsumerApis.INotificationConsumerApi) {
+    this.consumerApiNotificationService = consumerApiNotificationService;
   }
 
   // Notifications
@@ -18,7 +18,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnActivityReachedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onActivityReached(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onActivityReached(identity, callback, subscribeOnce);
   }
 
   public async onActivityFinished(
@@ -26,7 +26,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnActivityFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onActivityFinished(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onActivityFinished(identity, callback, subscribeOnce);
   }
 
   public async onEmptyActivityWaiting(
@@ -34,7 +34,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnEmptyActivityWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onEmptyActivityWaiting(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onEmptyActivityWaiting(identity, callback, subscribeOnce);
   }
 
   public async onEmptyActivityFinished(
@@ -42,7 +42,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnEmptyActivityFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onEmptyActivityFinished(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onEmptyActivityFinished(identity, callback, subscribeOnce);
   }
 
   public async onEmptyActivityForIdentityWaiting(
@@ -50,7 +50,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnEmptyActivityWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onEmptyActivityForIdentityWaiting(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onEmptyActivityForIdentityWaiting(identity, callback, subscribeOnce);
   }
 
   public async onEmptyActivityForIdentityFinished(
@@ -58,7 +58,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnEmptyActivityFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onEmptyActivityForIdentityFinished(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onEmptyActivityForIdentityFinished(identity, callback, subscribeOnce);
   }
 
   public async onUserTaskWaiting(
@@ -66,7 +66,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnUserTaskWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onUserTaskWaiting(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onUserTaskWaiting(identity, callback, subscribeOnce);
   }
 
   public async onUserTaskFinished(
@@ -74,7 +74,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnUserTaskFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onUserTaskFinished(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onUserTaskFinished(identity, callback, subscribeOnce);
   }
 
   public async onUserTaskForIdentityWaiting(
@@ -82,7 +82,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnUserTaskWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onUserTaskForIdentityWaiting(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onUserTaskForIdentityWaiting(identity, callback, subscribeOnce);
   }
 
   public async onUserTaskForIdentityFinished(
@@ -90,7 +90,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnUserTaskFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onUserTaskForIdentityFinished(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onUserTaskForIdentityFinished(identity, callback, subscribeOnce);
   }
 
   public async onBoundaryEventTriggered(
@@ -98,7 +98,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnBoundaryEventTriggeredCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onBoundaryEventTriggered(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onBoundaryEventTriggered(identity, callback, subscribeOnce);
   }
 
   public async onIntermediateThrowEventTriggered(
@@ -106,7 +106,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnIntermediateThrowEventTriggeredCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onIntermediateThrowEventTriggered(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onIntermediateThrowEventTriggered(identity, callback, subscribeOnce);
   }
 
   public async onIntermediateCatchEventReached(
@@ -114,7 +114,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnIntermediateCatchEventReachedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onIntermediateCatchEventReached(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onIntermediateCatchEventReached(identity, callback, subscribeOnce);
   }
 
   public async onIntermediateCatchEventFinished(
@@ -122,7 +122,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnIntermediateCatchEventFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onIntermediateCatchEventFinished(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onIntermediateCatchEventFinished(identity, callback, subscribeOnce);
   }
 
   public async onManualTaskWaiting(
@@ -130,7 +130,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnManualTaskWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onManualTaskWaiting(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onManualTaskWaiting(identity, callback, subscribeOnce);
   }
 
   public async onManualTaskFinished(
@@ -138,7 +138,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnManualTaskFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onManualTaskFinished(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onManualTaskFinished(identity, callback, subscribeOnce);
   }
 
   public async onManualTaskForIdentityWaiting(
@@ -146,7 +146,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnManualTaskWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onManualTaskForIdentityWaiting(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onManualTaskForIdentityWaiting(identity, callback, subscribeOnce);
   }
 
   public async onManualTaskForIdentityFinished(
@@ -154,7 +154,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnManualTaskFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onManualTaskForIdentityFinished(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onManualTaskForIdentityFinished(identity, callback, subscribeOnce);
   }
 
   public async onProcessStarted(
@@ -162,7 +162,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnProcessEndedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onProcessStarted(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onProcessStarted(identity, callback, subscribeOnce);
   }
 
   public async onProcessWithProcessModelIdStarted(
@@ -171,7 +171,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     processModelId: string,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onProcessWithProcessModelIdStarted(identity, callback, processModelId, subscribeOnce);
+    return this.consumerApiNotificationService.onProcessWithProcessModelIdStarted(identity, callback, processModelId, subscribeOnce);
   }
 
   public async onProcessTerminated(
@@ -179,7 +179,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnProcessTerminatedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onProcessTerminated(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onProcessTerminated(identity, callback, subscribeOnce);
   }
 
   public async onProcessError(
@@ -187,7 +187,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnProcessErrorCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onProcessError(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onProcessError(identity, callback, subscribeOnce);
   }
 
   public async onProcessEnded(
@@ -195,11 +195,11 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnProcessEndedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onProcessEnded(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onProcessEnded(identity, callback, subscribeOnce);
   }
 
   public async removeSubscription(identity: IIdentity, subscription: Subscription): Promise<void> {
-    return this.consumerApiService.removeSubscription(identity, subscription);
+    return this.consumerApiNotificationService.removeSubscription(identity, subscription);
   }
 
   // -------------- For backwards compatibility only
@@ -209,7 +209,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnCallActivityWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onCallActivityWaiting(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onCallActivityWaiting(identity, callback, subscribeOnce);
   }
 
   public async onCallActivityFinished(
@@ -217,7 +217,7 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnCallActivityFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onCallActivityFinished(identity, callback, subscribeOnce);
+    return this.consumerApiNotificationService.onCallActivityFinished(identity, callback, subscribeOnce);
   }
 
   // --------------

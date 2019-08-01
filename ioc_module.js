@@ -3,13 +3,13 @@
 const {
   CorrelationService,
   CronjobService,
-  EventService,
   EmptyActivityService,
+  EventService,
   FlowNodeInstanceService,
   KpiService,
   LoggingService,
-  NotificationService,
   ManualTaskService,
+  NotificationService,
   ProcessModelService,
   TokenHistoryService,
   UserTaskService,
@@ -28,13 +28,13 @@ function registerInContainer(container) {
     .singleton();
 
   container
-    .register('ManagementApiEventService', EventService)
-    .dependencies('ConsumerApiService')
+    .register('ManagementApiEmptyActivityService', EmptyActivityService)
+    .dependencies('ConsumerApiEmptyActivityService')
     .singleton();
 
   container
-    .register('ManagementApiEmptyActivityService', EmptyActivityService)
-    .dependencies('ConsumerApiService')
+    .register('ManagementApiEventService', EventService)
+    .dependencies('ConsumerApiEventService')
     .singleton();
 
   container
@@ -53,19 +53,19 @@ function registerInContainer(container) {
     .singleton();
 
   container
-    .register('ManagementApiNotificationService', NotificationService)
-    .dependencies('ConsumerApiService')
+    .register('ManagementApiManualTaskService', ManualTaskService)
+    .dependencies('ConsumerApiManualTaskService')
     .singleton();
 
   container
-    .register('ManagementApiManualTaskService', ManualTaskService)
-    .dependencies('ConsumerApiService')
+    .register('ManagementApiNotificationService', NotificationService)
+    .dependencies('ConsumerApiNotificationService')
     .singleton();
 
   container
     .register('ManagementApiProcessModelService', ProcessModelService)
     .dependencies(
-      'ConsumerApiService',
+      'ConsumerApiProcessModelService',
       'CronjobService',
       'EventAggregator',
       'IamService',
@@ -80,7 +80,7 @@ function registerInContainer(container) {
 
   container
     .register('ManagementApiUserTaskService', UserTaskService)
-    .dependencies('ConsumerApiService')
+    .dependencies('ConsumerApiUserTaskService')
     .singleton();
 }
 

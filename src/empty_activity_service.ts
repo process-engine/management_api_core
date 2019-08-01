@@ -1,30 +1,30 @@
 import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 
-import {IConsumerApi} from '@process-engine/consumer_api_contracts';
+import {APIs as ConsumerApis} from '@process-engine/consumer_api_contracts';
 import {APIs, DataModels, Messages} from '@process-engine/management_api_contracts';
 
 export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
 
-  private readonly consumerApiService: IConsumerApi;
+  private readonly consumerApiEmptyActivityService: ConsumerApis.IEmptyActivityConsumerApi;
 
-  constructor(consumerApiService: IConsumerApi) {
-    this.consumerApiService = consumerApiService;
+  constructor(consumerApiEmptyActivityService: ConsumerApis.IEmptyActivityConsumerApi) {
+    this.consumerApiEmptyActivityService = consumerApiEmptyActivityService;
   }
 
   public async getEmptyActivitiesForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.EmptyActivities.EmptyActivityList> {
-    return this.consumerApiService.getEmptyActivitiesForProcessModel(identity, processModelId);
+    return this.consumerApiEmptyActivityService.getEmptyActivitiesForProcessModel(identity, processModelId);
   }
 
   public async getEmptyActivitiesForProcessInstance(
     identity: IIdentity,
     processInstanceId: string,
   ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
-    return this.consumerApiService.getEmptyActivitiesForProcessInstance(identity, processInstanceId);
+    return this.consumerApiEmptyActivityService.getEmptyActivitiesForProcessInstance(identity, processInstanceId);
   }
 
   public async getEmptyActivitiesForCorrelation(identity: IIdentity, correlationId: string): Promise<DataModels.EmptyActivities.EmptyActivityList> {
-    return this.consumerApiService.getEmptyActivitiesForCorrelation(identity, correlationId);
+    return this.consumerApiEmptyActivityService.getEmptyActivitiesForCorrelation(identity, correlationId);
   }
 
   public async getEmptyActivitiesForProcessModelInCorrelation(
@@ -32,7 +32,7 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
     processModelId: string,
     correlationId: string,
   ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
-    return this.consumerApiService.getEmptyActivitiesForProcessModelInCorrelation(identity, processModelId, correlationId);
+    return this.consumerApiEmptyActivityService.getEmptyActivitiesForProcessModelInCorrelation(identity, processModelId, correlationId);
   }
 
   public async finishEmptyActivity(
@@ -41,7 +41,7 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
     correlationId: string,
     emptyActivityInstanceId: string,
   ): Promise<void> {
-    return this.consumerApiService.finishEmptyActivity(identity, processInstanceId, correlationId, emptyActivityInstanceId);
+    return this.consumerApiEmptyActivityService.finishEmptyActivity(identity, processInstanceId, correlationId, emptyActivityInstanceId);
   }
 
   // Notifications
@@ -50,7 +50,7 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
     callback: Messages.CallbackTypes.OnEmptyActivityWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onEmptyActivityWaiting(identity, callback, subscribeOnce);
+    return this.consumerApiEmptyActivityService.onEmptyActivityWaiting(identity, callback, subscribeOnce);
   }
 
   public async onEmptyActivityFinished(
@@ -58,7 +58,7 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
     callback: Messages.CallbackTypes.OnEmptyActivityFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onEmptyActivityFinished(identity, callback, subscribeOnce);
+    return this.consumerApiEmptyActivityService.onEmptyActivityFinished(identity, callback, subscribeOnce);
   }
 
   public async onEmptyActivityForIdentityWaiting(
@@ -66,7 +66,7 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
     callback: Messages.CallbackTypes.OnEmptyActivityWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onEmptyActivityForIdentityWaiting(identity, callback, subscribeOnce);
+    return this.consumerApiEmptyActivityService.onEmptyActivityForIdentityWaiting(identity, callback, subscribeOnce);
   }
 
   public async onEmptyActivityForIdentityFinished(
@@ -74,7 +74,7 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
     callback: Messages.CallbackTypes.OnEmptyActivityFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onEmptyActivityForIdentityFinished(identity, callback, subscribeOnce);
+    return this.consumerApiEmptyActivityService.onEmptyActivityForIdentityFinished(identity, callback, subscribeOnce);
   }
 
 }

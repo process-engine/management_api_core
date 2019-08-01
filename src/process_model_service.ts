@@ -1,14 +1,14 @@
 import {IEventAggregator, Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
 
-import {DataModels as ConsumerApiTypes, IConsumerApi} from '@process-engine/consumer_api_contracts';
+import {DataModels as ConsumerApiTypes, APIs as ConsumerApis} from '@process-engine/consumer_api_contracts';
 import {APIs, DataModels, Messages} from '@process-engine/management_api_contracts';
 import {ICronjobService, IProcessModelFacadeFactory} from '@process-engine/process_engine_contracts';
 import {IProcessModelUseCases, Model} from '@process-engine/process_model.contracts';
 
 export class ProcessModelService implements APIs.IProcessModelManagementApi {
 
-  private readonly consumerApiService: IConsumerApi;
+  private readonly consumerApiProcessModelService: ConsumerApis.IProcessModelConsumerApi;
   private readonly cronjobService: ICronjobService;
   private readonly eventAggregator: IEventAggregator;
   private readonly iamService: IIAMService;
@@ -16,14 +16,14 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
   private readonly processModelUseCases: IProcessModelUseCases;
 
   constructor(
-    consumerApiService: IConsumerApi,
+    consumerApiProcessModelService: ConsumerApis.IProcessModelConsumerApi,
     cronjobService: ICronjobService,
     eventAggregator: IEventAggregator,
     iamService: IIAMService,
     processModelFacadeFactory: IProcessModelFacadeFactory,
     processModelUseCases: IProcessModelUseCases,
   ) {
-    this.consumerApiService = consumerApiService;
+    this.consumerApiProcessModelService = consumerApiProcessModelService;
     this.cronjobService = cronjobService;
     this.eventAggregator = eventAggregator;
     this.iamService = iamService;
@@ -33,7 +33,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
 
   public async getProcessModels(identity: IIdentity): Promise<DataModels.ProcessModels.ProcessModelList> {
 
-    const consumerApiProcessModels = await this.consumerApiService.getProcessModels(identity);
+    const consumerApiProcessModels = await this.consumerApiProcessModelService.getProcessModels(identity);
 
     const managementApiProcessModels =
       await Promise.map(
@@ -52,7 +52,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
 
   public async getProcessModelById(identity: IIdentity, processModelId: string): Promise<DataModels.ProcessModels.ProcessModel> {
 
-    const consumerApiProcessModel = await this.consumerApiService.getProcessModelById(identity, processModelId);
+    const consumerApiProcessModel = await this.consumerApiProcessModelService.getProcessModelById(identity, processModelId);
 
     const processModelRaw = await this.getRawXmlForProcessModelById(identity, consumerApiProcessModel.id);
 
@@ -63,7 +63,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
 
   public async getProcessModelByProcessInstanceId(identity: IIdentity, processInstanceId: string): Promise<DataModels.ProcessModels.ProcessModel> {
 
-    const consumerApiProcessModel = await this.consumerApiService.getProcessModelByProcessInstanceId(identity, processInstanceId);
+    const consumerApiProcessModel = await this.consumerApiProcessModelService.getProcessModelByProcessInstanceId(identity, processInstanceId);
 
     const processModelRaw = await this.getRawXmlForProcessModelById(identity, consumerApiProcessModel.id);
 
@@ -97,7 +97,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     startEventId?: string,
     endEventId?: string,
   ): Promise<DataModels.ProcessModels.ProcessStartResponsePayload> {
-    return this.consumerApiService.startProcessInstance(identity, processModelId, payload, startCallbackType, startEventId, endEventId);
+    return this.consumerApiProcessModelService.startProcessInstance(identity, processModelId, payload, startCallbackType, startEventId, endEventId);
   }
 
   public async updateProcessDefinitionsByName(
@@ -138,7 +138,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     callback: Messages.CallbackTypes.OnProcessEndedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onProcessStarted(identity, callback, subscribeOnce);
+    return this.consumerApiProcessModelService.onProcessStarted(identity, callback, subscribeOnce);
   }
 
   public async onProcessWithProcessModelIdStarted(
@@ -147,7 +147,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     processModelId: string,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onProcessWithProcessModelIdStarted(identity, callback, processModelId, subscribeOnce);
+    return this.consumerApiProcessModelService.onProcessWithProcessModelIdStarted(identity, callback, processModelId, subscribeOnce);
   }
 
   public async onProcessEnded(
@@ -155,7 +155,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     callback: Messages.CallbackTypes.OnProcessEndedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onProcessEnded(identity, callback, subscribeOnce);
+    return this.consumerApiProcessModelService.onProcessEnded(identity, callback, subscribeOnce);
   }
 
   public async onProcessTerminated(
@@ -163,7 +163,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     callback: Messages.CallbackTypes.OnProcessTerminatedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onProcessTerminated(identity, callback, subscribeOnce);
+    return this.consumerApiProcessModelService.onProcessTerminated(identity, callback, subscribeOnce);
   }
 
   public async onProcessError(
@@ -171,11 +171,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     callback: Messages.CallbackTypes.OnProcessErrorCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiService.onProcessError(identity, callback, subscribeOnce);
-  }
-
-  public async removeSubscription(identity: IIdentity, subscription: Subscription): Promise<void> {
-    return this.consumerApiService.removeSubscription(identity, subscription);
+    return this.consumerApiProcessModelService.onProcessError(identity, callback, subscribeOnce);
   }
 
   private async getRawXmlForProcessModelById(identity: IIdentity, processModelId: string): Promise<string> {
