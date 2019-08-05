@@ -15,7 +15,21 @@ const {
   UserTaskService,
 } = require('./dist/commonjs/index');
 
+
 function registerInContainer(container) {
+  registerConvertersAndAdapters(container);
+  registerServices(container);
+}
+
+function registerConvertersAndAdapters(container) {
+
+  container
+    .register('ManagementApiNotificationAdapter', NotificationAdapter)
+    .dependencies('EventAggregator')
+    .singleton();
+}
+
+function registerServices(container){
 
   container
     .register('ManagementApiCorrelationService', CorrelationService)
@@ -59,7 +73,7 @@ function registerInContainer(container) {
 
   container
     .register('ManagementApiNotificationService', NotificationService)
-    .dependencies('ConsumerApiNotificationService')
+    .dependencies('ManagementApiNotificationAdapter')
     .singleton();
 
   container

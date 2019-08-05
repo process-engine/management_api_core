@@ -1,15 +1,23 @@
 import {Subscription} from '@essential-projects/event_aggregator_contracts';
-import {IIdentity} from '@essential-projects/iam_contracts';
+import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
 
-import {APIs as ConsumerApis} from '@process-engine/consumer_api_contracts';
 import {APIs, Messages} from '@process-engine/management_api_contracts';
+
+import {NotificationAdapter} from './adapters/index';
 
 export class NotificationService implements APIs.INotificationManagementApi {
 
-  private readonly consumerApiNotificationService: ConsumerApis.INotificationConsumerApi;
+  private readonly iamService: IIAMService;
+  private readonly notificationAdapter: NotificationAdapter;
 
-  constructor(consumerApiNotificationService: ConsumerApis.INotificationConsumerApi) {
-    this.consumerApiNotificationService = consumerApiNotificationService;
+  private readonly canSubscribeToEventsClaim = 'can_subscribe_to_events';
+
+  constructor(
+    iamService: IIAMService,
+    notificationAdapter: NotificationAdapter,
+  ) {
+    this.iamService = iamService;
+    this.notificationAdapter = notificationAdapter;
   }
 
   // Notifications
@@ -18,7 +26,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnActivityReachedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onActivityReached(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onActivityReached(identity, callback, subscribeOnce);
   }
 
   public async onActivityFinished(
@@ -26,7 +36,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnActivityFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onActivityFinished(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onActivityFinished(identity, callback, subscribeOnce);
   }
 
   public async onEmptyActivityWaiting(
@@ -34,7 +46,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnEmptyActivityWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onEmptyActivityWaiting(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onEmptyActivityWaiting(identity, callback, subscribeOnce);
   }
 
   public async onEmptyActivityFinished(
@@ -42,7 +56,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnEmptyActivityFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onEmptyActivityFinished(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onEmptyActivityFinished(identity, callback, subscribeOnce);
   }
 
   public async onEmptyActivityForIdentityWaiting(
@@ -50,7 +66,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnEmptyActivityWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onEmptyActivityForIdentityWaiting(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onEmptyActivityForIdentityWaiting(identity, callback, subscribeOnce);
   }
 
   public async onEmptyActivityForIdentityFinished(
@@ -58,7 +76,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnEmptyActivityFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onEmptyActivityForIdentityFinished(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onEmptyActivityForIdentityFinished(identity, callback, subscribeOnce);
   }
 
   public async onUserTaskWaiting(
@@ -66,7 +86,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnUserTaskWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onUserTaskWaiting(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onUserTaskWaiting(identity, callback, subscribeOnce);
   }
 
   public async onUserTaskFinished(
@@ -74,7 +96,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnUserTaskFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onUserTaskFinished(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onUserTaskFinished(identity, callback, subscribeOnce);
   }
 
   public async onUserTaskForIdentityWaiting(
@@ -82,7 +106,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnUserTaskWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onUserTaskForIdentityWaiting(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onUserTaskForIdentityWaiting(identity, callback, subscribeOnce);
   }
 
   public async onUserTaskForIdentityFinished(
@@ -90,7 +116,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnUserTaskFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onUserTaskForIdentityFinished(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onUserTaskForIdentityFinished(identity, callback, subscribeOnce);
   }
 
   public async onBoundaryEventTriggered(
@@ -98,7 +126,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnBoundaryEventTriggeredCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onBoundaryEventTriggered(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onBoundaryEventTriggered(identity, callback, subscribeOnce);
   }
 
   public async onIntermediateThrowEventTriggered(
@@ -106,7 +136,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnIntermediateThrowEventTriggeredCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onIntermediateThrowEventTriggered(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onIntermediateThrowEventTriggered(identity, callback, subscribeOnce);
   }
 
   public async onIntermediateCatchEventReached(
@@ -114,7 +146,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnIntermediateCatchEventReachedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onIntermediateCatchEventReached(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onIntermediateCatchEventReached(identity, callback, subscribeOnce);
   }
 
   public async onIntermediateCatchEventFinished(
@@ -122,7 +156,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnIntermediateCatchEventFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onIntermediateCatchEventFinished(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onIntermediateCatchEventFinished(identity, callback, subscribeOnce);
   }
 
   public async onManualTaskWaiting(
@@ -130,7 +166,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnManualTaskWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onManualTaskWaiting(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onManualTaskWaiting(identity, callback, subscribeOnce);
   }
 
   public async onManualTaskFinished(
@@ -138,7 +176,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnManualTaskFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onManualTaskFinished(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onManualTaskFinished(identity, callback, subscribeOnce);
   }
 
   public async onManualTaskForIdentityWaiting(
@@ -146,7 +186,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnManualTaskWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onManualTaskForIdentityWaiting(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onManualTaskForIdentityWaiting(identity, callback, subscribeOnce);
   }
 
   public async onManualTaskForIdentityFinished(
@@ -154,7 +196,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnManualTaskFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onManualTaskForIdentityFinished(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onManualTaskForIdentityFinished(identity, callback, subscribeOnce);
   }
 
   public async onProcessStarted(
@@ -162,7 +206,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnProcessEndedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onProcessStarted(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onProcessStarted(identity, callback, subscribeOnce);
   }
 
   public async onProcessWithProcessModelIdStarted(
@@ -171,7 +217,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     processModelId: string,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onProcessWithProcessModelIdStarted(identity, callback, processModelId, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onProcessWithProcessModelIdStarted(identity, callback, processModelId, subscribeOnce);
   }
 
   public async onProcessTerminated(
@@ -179,7 +227,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnProcessTerminatedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onProcessTerminated(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onProcessTerminated(identity, callback, subscribeOnce);
   }
 
   public async onProcessError(
@@ -187,7 +237,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnProcessErrorCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onProcessError(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onProcessError(identity, callback, subscribeOnce);
   }
 
   public async onProcessEnded(
@@ -195,11 +247,13 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnProcessEndedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onProcessEnded(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onProcessEnded(identity, callback, subscribeOnce);
   }
 
   public async removeSubscription(identity: IIdentity, subscription: Subscription): Promise<void> {
-    return this.consumerApiNotificationService.removeSubscription(identity, subscription);
+    return this.notificationAdapter.removeSubscription(subscription);
   }
 
   // -------------- For backwards compatibility only
@@ -209,7 +263,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnCallActivityWaitingCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onCallActivityWaiting(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onCallActivityWaiting(identity, callback, subscribeOnce);
   }
 
   public async onCallActivityFinished(
@@ -217,7 +273,9 @@ export class NotificationService implements APIs.INotificationManagementApi {
     callback: Messages.CallbackTypes.OnCallActivityFinishedCallback,
     subscribeOnce?: boolean,
   ): Promise<Subscription> {
-    return this.consumerApiNotificationService.onCallActivityFinished(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onCallActivityFinished(identity, callback, subscribeOnce);
   }
 
   // --------------
