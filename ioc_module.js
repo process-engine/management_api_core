@@ -77,7 +77,7 @@ function registerServices(container){
 
   container
     .register('ManagementApiNotificationService', NotificationService)
-    .dependencies('ManagementApiNotificationAdapter')
+    .dependencies('IamService', 'ManagementApiNotificationAdapter')
     .singleton();
 
   container
