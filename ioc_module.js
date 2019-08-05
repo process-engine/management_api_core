@@ -1,7 +1,11 @@
 'use strict';
 
 const {
+  EmptyActivityConverter,
+  EventConverter,
+  ManualTaskConverter,
   NotificationAdapter,
+  UserTaskConverter,
 } = require('./dist/commonjs/index');
 
 const {
@@ -30,6 +34,26 @@ function registerConvertersAndAdapters(container) {
   container
     .register('ManagementApiNotificationAdapter', NotificationAdapter)
     .dependencies('EventAggregator')
+    .singleton();
+
+  container
+    .register('ManagementApiEmptyActivityConverter', EmptyActivityConverter)
+    .dependencies('CorrelationService', 'ProcessModelFacadeFactory', 'ProcessModelUseCases')
+    .singleton();
+
+  container
+    .register('ManagementApiEventConverter', EventConverter)
+    .dependencies('CorrelationService', 'ProcessModelFacadeFactory', 'ProcessModelUseCases')
+    .singleton();
+
+  container
+    .register('ManagementApiUserTaskConverter', UserTaskConverter)
+    .dependencies('CorrelationService', 'FlowNodeInstanceService', 'ProcessModelFacadeFactory', 'ProcessModelUseCases', 'ProcessTokenFacadeFactory')
+    .singleton();
+
+  container
+    .register('ManagementApiManualTaskConverter', ManualTaskConverter)
+    .dependencies('CorrelationService', 'ProcessModelFacadeFactory', 'ProcessModelUseCases')
     .singleton();
 }
 
