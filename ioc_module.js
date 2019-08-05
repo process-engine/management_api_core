@@ -1,6 +1,10 @@
 'use strict';
 
 const {
+  NotificationAdapter,
+} = require('./dist/commonjs/index');
+
+const {
   CorrelationService,
   CronjobService,
   EmptyActivityService,
