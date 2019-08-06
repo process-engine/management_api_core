@@ -1,49 +1,59 @@
+import * as uuid from 'node-uuid';
+
+import * as EssentialProjectErrors from '@essential-projects/errors_ts';
 import {IEventAggregator, Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
-
-import {DataModels as ConsumerApiTypes, APIs as ConsumerApis} from '@process-engine/consumer_api_contracts';
 import {APIs, DataModels, Messages} from '@process-engine/management_api_contracts';
-import {ICronjobService, IProcessModelFacadeFactory} from '@process-engine/process_engine_contracts';
+import {
+  EndEventReachedMessage,
+  ICronjobService,
+  IExecuteProcessService,
+  IProcessModelFacadeFactory,
+  ProcessStartedMessage,
+} from '@process-engine/process_engine_contracts';
 import {IProcessModelUseCases, Model} from '@process-engine/process_model.contracts';
+
+import {NotificationAdapter} from './adapters/index';
 
 export class ProcessModelService implements APIs.IProcessModelManagementApi {
 
-  private readonly consumerApiProcessModelService: ConsumerApis.IProcessModelConsumerApi;
   private readonly cronjobService: ICronjobService;
   private readonly eventAggregator: IEventAggregator;
+  private readonly executeProcessService: IExecuteProcessService;
   private readonly iamService: IIAMService;
   private readonly processModelFacadeFactory: IProcessModelFacadeFactory;
-  private readonly processModelUseCases: IProcessModelUseCases;
+  private readonly processModelUseCase: IProcessModelUseCases;
+
+  private readonly notificationAdapter: NotificationAdapter;
+
+  private readonly canSubscribeToEventsClaim = 'can_subscribe_to_events';
 
   constructor(
-    consumerApiProcessModelService: ConsumerApis.IProcessModelConsumerApi,
     cronjobService: ICronjobService,
     eventAggregator: IEventAggregator,
+    executeProcessService: IExecuteProcessService,
     iamService: IIAMService,
     processModelFacadeFactory: IProcessModelFacadeFactory,
-    processModelUseCases: IProcessModelUseCases,
+    processModelUseCase: IProcessModelUseCases,
+    notificationAdapter: NotificationAdapter,
   ) {
-    this.consumerApiProcessModelService = consumerApiProcessModelService;
     this.cronjobService = cronjobService;
     this.eventAggregator = eventAggregator;
+    this.executeProcessService = executeProcessService;
     this.iamService = iamService;
     this.processModelFacadeFactory = processModelFacadeFactory;
-    this.processModelUseCases = processModelUseCases;
+    this.processModelUseCase = processModelUseCase;
+
+    this.notificationAdapter = notificationAdapter;
   }
 
   public async getProcessModels(identity: IIdentity): Promise<DataModels.ProcessModels.ProcessModelList> {
 
-    const consumerApiProcessModels = await this.consumerApiProcessModelService.getProcessModels(identity);
-
+    const processModels = await this.processModelUseCase.getProcessModels(identity);
     const managementApiProcessModels =
-      await Promise.map(
-        consumerApiProcessModels.processModels,
-        async (processModel: ConsumerApiTypes.ProcessModels.ProcessModel): Promise<DataModels.ProcessModels.ProcessModel> => {
-          const processModelRaw = await this.getRawXmlForProcessModelById(identity, processModel.id);
-
-          return this.attachXmlToProcessModel(processModel, processModelRaw);
-        },
-      );
+      await Promise.map(processModels, async (processModel: Model.Process): Promise<DataModels.ProcessModels.ProcessModel> => {
+        return this.convertProcessModelToPublicType(identity, processModel);
+      });
 
     return {
       processModels: managementApiProcessModels,
@@ -52,29 +62,23 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
 
   public async getProcessModelById(identity: IIdentity, processModelId: string): Promise<DataModels.ProcessModels.ProcessModel> {
 
-    const consumerApiProcessModel = await this.consumerApiProcessModelService.getProcessModelById(identity, processModelId);
-
-    const processModelRaw = await this.getRawXmlForProcessModelById(identity, consumerApiProcessModel.id);
-
-    const managementApiProcessModel = this.attachXmlToProcessModel(consumerApiProcessModel, processModelRaw);
+    const processModel = await this.processModelUseCase.getProcessModelById(identity, processModelId);
+    const managementApiProcessModel = await this.convertProcessModelToPublicType(identity, processModel);
 
     return managementApiProcessModel;
   }
 
   public async getProcessModelByProcessInstanceId(identity: IIdentity, processInstanceId: string): Promise<DataModels.ProcessModels.ProcessModel> {
 
-    const consumerApiProcessModel = await this.consumerApiProcessModelService.getProcessModelByProcessInstanceId(identity, processInstanceId);
-
-    const processModelRaw = await this.getRawXmlForProcessModelById(identity, consumerApiProcessModel.id);
-
-    const managementApiProcessModel = this.attachXmlToProcessModel(consumerApiProcessModel, processModelRaw);
+    const processModel = await this.processModelUseCase.getProcessModelByProcessInstanceId(identity, processInstanceId);
+    const managementApiProcessModel = await this.convertProcessModelToPublicType(identity, processModel);
 
     return managementApiProcessModel;
   }
 
   public async getStartEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.Events.EventList> {
 
-    const processModel = await this.processModelUseCases.getProcessModelById(identity, processModelId);
+    const processModel = await this.processModelUseCase.getProcessModelById(identity, processModelId);
     const processModelFacade = this.processModelFacadeFactory.create(processModel);
 
     const startEvents = processModelFacade
@@ -97,7 +101,25 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     startEventId?: string,
     endEventId?: string,
   ): Promise<DataModels.ProcessModels.ProcessStartResponsePayload> {
-    return this.consumerApiProcessModelService.startProcessInstance(identity, processModelId, payload, startCallbackType, startEventId, endEventId);
+
+    let startCallbackTypeToUse = startCallbackType;
+
+    const useDefaultStartCallbackType: boolean = startCallbackTypeToUse === undefined;
+    if (useDefaultStartCallbackType) {
+      startCallbackTypeToUse = DataModels.ProcessModels.StartCallbackType.CallbackOnProcessInstanceCreated;
+    }
+
+    if (!Object.values(DataModels.ProcessModels.StartCallbackType).includes(startCallbackTypeToUse)) {
+      throw new EssentialProjectErrors.BadRequestError(`${startCallbackTypeToUse} is not a valid return option!`);
+    }
+
+    const correlationId: string = payload.correlationId || uuid.v4();
+
+    // Execution of the ProcessModel will still be done with the requesting users identity.
+    const response: DataModels.ProcessModels.ProcessStartResponsePayload =
+      await this.executeProcessInstance(identity, correlationId, processModelId, startEventId, payload, startCallbackTypeToUse, endEventId);
+
+    return response;
   }
 
   public async updateProcessDefinitionsByName(
@@ -105,17 +127,17 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     name: string,
     payload: DataModels.ProcessModels.UpdateProcessDefinitionsRequestPayload,
   ): Promise<void> {
-    await this.processModelUseCases.persistProcessDefinitions(identity, name, payload.xml, payload.overwriteExisting);
+    await this.processModelUseCase.persistProcessDefinitions(identity, name, payload.xml, payload.overwriteExisting);
 
     // NOTE: This will only work as long as ProcessDefinitionName and ProcessModelId remain the same.
     // As soon as we refactor the ProcessEngine core to allow different names for each, this will have to be refactored accordingly.
-    const processModel = await this.processModelUseCases.getProcessModelById(identity, name);
+    const processModel = await this.processModelUseCase.getProcessModelById(identity, name);
 
     await this.cronjobService.addOrUpdate(processModel);
   }
 
   public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
-    await this.processModelUseCases.deleteProcessModel(identity, processModelId);
+    await this.processModelUseCase.deleteProcessModel(identity, processModelId);
 
     await this.cronjobService.remove(processModelId);
   }
@@ -135,60 +157,88 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
   // Notifications
   public async onProcessStarted(
     identity: IIdentity,
-    callback: Messages.CallbackTypes.OnProcessEndedCallback,
-    subscribeOnce?: boolean,
+    callback: Messages.CallbackTypes.OnProcessStartedCallback,
+    subscribeOnce = false,
   ): Promise<Subscription> {
-    return this.consumerApiProcessModelService.onProcessStarted(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onProcessStarted(identity, callback, subscribeOnce);
   }
 
   public async onProcessWithProcessModelIdStarted(
     identity: IIdentity,
-    callback: Messages.CallbackTypes.OnProcessEndedCallback,
+    callback: Messages.CallbackTypes.OnProcessStartedCallback,
     processModelId: string,
-    subscribeOnce?: boolean,
+    subscribeOnce = false,
   ): Promise<Subscription> {
-    return this.consumerApiProcessModelService.onProcessWithProcessModelIdStarted(identity, callback, processModelId, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onProcessWithProcessModelIdStarted(identity, callback, processModelId, subscribeOnce);
   }
 
   public async onProcessEnded(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnProcessEndedCallback,
-    subscribeOnce?: boolean,
+    subscribeOnce = false,
   ): Promise<Subscription> {
-    return this.consumerApiProcessModelService.onProcessEnded(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onProcessEnded(identity, callback, subscribeOnce);
   }
 
   public async onProcessTerminated(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnProcessTerminatedCallback,
-    subscribeOnce?: boolean,
+    subscribeOnce = false,
   ): Promise<Subscription> {
-    return this.consumerApiProcessModelService.onProcessTerminated(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onProcessTerminated(identity, callback, subscribeOnce);
   }
 
   public async onProcessError(
     identity: IIdentity,
     callback: Messages.CallbackTypes.OnProcessErrorCallback,
-    subscribeOnce?: boolean,
+    subscribeOnce = false,
   ): Promise<Subscription> {
-    return this.consumerApiProcessModelService.onProcessError(identity, callback, subscribeOnce);
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onProcessError(identity, callback, subscribeOnce);
+  }
+
+  private async convertProcessModelToPublicType(identity: IIdentity, processModel: Model.Process): Promise<DataModels.ProcessModels.ProcessModel> {
+
+    const processModelFacade = this.processModelFacadeFactory.create(processModel);
+
+    let consumerApiStartEvents: Array<DataModels.Events.Event> = [];
+    let consumerApiEndEvents: Array<DataModels.Events.Event> = [];
+
+    const processModelIsExecutable = processModelFacade.getIsExecutable();
+
+    if (processModelIsExecutable) {
+      const startEvents = processModelFacade.getStartEvents();
+      consumerApiStartEvents = startEvents.map(this.convertToPublicEvent);
+
+      const endEvents = processModelFacade.getEndEvents();
+      consumerApiEndEvents = endEvents.map(this.convertToPublicEvent);
+    }
+
+    const processModelRaw = await this.getRawXmlForProcessModelById(identity, processModel.id);
+
+    const processModelResponse: DataModels.ProcessModels.ProcessModel = {
+      id: processModel.id,
+      xml: processModelRaw,
+      startEvents: consumerApiStartEvents,
+      endEvents: consumerApiEndEvents,
+    };
+
+    return processModelResponse;
   }
 
   private async getRawXmlForProcessModelById(identity: IIdentity, processModelId: string): Promise<string> {
-    const processModelRaw = await this.processModelUseCases.getProcessDefinitionAsXmlByName(identity, processModelId);
+    const processModelRaw = await this.processModelUseCase.getProcessDefinitionAsXmlByName(identity, processModelId);
 
     return processModelRaw.xml;
-  }
-
-  private attachXmlToProcessModel(
-    consumerApiProcessModel: ConsumerApiTypes.ProcessModels.ProcessModel,
-    processModelRaw: string,
-  ): DataModels.ProcessModels.ProcessModel {
-
-    const processModel = <DataModels.ProcessModels.ProcessModel> consumerApiProcessModel;
-    processModel.xml = processModelRaw;
-
-    return processModel;
   }
 
   private convertToPublicEvent(event: Model.Events.StartEvent): DataModels.Events.Event {
@@ -199,6 +249,61 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     managementApiEvent.eventType = event.eventType;
 
     return managementApiEvent;
+  }
+
+  private async executeProcessInstance(
+    identity: IIdentity,
+    correlationId: string,
+    processModelId: string,
+    startEventId: string,
+    payload: DataModels.ProcessModels.ProcessStartRequestPayload,
+    startCallbackType: DataModels.ProcessModels.StartCallbackType,
+    endEventId?: string,
+  ): Promise<DataModels.ProcessModels.ProcessStartResponsePayload> {
+
+    const response: DataModels.ProcessModels.ProcessStartResponsePayload = {
+      correlationId: correlationId,
+      processInstanceId: undefined,
+    };
+
+    // Only start the process instance and return
+    const resolveImmediatelyAfterStart: boolean = startCallbackType === DataModels.ProcessModels.StartCallbackType.CallbackOnProcessInstanceCreated;
+    if (resolveImmediatelyAfterStart) {
+      const startResult: ProcessStartedMessage =
+        await this.executeProcessService.start(identity, processModelId, correlationId, startEventId, payload.inputValues, payload.callerId);
+
+      response.processInstanceId = startResult.processInstanceId;
+
+      return response;
+    }
+
+    let processEndedMessage: EndEventReachedMessage;
+
+    // Start the process instance and wait for a specific end event result
+    const resolveAfterReachingSpecificEndEvent: boolean = startCallbackType === DataModels.ProcessModels.StartCallbackType.CallbackOnEndEventReached;
+    if (resolveAfterReachingSpecificEndEvent) {
+
+      processEndedMessage = await this
+        .executeProcessService
+        .startAndAwaitSpecificEndEvent(identity, processModelId, correlationId, endEventId, startEventId, payload.inputValues, payload.callerId);
+
+      response.endEventId = processEndedMessage.flowNodeId;
+      response.tokenPayload = processEndedMessage.currentToken;
+      response.processInstanceId = processEndedMessage.processInstanceId;
+
+      return response;
+    }
+
+    // Start the process instance and wait for the first end event result
+    processEndedMessage = await this
+      .executeProcessService
+      .startAndAwaitEndEvent(identity, processModelId, correlationId, startEventId, payload.inputValues, payload.callerId);
+
+    response.endEventId = processEndedMessage.flowNodeId;
+    response.tokenPayload = processEndedMessage.currentToken;
+    response.processInstanceId = processEndedMessage.processInstanceId;
+
+    return response;
   }
 
   private async ensureUserHasClaim(identity: IIdentity, claimName: string): Promise<void> {
