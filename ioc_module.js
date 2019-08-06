@@ -96,7 +96,7 @@ function registerServices(container){
 
   container
     .register('ManagementApiKpiService', KpiService)
-    .dependencies('FlowNodeInstanceRepository', 'IamService', 'MetricsService')
+    .dependencies('FlowNodeInstanceRepository', 'IamService', 'MetricsApiService')
     .singleton();
 
   container
