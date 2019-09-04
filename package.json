@@ -1,6 +1,6 @@
 {
   "name": "@process-engine/management_api_core",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "description": "service implementation for the process-engine.io Management APIs",
   "main": "dist/commonjs/index.js",
   "typings": "dist/index.d.ts",
@@ -33,7 +33,7 @@
     "@process-engine/correlation.contracts": "^2.0.0",
     "@process-engine/cronjob_history.contracts": "^1.0.0",
     "@process-engine/logging_api_contracts": "^1.0.3",
-    "@process-engine/management_api_contracts": "12.0.0-543ede53-b22",
+    "@process-engine/management_api_contracts": "^12.0.0",
     "@process-engine/metrics_api_contracts": "^2.0.0",
     "@process-engine/process_engine_contracts": "^45.1.0",
     "@process-engine/process_model.contracts": "^2.3.0",
