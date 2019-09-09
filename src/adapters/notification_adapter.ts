@@ -470,6 +470,74 @@ export class NotificationAdapter {
     return this.createSubscription(eventName, sanitationCallback, subscribeOnce);
   }
 
+  public onCronjobCreated(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnCronjobCreatedCallback,
+    subscribeOnce: boolean,
+  ): Subscription {
+
+    const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobCreated;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sanitationCallback = (message: any): void => {
+      const sanitizedMessage = this.sanitizeMessage(message);
+      callback(sanitizedMessage);
+    };
+
+    return this.createSubscription(eventName, sanitationCallback, subscribeOnce);
+  }
+
+  public onCronjobExecuted(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnCronjobExecutedCallback,
+    subscribeOnce: boolean,
+  ): Subscription {
+
+    const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobExecuted;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sanitationCallback = (message: any): void => {
+      const sanitizedMessage = this.sanitizeMessage(message);
+      callback(sanitizedMessage);
+    };
+
+    return this.createSubscription(eventName, sanitationCallback, subscribeOnce);
+  }
+
+  public onCronjobStopped(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnCronjobStoppedCallback,
+    subscribeOnce: boolean,
+  ): Subscription {
+
+    const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobStopped;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sanitationCallback = (message: any): void => {
+      const sanitizedMessage = this.sanitizeMessage(message);
+      callback(sanitizedMessage);
+    };
+
+    return this.createSubscription(eventName, sanitationCallback, subscribeOnce);
+  }
+
+  public onCronjobUpdated(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnCronjobUpdatedCallback,
+    subscribeOnce: boolean,
+  ): Subscription {
+
+    const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobUpdated;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sanitationCallback = (message: any): void => {
+      const sanitizedMessage = this.sanitizeMessage(message);
+      callback(sanitizedMessage);
+    };
+
+    return this.createSubscription(eventName, sanitationCallback, subscribeOnce);
+  }
+
   public removeSubscription(subscription: Subscription): void {
     this.eventAggregator.unsubscribe(subscription);
   }
