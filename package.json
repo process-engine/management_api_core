@@ -35,7 +35,7 @@
     "@process-engine/logging_api_contracts": "^1.0.3",
     "@process-engine/management_api_contracts": "12.1.0-8cc7d9d3-b27",
     "@process-engine/metrics_api_contracts": "^2.0.0",
-    "@process-engine/process_engine_contracts": "^45.1.0",
+    "@process-engine/process_engine_contracts": "feature~add_cronjob_events",
     "@process-engine/process_model.contracts": "2.7.0-acad6f21-b10",
     "bluebird": "~3.5.2",
     "bluebird-global": "~1.0.1",
