@@ -33,7 +33,7 @@
     "@process-engine/correlation.contracts": "2.2.0-cf63a55e-b11",
     "@process-engine/cronjob_history.contracts": "1.1.0-b5e4a478-b7",
     "@process-engine/logging_api_contracts": "^1.0.3",
-    "@process-engine/management_api_contracts": "12.1.0-8cc7d9d3-b27",
+    "@process-engine/management_api_contracts": "feature~add_cronjob_events",
     "@process-engine/metrics_api_contracts": "^2.0.0",
     "@process-engine/process_engine_contracts": "feature~add_cronjob_events",
     "@process-engine/process_model.contracts": "2.7.0-acad6f21-b10",
