@@ -112,7 +112,11 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
     return emptyActivityList;
   }
 
-  public async getWaitingEmptyActivitiesByIdentity(identity: IIdentity): Promise<DataModels.EmptyActivities.EmptyActivityList> {
+  public async getWaitingEmptyActivitiesByIdentity(
+    identity: IIdentity,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
 
     const suspendedFlowNodeInstances = await this.flowNodeInstanceService.queryByState(FlowNodeInstanceState.suspended);
 
@@ -121,6 +125,8 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
     });
 
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, flowNodeInstancesOwnedByUser);
+
+    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
 
     return emptyActivityList;
   }
