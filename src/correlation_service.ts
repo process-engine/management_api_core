@@ -3,6 +3,8 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {Correlation, CorrelationProcessInstance, ICorrelationService} from '@process-engine/correlation.contracts';
 import {APIs, DataModels} from '@process-engine/management_api_contracts';
 
+import {applyPagination} from './paginator';
+
 export class CorrelationService implements APIs.ICorrelationManagementApi {
 
   private readonly correlationService: ICorrelationService;
@@ -11,22 +13,34 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
     this.correlationService = correlationService;
   }
 
-  public async getAllCorrelations(identity: IIdentity): Promise<Array<DataModels.Correlations.Correlation>> {
+  public async getAllCorrelations(
+    identity: IIdentity,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<Array<DataModels.Correlations.Correlation>> {
 
     const correlations = await this.correlationService.getAll(identity);
 
     const managementApiCorrelations = correlations.map(this.mapToPublicCorrelation);
 
-    return managementApiCorrelations;
+    const paginizedCorrelations = applyPagination(managementApiCorrelations, offset, limit);
+
+    return paginizedCorrelations;
   }
 
-  public async getActiveCorrelations(identity: IIdentity): Promise<Array<DataModels.Correlations.Correlation>> {
+  public async getActiveCorrelations(
+    identity: IIdentity,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<Array<DataModels.Correlations.Correlation>> {
 
     const activeCorrelations = await this.correlationService.getActive(identity);
 
     const managementApiCorrelations = activeCorrelations.map(this.mapToPublicCorrelation);
 
-    return managementApiCorrelations;
+    const paginizedCorrelations = applyPagination(managementApiCorrelations, offset, limit);
+
+    return paginizedCorrelations;
   }
 
   public async getCorrelationById(identity: IIdentity, correlationId: string): Promise<DataModels.Correlations.Correlation> {
@@ -38,13 +52,20 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
     return managementApiCorrelation;
   }
 
-  public async getCorrelationsByProcessModelId(identity: IIdentity, processModelId: string): Promise<Array<DataModels.Correlations.Correlation>> {
+  public async getCorrelationsByProcessModelId(
+    identity: IIdentity,
+    processModelId: string,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<Array<DataModels.Correlations.Correlation>> {
 
     const correlations = await this.correlationService.getByProcessModelId(identity, processModelId);
 
     const managementApiCorrelations = correlations.map(this.mapToPublicCorrelation);
 
-    return managementApiCorrelations;
+    const paginizedCorrelations = applyPagination(managementApiCorrelations, offset, limit);
+
+    return paginizedCorrelations;
   }
 
   public async getCorrelationByProcessInstanceId(identity: IIdentity, processInstanceId: string): Promise<DataModels.Correlations.Correlation> {
