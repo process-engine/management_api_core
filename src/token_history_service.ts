@@ -3,6 +3,8 @@ import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
 import {FlowNodeInstance, IFlowNodeInstanceRepository, ProcessToken} from '@process-engine/flow_node_instance.contracts';
 import {APIs, DataModels} from '@process-engine/management_api_contracts';
 
+import {applyPagination} from './paginator';
+
 export class TokenHistoryService implements APIs.ITokenHistoryManagementApi {
 
   private iamService: IIAMService;
@@ -19,13 +21,17 @@ export class TokenHistoryService implements APIs.ITokenHistoryManagementApi {
     correlationId: string,
     processModelId: string,
     flowNodeId: string,
+    offset: number = 0,
+    limit: number = 0,
   ): Promise<Array<DataModels.TokenHistory.TokenHistoryEntry>> {
 
     const flowNodeInstance = await this.flowNodeInstanceRepository.querySpecificFlowNode(correlationId, processModelId, flowNodeId);
 
     const tokenHistory = this.getTokenHistoryForFlowNode(flowNodeInstance);
 
-    return tokenHistory;
+    const paginizedTokenHistory = applyPagination(tokenHistory, offset, limit);
+
+    return paginizedTokenHistory;
   }
 
   public async getTokensForFlowNodeByProcessInstanceId(
