@@ -1,7 +1,3 @@
-/* eslint-disable strict */
-
-'use strict';
-
 const {
   EmptyActivityConverter,
   EventConverter,
@@ -23,6 +19,7 @@ const {
   ProcessModelService,
   TokenHistoryService,
   UserTaskService,
+  TaskService,
 } = require('./dist/commonjs/index');
 
 function registerInContainer(container) {
@@ -149,6 +146,16 @@ function registerServices(container) {
       'IamService',
       'ManagementApiNotificationAdapter',
       'ManagementApiUserTaskConverter',
+    )
+    .singleton();
+
+  container
+    .register('ManagementApiTaskService', TaskService)
+    .dependencies(
+      'FlowNodeInstanceService',
+      'ManagementApiManualTaskConverter',
+      'ManagementApiUserTaskConverter',
+      'ManagementApiEmptyActivityConverter',
     )
     .singleton();
 }
