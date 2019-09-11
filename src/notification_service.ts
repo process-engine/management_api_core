@@ -292,6 +292,16 @@ export class NotificationService implements APIs.INotificationManagementApi {
     return this.notificationAdapter.onCronjobUpdated(identity, callback, subscribeOnce);
   }
 
+  public async onCronjobRemoved(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnCronjobRemovedCallback,
+    subscribeOnce?: boolean,
+  ): Promise<Subscription> {
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onCronjobRemoved(identity, callback, subscribeOnce);
+  }
+
   public async removeSubscription(identity: IIdentity, subscription: Subscription): Promise<void> {
     return this.notificationAdapter.removeSubscription(subscription);
   }

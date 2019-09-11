@@ -101,4 +101,14 @@ export class CronjobService implements APIs.ICronjobManagementApi {
     return this.notificationAdapter.onCronjobUpdated(identity, callback, subscribeOnce);
   }
 
+  public async onCronjobRemoved(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnCronjobRemovedCallback,
+    subscribeOnce = false,
+  ): Promise<Subscription> {
+    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
+
+    return this.notificationAdapter.onCronjobRemoved(identity, callback, subscribeOnce);
+  }
+
 }

@@ -538,6 +538,23 @@ export class NotificationAdapter {
     return this.createSubscription(eventName, sanitationCallback, subscribeOnce);
   }
 
+  public onCronjobRemoved(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnCronjobRemovedCallback,
+    subscribeOnce: boolean,
+  ): Subscription {
+
+    const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobRemoved;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sanitationCallback = (message: any): void => {
+      const sanitizedMessage = this.sanitizeMessage(message);
+      callback(sanitizedMessage);
+    };
+
+    return this.createSubscription(eventName, sanitationCallback, subscribeOnce);
+  }
+
   public removeSubscription(subscription: Subscription): void {
     this.eventAggregator.unsubscribe(subscription);
   }
