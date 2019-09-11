@@ -14,6 +14,7 @@ import {
 import {IProcessModelUseCases, Model} from '@process-engine/process_model.contracts';
 
 import {NotificationAdapter} from './adapters/index';
+import {applyPagination} from './paginator';
 
 export class ProcessModelService implements APIs.IProcessModelManagementApi {
 
@@ -47,7 +48,11 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     this.notificationAdapter = notificationAdapter;
   }
 
-  public async getProcessModels(identity: IIdentity): Promise<DataModels.ProcessModels.ProcessModelList> {
+  public async getProcessModels(
+    identity: IIdentity,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<DataModels.ProcessModels.ProcessModelList> {
 
     const processModels = await this.processModelUseCase.getProcessModels(identity);
     const managementApiProcessModels =
@@ -55,8 +60,9 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
         return this.convertProcessModelToPublicType(identity, processModel);
       });
 
+    // TODO: Remove useless `ProcessModelList` type and just return the Array.
     return {
-      processModels: managementApiProcessModels,
+      processModels: applyPagination(managementApiProcessModels, offset, limit),
     };
   }
 
