@@ -6,6 +6,8 @@ import {FlowNodeInstance, FlowNodeInstanceState, IFlowNodeInstanceRepository} fr
 import {APIs, DataModels} from '@process-engine/management_api_contracts';
 import {IMetricsApi, Metric, MetricMeasurementPoint} from '@process-engine/metrics_api_contracts';
 
+import {applyPagination} from './paginator';
+
 /**
  * Groups Metrics by their FlowNodeIds.
  *
@@ -54,6 +56,8 @@ export class KpiService implements APIs.IKpiManagementApi {
   public async getRuntimeInformationForProcessModel(
     identity: IIdentity,
     processModelId: string,
+    offset: number = 0,
+    limit: number = 0,
   ): Promise<Array<DataModels.Kpi.FlowNodeRuntimeInformation>> {
 
     const metrics = await this.metricsService.readMetricsForProcessModel(identity, processModelId);
@@ -70,7 +74,9 @@ export class KpiService implements APIs.IKpiManagementApi {
       return this.createFlowNodeRuntimeInformation(processModelId, flowNodeId, metricsGroupedByFlowNodeId[flowNodeId]);
     });
 
-    return Promise.resolve(runtimeInformations);
+    const paginizedRuntimeInformations = applyPagination(runtimeInformations, offset, limit);
+
+    return paginizedRuntimeInformations;
   }
 
   public async getRuntimeInformationForFlowNode(
@@ -94,7 +100,12 @@ export class KpiService implements APIs.IKpiManagementApi {
     return flowNodeRuntimeInformation;
   }
 
-  public async getActiveTokensForProcessModel(identity: IIdentity, processModelId: string): Promise<Array<DataModels.Kpi.ActiveToken>> {
+  public async getActiveTokensForProcessModel(
+    identity: IIdentity,
+    processModelId: string,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<Array<DataModels.Kpi.ActiveToken>> {
 
     const flowNodeInstances = await this.flowNodeInstanceRepository.queryByProcessModel(processModelId);
 
@@ -102,35 +113,50 @@ export class KpiService implements APIs.IKpiManagementApi {
 
     const activeTokenInfos = activeFlowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
 
-    return activeTokenInfos;
+    const paginizedTokens = applyPagination(activeTokenInfos, offset, limit);
+
+    return paginizedTokens;
   }
 
   public async getActiveTokensForCorrelationAndProcessModel(
     identity: IIdentity,
     correlationId: string,
     processModelId: string,
+    offset: number = 0,
+    limit: number = 0,
   ): Promise<Array<DataModels.Kpi.ActiveToken>> {
 
     const activeFlowNodeInstances = await this.flowNodeInstanceRepository.queryActiveByCorrelationAndProcessModel(correlationId, processModelId);
 
     const activeTokenInfos = activeFlowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
 
-    return activeTokenInfos;
+    const paginizedTokens = applyPagination(activeTokenInfos, offset, limit);
+
+    return paginizedTokens;
   }
 
   public async getActiveTokensForProcessInstance(
     identity: IIdentity,
     processInstanceId: string,
+    offset: number = 0,
+    limit: number = 0,
   ): Promise<Array<DataModels.Kpi.ActiveToken>> {
 
     const activeFlowNodeInstances = await this.flowNodeInstanceRepository.queryActiveByProcessInstance(processInstanceId);
 
     const activeTokenInfos = activeFlowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
 
-    return activeTokenInfos;
+    const paginizedTokens = applyPagination(activeTokenInfos, offset, limit);
+
+    return paginizedTokens;
   }
 
-  public async getActiveTokensForFlowNode(identity: IIdentity, flowNodeId: string): Promise<Array<DataModels.Kpi.ActiveToken>> {
+  public async getActiveTokensForFlowNode(
+    identity: IIdentity,
+    flowNodeId: string,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<Array<DataModels.Kpi.ActiveToken>> {
 
     const flowNodeInstances = await this.flowNodeInstanceRepository.queryByFlowNodeId(flowNodeId);
 
@@ -138,7 +164,9 @@ export class KpiService implements APIs.IKpiManagementApi {
 
     const activeTokenInfos = activeFlowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
 
-    return activeTokenInfos;
+    const paginizedTokens = applyPagination(activeTokenInfos, offset, limit);
+
+    return paginizedTokens;
   }
 
   /**
