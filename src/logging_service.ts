@@ -4,6 +4,8 @@ import {ILoggingApi} from '@process-engine/logging_api_contracts';
 
 import {APIs, DataModels} from '@process-engine/management_api_contracts';
 
+import {applyPagination} from './paginator';
+
 export class LoggingService implements APIs.ILoggingManagementApi {
 
   private readonly loggingApiService: ILoggingApi;
@@ -12,7 +14,13 @@ export class LoggingService implements APIs.ILoggingManagementApi {
     this.loggingApiService = loggingApiService;
   }
 
-  public async getProcessModelLog(identity: IIdentity, processModelId: string, correlationId?: string): Promise<Array<DataModels.Logging.LogEntry>> {
+  public async getProcessModelLog(
+    identity: IIdentity,
+    processModelId: string,
+    correlationId?: string,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<Array<DataModels.Logging.LogEntry>> {
 
     let logs = await this.loggingApiService.readLogForProcessModel(identity, processModelId);
 
@@ -22,13 +30,17 @@ export class LoggingService implements APIs.ILoggingManagementApi {
       });
     }
 
-    return logs;
+    const paginizedLogs = applyPagination(logs, offset, limit);
+
+    return paginizedLogs;
   }
 
   public async getProcessInstanceLog(
     identity: IIdentity,
     processModelId: string,
     processInstanceId: string,
+    offset: number = 0,
+    limit: number = 0,
   ): Promise<Array<DataModels.Logging.LogEntry>> {
 
     const processModelLog = await this.loggingApiService.readLogForProcessModel(identity, processModelId);
@@ -38,7 +50,9 @@ export class LoggingService implements APIs.ILoggingManagementApi {
         return logEntry.processInstanceId === processInstanceId;
       });
 
-    return processInstanceLog;
+    const paginizedLogs = applyPagination(processInstanceLog, offset, limit);
+
+    return paginizedLogs;
   }
 
 }
