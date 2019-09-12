@@ -29,6 +29,24 @@ export class TaskService implements APIs.ITaskManagementApi {
     this.emptyActivityConverter = emptyActivityConverter;
   }
 
+  public async getAllSuspendedTasks(identity: IIdentity): Promise<DataModels.Tasks.TaskList> {
+
+    const suspendedFlowNodes = await this.flowNodeInstanceService.queryByState(FlowNodeInstanceState.suspended);
+
+    const userTaskList = await this.userTaskConverter.convert(identity, suspendedFlowNodes);
+    const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes);
+    const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
+
+    const tasks: Array<DataModels.UserTasks.UserTask | DataModels.ManualTasks.ManualTask | DataModels.EmptyActivities.EmptyActivity> =
+      [].concat(userTaskList.userTasks, manualTaskList.manualTasks, emptyActivityList.emptyActivities);
+
+    const taskList: DataModels.Tasks.TaskList = {
+      tasks: tasks,
+    };
+
+    return taskList;
+  }
+
   public async getTasksForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.Tasks.TaskList> {
 
     const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessModel(processModelId);
