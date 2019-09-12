@@ -478,9 +478,8 @@ export class NotificationAdapter {
 
     const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobCreated;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sanitationCallback = (message: any): void => {
-      const sanitizedMessage = this.sanitizeMessage(message);
+    const sanitationCallback = (message: Messages.SystemEvents.CronjobCreatedMessage): void => {
+      const sanitizedMessage = this.sanitizeCronjobMessage(message);
       callback(sanitizedMessage);
     };
 
@@ -495,9 +494,8 @@ export class NotificationAdapter {
 
     const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobExecuted;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sanitationCallback = (message: any): void => {
-      const sanitizedMessage = this.sanitizeMessage(message);
+    const sanitationCallback = (message: Messages.SystemEvents.CronjobExecutedMessage): void => {
+      const sanitizedMessage = this.sanitizeCronjobMessage(message);
       callback(sanitizedMessage);
     };
 
@@ -512,9 +510,8 @@ export class NotificationAdapter {
 
     const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobStopped;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sanitationCallback = (message: any): void => {
-      const sanitizedMessage = this.sanitizeMessage(message);
+    const sanitationCallback = (message: Messages.SystemEvents.CronjobStoppedMessage): void => {
+      const sanitizedMessage = this.sanitizeCronjobMessage(message);
       callback(sanitizedMessage);
     };
 
@@ -529,9 +526,8 @@ export class NotificationAdapter {
 
     const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobUpdated;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sanitationCallback = (message: any): void => {
-      const sanitizedMessage = this.sanitizeMessage(message);
+    const sanitationCallback = (message: Messages.SystemEvents.CronjobUpdatedMessage): void => {
+      const sanitizedMessage = this.sanitizeCronjobMessage(message);
       callback(sanitizedMessage);
     };
 
@@ -546,9 +542,8 @@ export class NotificationAdapter {
 
     const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobRemoved;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sanitationCallback = (message: any): void => {
-      const sanitizedMessage = this.sanitizeMessage(message);
+    const sanitationCallback = (message: Messages.SystemEvents.CronjobRemovedMessage): void => {
+      const sanitizedMessage = this.sanitizeCronjobMessage(message);
       callback(sanitizedMessage);
     };
 
@@ -572,15 +567,26 @@ export class NotificationAdapter {
     return identityA.userId === identityB.userId;
   }
 
-  private sanitizeMessage<TPublic extends Messages.BaseEventMessage>(internalMesage: BaseSystemEventMessage): TPublic {
+  private sanitizeMessage<TPublic extends Messages.BaseEventMessage>(internalMessage: BaseSystemEventMessage): TPublic {
 
     const sanitizedMessage = new Messages.BaseEventMessage(
-      internalMesage.correlationId,
-      internalMesage.processModelId,
-      internalMesage.processInstanceId,
-      internalMesage.flowNodeId,
-      internalMesage.flowNodeInstanceId,
-      internalMesage.currentToken,
+      internalMessage.correlationId,
+      internalMessage.processModelId,
+      internalMessage.processInstanceId,
+      internalMessage.flowNodeId,
+      internalMessage.flowNodeInstanceId,
+      internalMessage.currentToken,
+    );
+
+    return <TPublic> sanitizedMessage;
+  }
+
+  private sanitizeCronjobMessage<TPublic extends Messages.CronjobBaseEventMessage>(internalMessage: Messages.CronjobBaseEventMessage): TPublic {
+
+    const sanitizedMessage = new Messages.CronjobBaseEventMessage(
+      internalMessage.subscription,
+      internalMessage.startEventId,
+      internalMessage.cronjob,
     );
 
     return <TPublic> sanitizedMessage;

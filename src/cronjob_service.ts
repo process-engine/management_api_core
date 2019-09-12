@@ -63,7 +63,7 @@ export class CronjobService implements APIs.ICronjobManagementApi {
 
   public async onCronjobCreated(
     identity: IIdentity,
-    callback: Messages.CallbackTypes.OnProcessErrorCallback,
+    callback: Messages.CallbackTypes.OnCronjobCreatedCallback,
     subscribeOnce = false,
   ): Promise<Subscription> {
     await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
