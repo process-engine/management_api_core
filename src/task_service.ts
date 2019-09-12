@@ -37,11 +37,10 @@ export class TaskService implements APIs.ITaskManagementApi {
     const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes);
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
 
-    const tasks: Array<DataModels.UserTasks.UserTask | DataModels.ManualTasks.ManualTask | DataModels.EmptyActivities.EmptyActivity> =
-      [].concat(userTaskList.userTasks, manualTaskList.manualTasks, emptyActivityList.emptyActivities);
-
     const taskList: DataModels.Tasks.TaskList = {
-      tasks: tasks,
+      emptyActivities: emptyActivityList.emptyActivities,
+      userTasks: userTaskList.userTasks,
+      manualTasks: manualTaskList.manualTasks,
     };
 
     return taskList;
@@ -55,11 +54,10 @@ export class TaskService implements APIs.ITaskManagementApi {
     const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes);
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
 
-    const tasks: Array<DataModels.UserTasks.UserTask | DataModels.ManualTasks.ManualTask | DataModels.EmptyActivities.EmptyActivity> =
-      [].concat(userTaskList.userTasks, manualTaskList.manualTasks, emptyActivityList.emptyActivities);
-
     const taskList: DataModels.Tasks.TaskList = {
-      tasks: tasks,
+      emptyActivities: emptyActivityList.emptyActivities,
+      userTasks: userTaskList.userTasks,
+      manualTasks: manualTaskList.manualTasks,
     };
 
     return taskList;
@@ -73,11 +71,10 @@ export class TaskService implements APIs.ITaskManagementApi {
     const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes);
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
 
-    const tasks: Array<DataModels.UserTasks.UserTask | DataModels.ManualTasks.ManualTask | DataModels.EmptyActivities.EmptyActivity> =
-      [].concat(userTaskList.userTasks, manualTaskList.manualTasks, emptyActivityList.emptyActivities);
-
     const taskList: DataModels.Tasks.TaskList = {
-      tasks: tasks,
+      emptyActivities: emptyActivityList.emptyActivities,
+      userTasks: userTaskList.userTasks,
+      manualTasks: manualTaskList.manualTasks,
     };
 
     return taskList;
@@ -91,11 +88,10 @@ export class TaskService implements APIs.ITaskManagementApi {
     const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes);
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
 
-    const tasks: Array<DataModels.UserTasks.UserTask | DataModels.ManualTasks.ManualTask | DataModels.EmptyActivities.EmptyActivity> =
-      [].concat(userTaskList.userTasks, manualTaskList.manualTasks, emptyActivityList.emptyActivities);
-
     const taskList: DataModels.Tasks.TaskList = {
-      tasks: tasks,
+      emptyActivities: emptyActivityList.emptyActivities,
+      userTasks: userTaskList.userTasks,
+      manualTasks: manualTaskList.manualTasks,
     };
 
     return taskList;
@@ -116,7 +112,9 @@ export class TaskService implements APIs.ITaskManagementApi {
     const noSuspendedFlowNodesFound = !suspendedFlowNodeInstances || suspendedFlowNodeInstances.length === 0;
     if (noSuspendedFlowNodesFound) {
       return <DataModels.Tasks.TaskList> {
-        tasks: [],
+        manualTasks: [],
+        userTasks: [],
+        emptyActivities: [],
       };
     }
 
@@ -124,11 +122,10 @@ export class TaskService implements APIs.ITaskManagementApi {
     const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodeInstances);
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodeInstances);
 
-    const tasks: Array<DataModels.UserTasks.UserTask | DataModels.ManualTasks.ManualTask | DataModels.EmptyActivities.EmptyActivity> =
-      [].concat(userTaskList.userTasks, manualTaskList.manualTasks, emptyActivityList.emptyActivities);
-
     const taskList: DataModels.Tasks.TaskList = {
-      tasks: tasks,
+      emptyActivities: emptyActivityList.emptyActivities,
+      userTasks: userTaskList.userTasks,
+      manualTasks: manualTaskList.manualTasks,
     };
 
     return taskList;
