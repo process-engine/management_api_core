@@ -153,9 +153,9 @@ function registerServices(container) {
     .register('ManagementApiTaskService', TaskService)
     .dependencies(
       'FlowNodeInstanceService',
+      'ManagementApiEmptyActivityConverter',
       'ManagementApiManualTaskConverter',
       'ManagementApiUserTaskConverter',
-      'ManagementApiEmptyActivityConverter',
     )
     .singleton();
 }

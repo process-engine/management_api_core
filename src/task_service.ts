@@ -18,9 +18,9 @@ export class TaskService implements APIs.ITaskManagementApi {
 
   constructor(
     flowNodeInstanceService: IFlowNodeInstanceService,
-    userTaskConverter: UserTaskConverter,
-    manualTaskConverter: ManualTaskConverter,
     emptyActivityConverter: EmptyActivityConverter,
+    manualTaskConverter: ManualTaskConverter,
+    userTaskConverter: UserTaskConverter,
   ) {
     this.flowNodeInstanceService = flowNodeInstanceService;
 
