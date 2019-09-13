@@ -584,9 +584,8 @@ export class NotificationAdapter {
   private sanitizeCronjobMessage<TPublic extends Messages.CronjobBaseEventMessage>(internalMessage: Messages.CronjobBaseEventMessage): TPublic {
 
     const sanitizedMessage = new Messages.CronjobBaseEventMessage(
-      internalMessage.subscription,
-      internalMessage.startEventId,
-      internalMessage.cronjob,
+      internalMessage.processModelId,
+      internalMessage.cronjobs,
     );
 
     return <TPublic> sanitizedMessage;
