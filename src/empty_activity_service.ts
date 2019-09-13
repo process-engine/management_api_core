@@ -11,6 +11,7 @@ import {FinishEmptyActivityMessage as InternalFinishEmptyActivityMessage} from '
 
 import {NotificationAdapter} from './adapters/index';
 import {EmptyActivityConverter} from './converters/index';
+import {applyPagination} from './paginator';
 
 export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
 
@@ -40,11 +41,20 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
     this.emptyActivityConverter = emptyActivityConverter;
   }
 
-  public async getEmptyActivitiesForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.EmptyActivities.EmptyActivityList> {
+  public async getEmptyActivitiesForProcessModel(
+    identity: IIdentity,
+    processModelId: string,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
 
     const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessModel(processModelId);
 
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
+
+    // TODO: Remove that useless `EmptyActivityList` datatype and just return an Array of EmptyActivities.
+    // Goes for the other UseCases as well.
+    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
 
     return emptyActivityList;
   }
@@ -52,20 +62,31 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
   public async getEmptyActivitiesForProcessInstance(
     identity: IIdentity,
     processInstanceId: string,
+    offset: number = 0,
+    limit: number = 0,
   ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
 
     const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessInstance(processInstanceId);
 
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
 
+    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
+
     return emptyActivityList;
   }
 
-  public async getEmptyActivitiesForCorrelation(identity: IIdentity, correlationId: string): Promise<DataModels.EmptyActivities.EmptyActivityList> {
+  public async getEmptyActivitiesForCorrelation(
+    identity: IIdentity,
+    correlationId: string,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
 
     const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByCorrelation(correlationId);
 
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
+
+    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
 
     return emptyActivityList;
   }
@@ -74,6 +95,8 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
     identity: IIdentity,
     processModelId: string,
     correlationId: string,
+    offset: number = 0,
+    limit: number = 0,
   ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
 
     const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByCorrelation(correlationId);
@@ -84,10 +107,16 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
 
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedProcessModelFlowNodes);
 
+    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
+
     return emptyActivityList;
   }
 
-  public async getWaitingEmptyActivitiesByIdentity(identity: IIdentity): Promise<DataModels.EmptyActivities.EmptyActivityList> {
+  public async getWaitingEmptyActivitiesByIdentity(
+    identity: IIdentity,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
 
     const suspendedFlowNodeInstances = await this.flowNodeInstanceService.queryByState(FlowNodeInstanceState.suspended);
 
@@ -96,6 +125,8 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
     });
 
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, flowNodeInstancesOwnedByUser);
+
+    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
 
     return emptyActivityList;
   }
