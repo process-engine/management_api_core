@@ -91,7 +91,12 @@ function registerServices(container) {
 
   container
     .register('ManagementApiFlowNodeInstanceService', FlowNodeInstanceService)
-    .dependencies('FlowNodeInstanceService')
+    .dependencies(
+      'FlowNodeInstanceService',
+      'ManagementApiEmptyActivityConverter',
+      'ManagementApiManualTaskConverter',
+      'ManagementApiUserTaskConverter',
+    )
     .singleton();
 
   container
@@ -145,16 +150,6 @@ function registerServices(container) {
       'FlowNodeInstanceService',
       'IamService',
       'ManagementApiNotificationAdapter',
-      'ManagementApiUserTaskConverter',
-    )
-    .singleton();
-
-  container
-    .register('ManagementApiTaskService', TaskService)
-    .dependencies(
-      'FlowNodeInstanceService',
-      'ManagementApiEmptyActivityConverter',
-      'ManagementApiManualTaskConverter',
       'ManagementApiUserTaskConverter',
     )
     .singleton();
