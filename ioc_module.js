@@ -19,7 +19,6 @@ const {
   ProcessModelService,
   TokenHistoryService,
   UserTaskService,
-  TaskService,
 } = require('./dist/commonjs/index');
 
 function registerInContainer(container) {

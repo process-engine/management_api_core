@@ -13,4 +13,3 @@ export * from './notification_service';
 export * from './process_model_service';
 export * from './token_history_service';
 export * from './user_task_service';
-export * from './task_service';
