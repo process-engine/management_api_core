@@ -4,9 +4,9 @@ import {APIs, DataModels} from '@process-engine/management_api_contracts';
 import {
   FlowNodeInstance, FlowNodeInstanceState, IFlowNodeInstanceService,
 } from '@process-engine/flow_node_instance.contracts';
-import {applyPagination} from './paginator';
 
 import {EmptyActivityConverter, ManualTaskConverter, UserTaskConverter} from './index';
+import {applyPagination} from './paginator';
 
 export class FlowNodeInstanceService implements APIs.IFlowNodeInstanceManagementApi {
 
@@ -47,20 +47,16 @@ export class FlowNodeInstanceService implements APIs.IFlowNodeInstanceManagement
     limit: number = 0,
   ): Promise<DataModels.FlowNodeInstances.TaskList> {
 
-    const suspendedFlowNodes = await this.flowNodeInstanceService.queryByState(
-      FlowNodeInstanceState.suspended,
-      offset,
-      limit,
-    );
+    const suspendedFlowNodes = await this.flowNodeInstanceService.queryByState(FlowNodeInstanceState.suspended);
 
     const userTaskList = await this.userTaskConverter.convert(identity, suspendedFlowNodes);
     const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes);
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
 
     const taskList: DataModels.FlowNodeInstances.TaskList = {
-      emptyActivities: emptyActivityList.emptyActivities,
-      userTasks: userTaskList.userTasks,
-      manualTasks: manualTaskList.manualTasks,
+      emptyActivities: applyPagination(emptyActivityList.emptyActivities, offset, limit),
+      userTasks: applyPagination(userTaskList.userTasks, offset, limit),
+      manualTasks: applyPagination(manualTaskList.manualTasks, offset, limit),
     };
 
     return taskList;
@@ -73,20 +69,16 @@ export class FlowNodeInstanceService implements APIs.IFlowNodeInstanceManagement
     limit: number = 0,
   ): Promise<DataModels.FlowNodeInstances.TaskList> {
 
-    const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessModel(
-      processModelId,
-      offset,
-      limit,
-    );
+    const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessModel(processModelId);
 
     const userTaskList = await this.userTaskConverter.convert(identity, suspendedFlowNodes);
     const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes);
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
 
     const taskList: DataModels.FlowNodeInstances.TaskList = {
-      emptyActivities: emptyActivityList.emptyActivities,
-      userTasks: userTaskList.userTasks,
-      manualTasks: manualTaskList.manualTasks,
+      emptyActivities: applyPagination(emptyActivityList.emptyActivities, offset, limit),
+      userTasks: applyPagination(userTaskList.userTasks, offset, limit),
+      manualTasks: applyPagination(manualTaskList.manualTasks, offset, limit),
     };
 
     return taskList;
@@ -99,20 +91,16 @@ export class FlowNodeInstanceService implements APIs.IFlowNodeInstanceManagement
     limit: number = 0,
   ): Promise<DataModels.FlowNodeInstances.TaskList> {
 
-    const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessInstance(
-      processInstanceId,
-      offset,
-      limit,
-    );
+    const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessInstance(processInstanceId);
 
     const userTaskList = await this.userTaskConverter.convert(identity, suspendedFlowNodes);
     const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes);
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
 
     const taskList: DataModels.FlowNodeInstances.TaskList = {
-      emptyActivities: emptyActivityList.emptyActivities,
-      userTasks: userTaskList.userTasks,
-      manualTasks: manualTaskList.manualTasks,
+      emptyActivities: applyPagination(emptyActivityList.emptyActivities, offset, limit),
+      userTasks: applyPagination(userTaskList.userTasks, offset, limit),
+      manualTasks: applyPagination(manualTaskList.manualTasks, offset, limit),
     };
 
     return taskList;
@@ -125,20 +113,16 @@ export class FlowNodeInstanceService implements APIs.IFlowNodeInstanceManagement
     limit: number = 0,
   ): Promise<DataModels.FlowNodeInstances.TaskList> {
 
-    const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByCorrelation(
-      correlationId,
-      offset,
-      limit,
-    );
+    const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByCorrelation(correlationId);
 
     const userTaskList = await this.userTaskConverter.convert(identity, suspendedFlowNodes);
     const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes);
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
 
     const taskList: DataModels.FlowNodeInstances.TaskList = {
-      emptyActivities: emptyActivityList.emptyActivities,
-      userTasks: userTaskList.userTasks,
-      manualTasks: manualTaskList.manualTasks,
+      emptyActivities: applyPagination(emptyActivityList.emptyActivities, offset, limit),
+      userTasks: applyPagination(userTaskList.userTasks, offset, limit),
+      manualTasks: applyPagination(manualTaskList.manualTasks, offset, limit),
     };
 
     return taskList;
@@ -155,8 +139,6 @@ export class FlowNodeInstanceService implements APIs.IFlowNodeInstanceManagement
     const flowNodeInstances = await this.flowNodeInstanceService.queryActiveByCorrelationAndProcessModel(
       correlationId,
       processModelId,
-      offset,
-      limit,
     );
 
     const suspendedFlowNodeInstances = flowNodeInstances.filter((flowNodeInstance: FlowNodeInstance): boolean => {
@@ -177,9 +159,9 @@ export class FlowNodeInstanceService implements APIs.IFlowNodeInstanceManagement
     const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodeInstances);
 
     const taskList: DataModels.FlowNodeInstances.TaskList = {
-      emptyActivities: emptyActivityList.emptyActivities,
-      userTasks: userTaskList.userTasks,
-      manualTasks: manualTaskList.manualTasks,
+      emptyActivities: applyPagination(emptyActivityList.emptyActivities, offset, limit),
+      userTasks: applyPagination(userTaskList.userTasks, offset, limit),
+      manualTasks: applyPagination(manualTaskList.manualTasks, offset, limit),
     };
 
     return taskList;
