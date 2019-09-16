@@ -470,6 +470,61 @@ export class NotificationAdapter {
     return this.createSubscription(eventName, sanitationCallback, subscribeOnce);
   }
 
+  public onCronjobCreated(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnCronjobCreatedCallback,
+    subscribeOnce: boolean,
+  ): Subscription {
+
+    const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobCreated;
+
+    return this.createSubscription(eventName, callback, subscribeOnce);
+  }
+
+  public onCronjobExecuted(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnCronjobExecutedCallback,
+    subscribeOnce: boolean,
+  ): Subscription {
+
+    const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobExecuted;
+
+    return this.createSubscription(eventName, callback, subscribeOnce);
+  }
+
+  public onCronjobStopped(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnCronjobStoppedCallback,
+    subscribeOnce: boolean,
+  ): Subscription {
+
+    const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobStopped;
+
+    return this.createSubscription(eventName, callback, subscribeOnce);
+  }
+
+  public onCronjobUpdated(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnCronjobUpdatedCallback,
+    subscribeOnce: boolean,
+  ): Subscription {
+
+    const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobUpdated;
+
+    return this.createSubscription(eventName, callback, subscribeOnce);
+  }
+
+  public onCronjobRemoved(
+    identity: IIdentity,
+    callback: Messages.CallbackTypes.OnCronjobRemovedCallback,
+    subscribeOnce: boolean,
+  ): Subscription {
+
+    const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobRemoved;
+
+    return this.createSubscription(eventName, callback, subscribeOnce);
+  }
+
   public removeSubscription(subscription: Subscription): void {
     this.eventAggregator.unsubscribe(subscription);
   }
@@ -487,15 +542,15 @@ export class NotificationAdapter {
     return identityA.userId === identityB.userId;
   }
 
-  private sanitizeMessage<TPublic extends Messages.BaseEventMessage>(internalMesage: BaseSystemEventMessage): TPublic {
+  private sanitizeMessage<TPublic extends Messages.BaseEventMessage>(internalMessage: BaseSystemEventMessage): TPublic {
 
     const sanitizedMessage = new Messages.BaseEventMessage(
-      internalMesage.correlationId,
-      internalMesage.processModelId,
-      internalMesage.processInstanceId,
-      internalMesage.flowNodeId,
-      internalMesage.flowNodeInstanceId,
-      internalMesage.currentToken,
+      internalMessage.correlationId,
+      internalMessage.processModelId,
+      internalMessage.processInstanceId,
+      internalMessage.flowNodeId,
+      internalMessage.flowNodeInstanceId,
+      internalMessage.currentToken,
     );
 
     return <TPublic> sanitizedMessage;

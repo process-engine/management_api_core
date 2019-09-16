@@ -1,3 +1,5 @@
+/* eslint-disable strict */
+
 'use strict';
 
 const {
@@ -22,7 +24,6 @@ const {
   TokenHistoryService,
   UserTaskService,
 } = require('./dist/commonjs/index');
-
 
 function registerInContainer(container) {
   registerConvertersAndAdapters(container);
@@ -57,7 +58,7 @@ function registerConvertersAndAdapters(container) {
     .singleton();
 }
 
-function registerServices(container){
+function registerServices(container) {
 
   container
     .register('ManagementApiCorrelationService', CorrelationService)
@@ -66,7 +67,7 @@ function registerServices(container){
 
   container
     .register('ManagementApiCronjobService', CronjobService)
-    .dependencies('CronjobService', 'CronjobHistoryService')
+    .dependencies('CronjobService', 'CronjobHistoryService', 'IamService', 'ManagementApiNotificationAdapter')
     .singleton();
 
   container
@@ -76,7 +77,8 @@ function registerServices(container){
       'FlowNodeInstanceService',
       'IamService',
       'ManagementApiNotificationAdapter',
-      'ManagementApiEmptyActivityConverter')
+      'ManagementApiEmptyActivityConverter',
+    )
     .singleton();
 
   container
@@ -86,7 +88,8 @@ function registerServices(container){
       'FlowNodeInstanceService',
       'IamService',
       'ProcessModelUseCases',
-      'ManagementApiEventConverter')
+      'ManagementApiEventConverter',
+    )
     .singleton();
 
   container
@@ -111,7 +114,8 @@ function registerServices(container){
       'FlowNodeInstanceService',
       'IamService',
       'ManagementApiNotificationAdapter',
-      'ManagementApiManualTaskConverter')
+      'ManagementApiManualTaskConverter',
+    )
     .singleton();
 
   container
@@ -128,7 +132,8 @@ function registerServices(container){
       'IamService',
       'ProcessModelFacadeFactory',
       'ProcessModelUseCases',
-      'ManagementApiNotificationAdapter')
+      'ManagementApiNotificationAdapter',
+    )
     .singleton();
 
   container
@@ -143,7 +148,8 @@ function registerServices(container){
       'FlowNodeInstanceService',
       'IamService',
       'ManagementApiNotificationAdapter',
-      'ManagementApiUserTaskConverter')
+      'ManagementApiUserTaskConverter',
+    )
     .singleton();
 }
 
