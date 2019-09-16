@@ -478,12 +478,7 @@ export class NotificationAdapter {
 
     const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobCreated;
 
-    const sanitationCallback = (message: Messages.SystemEvents.CronjobCreatedMessage): void => {
-      const sanitizedMessage = this.sanitizeCronjobMessage(message);
-      callback(sanitizedMessage);
-    };
-
-    return this.createSubscription(eventName, sanitationCallback, subscribeOnce);
+    return this.createSubscription(eventName, callback, subscribeOnce);
   }
 
   public onCronjobExecuted(
@@ -494,12 +489,7 @@ export class NotificationAdapter {
 
     const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobExecuted;
 
-    const sanitationCallback = (message: Messages.SystemEvents.CronjobExecutedMessage): void => {
-      const sanitizedMessage = this.sanitizeCronjobMessage(message);
-      callback(sanitizedMessage);
-    };
-
-    return this.createSubscription(eventName, sanitationCallback, subscribeOnce);
+    return this.createSubscription(eventName, callback, subscribeOnce);
   }
 
   public onCronjobStopped(
@@ -510,12 +500,7 @@ export class NotificationAdapter {
 
     const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobStopped;
 
-    const sanitationCallback = (message: Messages.SystemEvents.CronjobStoppedMessage): void => {
-      const sanitizedMessage = this.sanitizeCronjobMessage(message);
-      callback(sanitizedMessage);
-    };
-
-    return this.createSubscription(eventName, sanitationCallback, subscribeOnce);
+    return this.createSubscription(eventName, callback, subscribeOnce);
   }
 
   public onCronjobUpdated(
@@ -526,12 +511,7 @@ export class NotificationAdapter {
 
     const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobUpdated;
 
-    const sanitationCallback = (message: Messages.SystemEvents.CronjobUpdatedMessage): void => {
-      const sanitizedMessage = this.sanitizeCronjobMessage(message);
-      callback(sanitizedMessage);
-    };
-
-    return this.createSubscription(eventName, sanitationCallback, subscribeOnce);
+    return this.createSubscription(eventName, callback, subscribeOnce);
   }
 
   public onCronjobRemoved(
@@ -542,12 +522,7 @@ export class NotificationAdapter {
 
     const eventName = Messages.EventAggregatorSettings.messagePaths.cronjobRemoved;
 
-    const sanitationCallback = (message: Messages.SystemEvents.CronjobRemovedMessage): void => {
-      const sanitizedMessage = this.sanitizeCronjobMessage(message);
-      callback(sanitizedMessage);
-    };
-
-    return this.createSubscription(eventName, sanitationCallback, subscribeOnce);
+    return this.createSubscription(eventName, callback, subscribeOnce);
   }
 
   public removeSubscription(subscription: Subscription): void {
@@ -576,16 +551,6 @@ export class NotificationAdapter {
       internalMessage.flowNodeId,
       internalMessage.flowNodeInstanceId,
       internalMessage.currentToken,
-    );
-
-    return <TPublic> sanitizedMessage;
-  }
-
-  private sanitizeCronjobMessage<TPublic extends Messages.CronjobBaseEventMessage>(internalMessage: Messages.CronjobBaseEventMessage): TPublic {
-
-    const sanitizedMessage = new Messages.CronjobBaseEventMessage(
-      internalMessage.processModelId,
-      internalMessage.cronjobs,
     );
 
     return <TPublic> sanitizedMessage;
