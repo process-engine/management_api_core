@@ -49,7 +49,11 @@ export class CronjobService implements APIs.ICronjobManagementApi {
     offset: number = 0,
     limit: number = 0,
   ): Promise<DataModels.Cronjobs.CronjobHistoryList> {
-    return this.cronjobHistoryService.getByProcessModelId(identity, processModelId, startEventId, offset, limit);
+    const cronjobHistories = await this.cronjobHistoryService.getByProcessModelId(identity, processModelId, startEventId);
+
+    const paginizedCronjobHistories = applyPagination(cronjobHistories, offset, limit);
+
+    return {cronjobHistories: paginizedCronjobHistories, totalCount: cronjobHistories.length};
   }
 
   public async getCronjobExecutionHistoryForCrontab(
@@ -58,7 +62,11 @@ export class CronjobService implements APIs.ICronjobManagementApi {
     offset: number = 0,
     limit: number = 0,
   ): Promise<DataModels.Cronjobs.CronjobHistoryList> {
-    return this.cronjobHistoryService.getByCrontab(identity, crontab, offset, limit);
+    const cronjobHistories = await this.cronjobHistoryService.getByCrontab(identity, crontab);
+
+    const paginizedCronjobHistories = applyPagination(cronjobHistories, offset, limit);
+
+    return {cronjobHistories: paginizedCronjobHistories, totalCount: cronjobHistories.length};
   }
 
   public async onCronjobCreated(

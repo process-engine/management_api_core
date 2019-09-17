@@ -109,7 +109,7 @@ export class KpiService implements APIs.IKpiManagementApi {
 
     const flowNodeInstances = await this.flowNodeInstanceRepository.queryByProcessModel(processModelId);
 
-    const activeFlowNodeInstances = flowNodeInstances.flowNodeInstances.filter(this.isFlowNodeInstanceActive);
+    const activeFlowNodeInstances = flowNodeInstances.filter(this.isFlowNodeInstanceActive);
 
     const activeTokenInfos = activeFlowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
 
@@ -128,7 +128,7 @@ export class KpiService implements APIs.IKpiManagementApi {
 
     const activeFlowNodeInstances = await this.flowNodeInstanceRepository.queryActiveByCorrelationAndProcessModel(correlationId, processModelId);
 
-    const activeTokenInfos = activeFlowNodeInstances.flowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
+    const activeTokenInfos = activeFlowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
 
     const paginizedTokens = applyPagination(activeTokenInfos, offset, limit);
 
@@ -144,7 +144,7 @@ export class KpiService implements APIs.IKpiManagementApi {
 
     const activeFlowNodeInstances = await this.flowNodeInstanceRepository.queryActiveByProcessInstance(processInstanceId);
 
-    const activeTokenInfos = activeFlowNodeInstances.flowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
+    const activeTokenInfos = activeFlowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
 
     const paginizedTokens = applyPagination(activeTokenInfos, offset, limit);
 
@@ -160,7 +160,7 @@ export class KpiService implements APIs.IKpiManagementApi {
 
     const flowNodeInstances = await this.flowNodeInstanceRepository.queryByFlowNodeId(flowNodeId);
 
-    const activeFlowNodeInstances = flowNodeInstances.flowNodeInstances.filter(this.isFlowNodeInstanceActive);
+    const activeFlowNodeInstances = flowNodeInstances.filter(this.isFlowNodeInstanceActive);
 
     const activeTokenInfos = activeFlowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
 

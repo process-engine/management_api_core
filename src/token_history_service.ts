@@ -42,7 +42,7 @@ export class TokenHistoryService implements APIs.ITokenHistoryManagementApi {
 
     const flowNodeInstances = await this.flowNodeInstanceRepository.queryFlowNodeInstancesByProcessInstanceId(processInstanceId, flowNodeId);
 
-    const tokenHistories = this.createTokenHistories(flowNodeInstances.flowNodeInstances);
+    const tokenHistories = this.createTokenHistories(flowNodeInstances);
 
     return tokenHistories;
   }
@@ -56,7 +56,7 @@ export class TokenHistoryService implements APIs.ITokenHistoryManagementApi {
 
     const flowNodeInstances = await this.flowNodeInstanceRepository.queryByCorrelationAndProcessModel(correlationId, processModelId);
 
-    const tokenHistories = this.createTokenHistories(flowNodeInstances.flowNodeInstances);
+    const tokenHistories = this.createTokenHistories(flowNodeInstances);
 
     return tokenHistories;
   }
@@ -66,7 +66,7 @@ export class TokenHistoryService implements APIs.ITokenHistoryManagementApi {
 
     const flowNodeInstances = await this.flowNodeInstanceRepository.queryByProcessInstance(processInstanceId);
 
-    const tokenHistories = this.createTokenHistories(flowNodeInstances.flowNodeInstances);
+    const tokenHistories = this.createTokenHistories(flowNodeInstances);
 
     return tokenHistories;
   }

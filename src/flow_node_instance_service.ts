@@ -2,6 +2,7 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 
 import {APIs, DataModels} from '@process-engine/management_api_contracts';
 import {IFlowNodeInstanceService} from '@process-engine/flow_node_instance.contracts';
+import {applyPagination} from './paginator';
 
 export class FlowNodeInstanceService implements APIs.IFlowNodeInstanceManagementApi {
 
@@ -17,7 +18,11 @@ export class FlowNodeInstanceService implements APIs.IFlowNodeInstanceManagement
     offset: number = 0,
     limit: number = 0,
   ): Promise<DataModels.FlowNodeInstances.FlowNodeInstanceList> {
-    return this.flowNodeInstanceService.queryByProcessInstance(processInstanceId, offset, limit);
+    const flowNodeInstances = await this.flowNodeInstanceService.queryByProcessInstance(processInstanceId);
+
+    const paginizedFlowNodeInstances = applyPagination(flowNodeInstances, offset, limit);
+
+    return {flowNodeInstances: paginizedFlowNodeInstances, totalCount: flowNodeInstances.length};
   }
 
 }

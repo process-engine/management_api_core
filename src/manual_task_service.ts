@@ -90,7 +90,7 @@ export class ManualTaskService implements APIs.IManualTaskManagementApi {
 
     const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessModel(processModelId);
 
-    const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes.flowNodeInstances);
+    const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes);
 
     manualTaskList.manualTasks = applyPagination(manualTaskList.manualTasks, offset, limit);
 
@@ -106,7 +106,7 @@ export class ManualTaskService implements APIs.IManualTaskManagementApi {
 
     const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessInstance(processInstanceId);
 
-    const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes.flowNodeInstances);
+    const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes);
 
     manualTaskList.manualTasks = applyPagination(manualTaskList.manualTasks, offset, limit);
 
@@ -122,7 +122,7 @@ export class ManualTaskService implements APIs.IManualTaskManagementApi {
 
     const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByCorrelation(correlationId);
 
-    const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes.flowNodeInstances);
+    const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes);
 
     manualTaskList.manualTasks = applyPagination(manualTaskList.manualTasks, offset, limit);
 
@@ -139,7 +139,7 @@ export class ManualTaskService implements APIs.IManualTaskManagementApi {
 
     const flowNodeInstances = await this.flowNodeInstanceService.queryActiveByCorrelationAndProcessModel(correlationId, processModelId);
 
-    const suspendedFlowNodeInstances = flowNodeInstances.flowNodeInstances.filter((flowNodeInstance: FlowNodeInstance): boolean => {
+    const suspendedFlowNodeInstances = flowNodeInstances.filter((flowNodeInstance: FlowNodeInstance): boolean => {
       return flowNodeInstance.state === FlowNodeInstanceState.suspended;
     });
 
@@ -158,7 +158,7 @@ export class ManualTaskService implements APIs.IManualTaskManagementApi {
 
     const suspendedFlowNodeInstances = await this.flowNodeInstanceService.queryByState(FlowNodeInstanceState.suspended);
 
-    const flowNodeInstancesOwnedByUser = suspendedFlowNodeInstances.flowNodeInstances.filter((flowNodeInstance: FlowNodeInstance): boolean => {
+    const flowNodeInstancesOwnedByUser = suspendedFlowNodeInstances.filter((flowNodeInstance: FlowNodeInstance): boolean => {
       return this.checkIfIdentityUserIDsMatch(identity, flowNodeInstance.owner);
     });
 
@@ -215,7 +215,7 @@ export class ManualTaskService implements APIs.IManualTaskManagementApi {
 
     const suspendedFlowNodeInstances = await this.flowNodeInstanceService.querySuspendedByProcessInstance(processInstanceId);
 
-    const matchingInstance = suspendedFlowNodeInstances.flowNodeInstances.find((instance: FlowNodeInstance): boolean => {
+    const matchingInstance = suspendedFlowNodeInstances.find((instance: FlowNodeInstance): boolean => {
       return instance.id === instanceId &&
              instance.correlationId === correlationId;
     });

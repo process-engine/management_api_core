@@ -41,7 +41,7 @@ export class EventService implements APIs.IEventManagementApi {
 
     const suspendedFlowNodeInstances = await this.flowNodeInstanceService.querySuspendedByProcessModel(processModelId);
 
-    const suspendedEvents = suspendedFlowNodeInstances.flowNodeInstances.filter(this.isFlowNodeAnEvent);
+    const suspendedEvents = suspendedFlowNodeInstances.filter(this.isFlowNodeAnEvent);
 
     const eventList = await this.eventConverter.convert(identity, suspendedEvents);
 
@@ -59,7 +59,7 @@ export class EventService implements APIs.IEventManagementApi {
 
     const suspendedFlowNodeInstances = await this.flowNodeInstanceService.querySuspendedByCorrelation(correlationId);
 
-    const suspendedEvents = suspendedFlowNodeInstances.flowNodeInstances.filter(this.isFlowNodeAnEvent);
+    const suspendedEvents = suspendedFlowNodeInstances.filter(this.isFlowNodeAnEvent);
 
     const accessibleEvents = await Promise.filter(suspendedEvents, async (flowNode: FlowNodeInstance): Promise<boolean> => {
       try {
@@ -89,7 +89,7 @@ export class EventService implements APIs.IEventManagementApi {
 
     const suspendedFlowNodeInstances = await this.flowNodeInstanceService.querySuspendedByCorrelation(correlationId);
 
-    const suspendedEvents = suspendedFlowNodeInstances.flowNodeInstances.filter((flowNode: FlowNodeInstance): boolean => {
+    const suspendedEvents = suspendedFlowNodeInstances.filter((flowNode: FlowNodeInstance): boolean => {
 
       const flowNodeIsEvent = this.isFlowNodeAnEvent(flowNode);
       const flowNodeBelongstoCorrelation = flowNode.processModelId === processModelId;
