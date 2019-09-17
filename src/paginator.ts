@@ -1,4 +1,5 @@
 import {Logger} from 'loggerhythm';
+import {DataModels} from '@process-engine/management_api_contracts';
 
 const logger = Logger.createLogger('processengine:management_api_core:paginator');
 
@@ -21,4 +22,49 @@ export function applyPagination<TValue>(values: Array<TValue>, offset: number, l
   valueSubset = valueSubset.slice(0, limit);
 
   return valueSubset;
+}
+
+export function applyPaginationForTaskList(
+  taskList: DataModels.FlowNodeInstances.TaskList,
+  offset: number,
+  limit: number,
+): DataModels.FlowNodeInstances.TaskList {
+
+  const taskListLength = taskList.emptyActivities.length + taskList.manualTasks.length + taskList.userTasks.length;
+  if (offset > taskListLength) {
+    logger.warn(`The offset of ${offset} is larger than the given value list (${taskListLength})! Returning an empty result set.`);
+
+    return {
+      emptyActivities: [],
+      manualTasks: [],
+      userTasks: [],
+    };
+  }
+
+  if (offset < 1 && limit < 1) {
+    return taskList;
+  }
+
+  const offsetForEmptyActivity = offset;
+  const limitForEmptyActivity = limit;
+
+  const emptyActivities = applyPagination(taskList.emptyActivities, offsetForEmptyActivity, limitForEmptyActivity);
+
+  const offsetForManualTasks = offset + emptyActivities.length;
+  const limitForManualTasks = limit - emptyActivities.length;
+
+  const manualTasks = limit > 0 && limitForManualTasks < 1 ? [] : applyPagination(taskList.manualTasks, offsetForManualTasks, limitForManualTasks);
+
+  const offsetForUserTasks = offset + emptyActivities.length + manualTasks.length;
+  const limitForUserTasks = limit - emptyActivities.length - manualTasks.length;
+
+  const userTasks = limit > 0 && limitForUserTasks < 1 ? [] : applyPagination(taskList.userTasks, offsetForUserTasks, limitForUserTasks);
+
+  const newTaskList = {
+    emptyActivities: emptyActivities,
+    manualTasks: manualTasks,
+    userTasks: userTasks,
+  };
+
+  return newTaskList;
 }
