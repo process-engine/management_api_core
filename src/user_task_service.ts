@@ -96,7 +96,7 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
 
     const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessModel(processModelId);
 
-    const userTaskList = await this.userTaskConverter.convert(identity, suspendedFlowNodes);
+    const userTaskList = await this.userTaskConverter.convert(identity, suspendedFlowNodes.flowNodeInstances);
 
     userTaskList.userTasks = applyPagination(userTaskList.userTasks, offset, limit);
 
@@ -112,7 +112,7 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
 
     const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessInstance(processInstanceId);
 
-    const userTaskList = await this.userTaskConverter.convert(identity, suspendedFlowNodes);
+    const userTaskList = await this.userTaskConverter.convert(identity, suspendedFlowNodes.flowNodeInstances);
 
     userTaskList.userTasks = applyPagination(userTaskList.userTasks, offset, limit);
 
@@ -128,7 +128,7 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
 
     const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByCorrelation(correlationId);
 
-    const userTaskList = await this.userTaskConverter.convert(identity, suspendedFlowNodes);
+    const userTaskList = await this.userTaskConverter.convert(identity, suspendedFlowNodes.flowNodeInstances);
 
     userTaskList.userTasks = applyPagination(userTaskList.userTasks, offset, limit);
 
@@ -145,7 +145,7 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
 
     const flowNodeInstances = await this.flowNodeInstanceService.queryActiveByCorrelationAndProcessModel(correlationId, processModelId);
 
-    const suspendedFlowNodeInstances = flowNodeInstances.filter((flowNodeInstance: FlowNodeInstance): boolean => {
+    const suspendedFlowNodeInstances = flowNodeInstances.flowNodeInstances.filter((flowNodeInstance: FlowNodeInstance): boolean => {
       return flowNodeInstance.state === FlowNodeInstanceState.suspended;
     });
 
@@ -171,7 +171,7 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
 
     const suspendedFlowNodeInstances = await this.flowNodeInstanceService.queryByState(FlowNodeInstanceState.suspended);
 
-    const flowNodeInstancesOwnedByUser = suspendedFlowNodeInstances.filter((flowNodeInstance: FlowNodeInstance): boolean => {
+    const flowNodeInstancesOwnedByUser = suspendedFlowNodeInstances.flowNodeInstances.filter((flowNodeInstance: FlowNodeInstance): boolean => {
       return this.checkIfIdentityUserIDsMatch(identity, flowNodeInstance.owner);
     });
 
@@ -229,7 +229,7 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
 
     const suspendedFlowNodeInstances = await this.flowNodeInstanceService.querySuspendedByProcessInstance(processInstanceId);
 
-    const matchingInstance = suspendedFlowNodeInstances.find((instance: FlowNodeInstance): boolean => {
+    const matchingInstance = suspendedFlowNodeInstances.flowNodeInstances.find((instance: FlowNodeInstance): boolean => {
       return instance.id === instanceId &&
              instance.correlationId === correlationId;
     });

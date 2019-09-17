@@ -41,12 +41,10 @@ export class EventService implements APIs.IEventManagementApi {
 
     const suspendedFlowNodeInstances = await this.flowNodeInstanceService.querySuspendedByProcessModel(processModelId);
 
-    const suspendedEvents = suspendedFlowNodeInstances.filter(this.isFlowNodeAnEvent);
+    const suspendedEvents = suspendedFlowNodeInstances.flowNodeInstances.filter(this.isFlowNodeAnEvent);
 
     const eventList = await this.eventConverter.convert(identity, suspendedEvents);
 
-    // TODO: Remove that useless `EventList` datatype and just return an Array of Events.
-    // Goes for the other UseCases as well.
     eventList.events = applyPagination(eventList.events, offset, limit);
 
     return eventList;
@@ -61,7 +59,7 @@ export class EventService implements APIs.IEventManagementApi {
 
     const suspendedFlowNodeInstances = await this.flowNodeInstanceService.querySuspendedByCorrelation(correlationId);
 
-    const suspendedEvents = suspendedFlowNodeInstances.filter(this.isFlowNodeAnEvent);
+    const suspendedEvents = suspendedFlowNodeInstances.flowNodeInstances.filter(this.isFlowNodeAnEvent);
 
     const accessibleEvents = await Promise.filter(suspendedEvents, async (flowNode: FlowNodeInstance): Promise<boolean> => {
       try {
@@ -91,7 +89,7 @@ export class EventService implements APIs.IEventManagementApi {
 
     const suspendedFlowNodeInstances = await this.flowNodeInstanceService.querySuspendedByCorrelation(correlationId);
 
-    const suspendedEvents = suspendedFlowNodeInstances.filter((flowNode: FlowNodeInstance): boolean => {
+    const suspendedEvents = suspendedFlowNodeInstances.flowNodeInstances.filter((flowNode: FlowNodeInstance): boolean => {
 
       const flowNodeIsEvent = this.isFlowNodeAnEvent(flowNode);
       const flowNodeBelongstoCorrelation = flowNode.processModelId === processModelId;

@@ -16,7 +16,7 @@ export class FlowNodeInstanceService implements APIs.IFlowNodeInstanceManagement
     processInstanceId: string,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.FlowNodeInstances.FlowNodeInstance>> {
+  ): Promise<DataModels.FlowNodeInstances.FlowNodeInstanceList> {
     return this.flowNodeInstanceService.queryByProcessInstance(processInstanceId, offset, limit);
   }
 

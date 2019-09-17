@@ -58,7 +58,7 @@ export class KpiService implements APIs.IKpiManagementApi {
     processModelId: string,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.Kpi.FlowNodeRuntimeInformation>> {
+  ): Promise<DataModels.Kpi.FlowNodeRuntimeInformationList> {
 
     const metrics = await this.metricsService.readMetricsForProcessModel(identity, processModelId);
 
@@ -76,7 +76,7 @@ export class KpiService implements APIs.IKpiManagementApi {
 
     const paginizedRuntimeInformations = applyPagination(runtimeInformations, offset, limit);
 
-    return paginizedRuntimeInformations;
+    return {flowNodeRuntimeInformation: paginizedRuntimeInformations, totalCount: runtimeInformations.length};
   }
 
   public async getRuntimeInformationForFlowNode(
@@ -105,17 +105,17 @@ export class KpiService implements APIs.IKpiManagementApi {
     processModelId: string,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.Kpi.ActiveToken>> {
+  ): Promise<DataModels.Kpi.ActiveTokenList> {
 
     const flowNodeInstances = await this.flowNodeInstanceRepository.queryByProcessModel(processModelId);
 
-    const activeFlowNodeInstances = flowNodeInstances.filter(this.isFlowNodeInstanceActive);
+    const activeFlowNodeInstances = flowNodeInstances.flowNodeInstances.filter(this.isFlowNodeInstanceActive);
 
     const activeTokenInfos = activeFlowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
 
     const paginizedTokens = applyPagination(activeTokenInfos, offset, limit);
 
-    return paginizedTokens;
+    return {activeTokens: paginizedTokens, totalCount: activeTokenInfos.length};
   }
 
   public async getActiveTokensForCorrelationAndProcessModel(
@@ -124,15 +124,15 @@ export class KpiService implements APIs.IKpiManagementApi {
     processModelId: string,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.Kpi.ActiveToken>> {
+  ): Promise<DataModels.Kpi.ActiveTokenList> {
 
     const activeFlowNodeInstances = await this.flowNodeInstanceRepository.queryActiveByCorrelationAndProcessModel(correlationId, processModelId);
 
-    const activeTokenInfos = activeFlowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
+    const activeTokenInfos = activeFlowNodeInstances.flowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
 
     const paginizedTokens = applyPagination(activeTokenInfos, offset, limit);
 
-    return paginizedTokens;
+    return {activeTokens: paginizedTokens, totalCount: activeTokenInfos.length};
   }
 
   public async getActiveTokensForProcessInstance(
@@ -140,15 +140,15 @@ export class KpiService implements APIs.IKpiManagementApi {
     processInstanceId: string,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.Kpi.ActiveToken>> {
+  ): Promise<DataModels.Kpi.ActiveTokenList> {
 
     const activeFlowNodeInstances = await this.flowNodeInstanceRepository.queryActiveByProcessInstance(processInstanceId);
 
-    const activeTokenInfos = activeFlowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
+    const activeTokenInfos = activeFlowNodeInstances.flowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
 
     const paginizedTokens = applyPagination(activeTokenInfos, offset, limit);
 
-    return paginizedTokens;
+    return {activeTokens: paginizedTokens, totalCount: activeTokenInfos.length};
   }
 
   public async getActiveTokensForFlowNode(
@@ -156,17 +156,17 @@ export class KpiService implements APIs.IKpiManagementApi {
     flowNodeId: string,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.Kpi.ActiveToken>> {
+  ): Promise<DataModels.Kpi.ActiveTokenList> {
 
     const flowNodeInstances = await this.flowNodeInstanceRepository.queryByFlowNodeId(flowNodeId);
 
-    const activeFlowNodeInstances = flowNodeInstances.filter(this.isFlowNodeInstanceActive);
+    const activeFlowNodeInstances = flowNodeInstances.flowNodeInstances.filter(this.isFlowNodeInstanceActive);
 
     const activeTokenInfos = activeFlowNodeInstances.map(this.createActiveTokenInfoForFlowNodeInstance);
 
     const paginizedTokens = applyPagination(activeTokenInfos, offset, limit);
 
-    return paginizedTokens;
+    return {activeTokens: paginizedTokens, totalCount: activeTokenInfos.length};
   }
 
   /**

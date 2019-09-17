@@ -17,7 +17,7 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
     identity: IIdentity,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.Correlations.Correlation>> {
+  ): Promise<DataModels.Correlations.CorrelationList> {
 
     const correlations = await this.correlationService.getAll(identity);
 
@@ -25,14 +25,14 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
 
     const paginizedCorrelations = applyPagination(managementApiCorrelations, offset, limit);
 
-    return paginizedCorrelations;
+    return {correlations: paginizedCorrelations, totalCount: managementApiCorrelations.length};
   }
 
   public async getActiveCorrelations(
     identity: IIdentity,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.Correlations.Correlation>> {
+  ): Promise<DataModels.Correlations.CorrelationList> {
 
     const activeCorrelations = await this.correlationService.getActive(identity);
 
@@ -40,7 +40,7 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
 
     const paginizedCorrelations = applyPagination(managementApiCorrelations, offset, limit);
 
-    return paginizedCorrelations;
+    return {correlations: paginizedCorrelations, totalCount: managementApiCorrelations.length};
   }
 
   public async getCorrelationById(identity: IIdentity, correlationId: string): Promise<DataModels.Correlations.Correlation> {
@@ -57,7 +57,7 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
     processModelId: string,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.Correlations.Correlation>> {
+  ): Promise<DataModels.Correlations.CorrelationList> {
 
     const correlations = await this.correlationService.getByProcessModelId(identity, processModelId);
 
@@ -65,7 +65,7 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
 
     const paginizedCorrelations = applyPagination(managementApiCorrelations, offset, limit);
 
-    return paginizedCorrelations;
+    return {correlations: paginizedCorrelations, totalCount: managementApiCorrelations.length};
   }
 
   public async getCorrelationByProcessInstanceId(identity: IIdentity, processInstanceId: string): Promise<DataModels.Correlations.Correlation> {

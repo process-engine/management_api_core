@@ -23,15 +23,15 @@ export class TokenHistoryService implements APIs.ITokenHistoryManagementApi {
     flowNodeId: string,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.TokenHistory.TokenHistoryEntry>> {
+  ): Promise<DataModels.TokenHistory.TokenHistoryEntryList> {
 
     const flowNodeInstance = await this.flowNodeInstanceRepository.querySpecificFlowNode(correlationId, processModelId, flowNodeId);
 
-    const tokenHistory = this.getTokenHistoryForFlowNode(flowNodeInstance);
+    const tokenHistoryEntryList = this.getTokenHistoryForFlowNode(flowNodeInstance);
 
-    const paginizedTokenHistory = applyPagination(tokenHistory, offset, limit);
+    tokenHistoryEntryList.tokenHistoryEntries = applyPagination(tokenHistoryEntryList.tokenHistoryEntries, offset, limit);
 
-    return paginizedTokenHistory;
+    return tokenHistoryEntryList;
   }
 
   public async getTokensForFlowNodeByProcessInstanceId(
@@ -42,7 +42,7 @@ export class TokenHistoryService implements APIs.ITokenHistoryManagementApi {
 
     const flowNodeInstances = await this.flowNodeInstanceRepository.queryFlowNodeInstancesByProcessInstanceId(processInstanceId, flowNodeId);
 
-    const tokenHistories = this.createTokenHistories(flowNodeInstances);
+    const tokenHistories = this.createTokenHistories(flowNodeInstances.flowNodeInstances);
 
     return tokenHistories;
   }
@@ -56,7 +56,7 @@ export class TokenHistoryService implements APIs.ITokenHistoryManagementApi {
 
     const flowNodeInstances = await this.flowNodeInstanceRepository.queryByCorrelationAndProcessModel(correlationId, processModelId);
 
-    const tokenHistories = this.createTokenHistories(flowNodeInstances);
+    const tokenHistories = this.createTokenHistories(flowNodeInstances.flowNodeInstances);
 
     return tokenHistories;
   }
@@ -66,7 +66,7 @@ export class TokenHistoryService implements APIs.ITokenHistoryManagementApi {
 
     const flowNodeInstances = await this.flowNodeInstanceRepository.queryByProcessInstance(processInstanceId);
 
-    const tokenHistories = this.createTokenHistories(flowNodeInstances);
+    const tokenHistories = this.createTokenHistories(flowNodeInstances.flowNodeInstances);
 
     return tokenHistories;
   }
@@ -83,7 +83,9 @@ export class TokenHistoryService implements APIs.ITokenHistoryManagementApi {
       const flowNodeIdExist = tokenHistories[flowNodeId] !== null && tokenHistories[flowNodeId] !== undefined;
 
       if (flowNodeIdExist) {
-        tokenHistories[flowNodeId].push(...tokenHistory);
+        tokenHistories[flowNodeId].tokenHistoryEntries.push(...tokenHistory.tokenHistoryEntries);
+        tokenHistories[flowNodeId].totalCount = tokenHistory.totalCount;
+
       } else {
         tokenHistories[flowNodeId] = tokenHistory;
       }
@@ -92,7 +94,7 @@ export class TokenHistoryService implements APIs.ITokenHistoryManagementApi {
     return tokenHistories;
   }
 
-  private getTokenHistoryForFlowNode(flowNodeInstance: FlowNodeInstance): Array<DataModels.TokenHistory.TokenHistoryEntry> {
+  private getTokenHistoryForFlowNode(flowNodeInstance: FlowNodeInstance): DataModels.TokenHistory.TokenHistoryEntryList {
     const tokenHistory = flowNodeInstance.tokens.map((fniToken: ProcessToken): DataModels.TokenHistory.TokenHistoryEntry => {
 
       const tokenHistoryEntry = new DataModels.TokenHistory.TokenHistoryEntry();
@@ -111,7 +113,7 @@ export class TokenHistoryService implements APIs.ITokenHistoryManagementApi {
       return tokenHistoryEntry;
     });
 
-    return tokenHistory;
+    return {tokenHistoryEntries: tokenHistory, totalCount: tokenHistory.length};
   }
 
 }

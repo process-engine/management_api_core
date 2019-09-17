@@ -20,7 +20,7 @@ export class LoggingService implements APIs.ILoggingManagementApi {
     correlationId?: string,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.Logging.LogEntry>> {
+  ): Promise<DataModels.Logging.LogEntryList> {
 
     let logs = await this.loggingApiService.readLogForProcessModel(identity, processModelId);
 
@@ -32,7 +32,7 @@ export class LoggingService implements APIs.ILoggingManagementApi {
 
     const paginizedLogs = applyPagination(logs, offset, limit);
 
-    return paginizedLogs;
+    return {logEntries: paginizedLogs, totalCount: logs.length};
   }
 
   public async getProcessInstanceLog(
@@ -41,7 +41,7 @@ export class LoggingService implements APIs.ILoggingManagementApi {
     processInstanceId: string,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.Logging.LogEntry>> {
+  ): Promise<DataModels.Logging.LogEntryList> {
 
     const processModelLog = await this.loggingApiService.readLogForProcessModel(identity, processModelId);
 
@@ -52,7 +52,7 @@ export class LoggingService implements APIs.ILoggingManagementApi {
 
     const paginizedLogs = applyPagination(processInstanceLog, offset, limit);
 
-    return paginizedLogs;
+    return {logEntries: paginizedLogs, totalCount: processInstanceLog.length};
   }
 
 }
