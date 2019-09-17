@@ -38,6 +38,7 @@ export function applyPaginationForTaskList(
       emptyActivities: [],
       manualTasks: [],
       userTasks: [],
+      totalCount: 0,
     };
   }
 
@@ -60,10 +61,13 @@ export function applyPaginationForTaskList(
 
   const userTasks = limit > 0 && limitForUserTasks < 1 ? [] : applyPagination(taskList.userTasks, offsetForUserTasks, limitForUserTasks);
 
+  const totalCount = emptyActivities.length + manualTasks.length + userTasks.length;
+
   const newTaskList = {
     emptyActivities: emptyActivities,
     manualTasks: manualTasks,
     userTasks: userTasks,
+    totalCount: totalCount,
   };
 
   return newTaskList;
