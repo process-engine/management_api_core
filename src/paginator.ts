@@ -46,17 +46,17 @@ export function applyPaginationForTaskList(
     return taskList;
   }
 
-  const offsetForEmptyActivity = offset;
-  const limitForEmptyActivity = limit;
+  const offsetForEmptyActivities = offset;
+  const limitForEmptyActivities = limit;
 
-  const emptyActivities = applyPagination(taskList.emptyActivities, offsetForEmptyActivity, limitForEmptyActivity);
+  const emptyActivities = applyPagination(taskList.emptyActivities, offsetForEmptyActivities, limitForEmptyActivities);
 
-  const offsetForManualTasks = offset + emptyActivities.length;
+  const offsetForManualTasks = Math.max(offset - taskList.emptyActivities.length, 0);
   const limitForManualTasks = limit - emptyActivities.length;
 
   const manualTasks = limit > 0 && limitForManualTasks < 1 ? [] : applyPagination(taskList.manualTasks, offsetForManualTasks, limitForManualTasks);
 
-  const offsetForUserTasks = offset + emptyActivities.length + manualTasks.length;
+  const offsetForUserTasks = Math.max(offset - taskList.emptyActivities.length - taskList.manualTasks.length, 0);
   const limitForUserTasks = limit - emptyActivities.length - manualTasks.length;
 
   const userTasks = limit > 0 && limitForUserTasks < 1 ? [] : applyPagination(taskList.userTasks, offsetForUserTasks, limitForUserTasks);
