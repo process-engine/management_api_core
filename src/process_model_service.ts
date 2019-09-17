@@ -60,9 +60,10 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
         return this.convertProcessModelToPublicType(identity, processModel);
       });
 
-    // TODO: Remove useless `ProcessModelList` type and just return the Array.
+    const paginizedProcessModels = applyPagination(managementApiProcessModels, offset, limit);
     return {
-      processModels: applyPagination(managementApiProcessModels, offset, limit),
+      processModels: paginizedProcessModels,
+      totalCount: managementApiProcessModels.length,
     };
   }
 
@@ -93,6 +94,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
 
     const eventList = {
       events: startEvents,
+      totalCount: startEvents.length,
     };
 
     return eventList;

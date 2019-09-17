@@ -33,13 +33,13 @@ export class CronjobService implements APIs.ICronjobManagementApi {
     identity: IIdentity,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.Cronjobs.CronjobConfiguration>> {
+  ): Promise<DataModels.Cronjobs.CronjobList> {
 
     const cronjobs = this.cronjobService.getActive();
 
     const paginizedCronjobs = applyPagination(cronjobs, offset, limit);
 
-    return paginizedCronjobs;
+    return {cronjobs: paginizedCronjobs, totalCount: cronjobs.length};
   }
 
   public async getCronjobExecutionHistoryForProcessModel(
@@ -48,8 +48,12 @@ export class CronjobService implements APIs.ICronjobManagementApi {
     startEventId?: string,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.Cronjobs.CronjobHistoryEntry>> {
-    return this.cronjobHistoryService.getByProcessModelId(identity, processModelId, startEventId, offset, limit);
+  ): Promise<DataModels.Cronjobs.CronjobHistoryList> {
+    const cronjobHistories = await this.cronjobHistoryService.getByProcessModelId(identity, processModelId, startEventId);
+
+    const paginizedCronjobHistories = applyPagination(cronjobHistories, offset, limit);
+
+    return {cronjobHistories: paginizedCronjobHistories, totalCount: cronjobHistories.length};
   }
 
   public async getCronjobExecutionHistoryForCrontab(
@@ -57,8 +61,12 @@ export class CronjobService implements APIs.ICronjobManagementApi {
     crontab: string,
     offset: number = 0,
     limit: number = 0,
-  ): Promise<Array<DataModels.Cronjobs.CronjobHistoryEntry>> {
-    return this.cronjobHistoryService.getByCrontab(identity, crontab, offset, limit);
+  ): Promise<DataModels.Cronjobs.CronjobHistoryList> {
+    const cronjobHistories = await this.cronjobHistoryService.getByCrontab(identity, crontab);
+
+    const paginizedCronjobHistories = applyPagination(cronjobHistories, offset, limit);
+
+    return {cronjobHistories: paginizedCronjobHistories, totalCount: cronjobHistories.length};
   }
 
   public async onCronjobCreated(

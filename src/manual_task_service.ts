@@ -92,8 +92,6 @@ export class ManualTaskService implements APIs.IManualTaskManagementApi {
 
     const manualTaskList = await this.manualTaskConverter.convert(identity, suspendedFlowNodes);
 
-    // TODO: Remove that useless `ManualTaskList` datatype and just return an Array of ManualTasks.
-    // Goes for the other UseCases as well.
     manualTaskList.manualTasks = applyPagination(manualTaskList.manualTasks, offset, limit);
 
     return manualTaskList;
