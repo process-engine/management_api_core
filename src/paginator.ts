@@ -1,4 +1,5 @@
 import {Logger} from 'loggerhythm';
+import {DataModels} from '@process-engine/management_api_contracts';
 
 const logger = Logger.createLogger('processengine:management_api_core:paginator');
 

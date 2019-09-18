@@ -1,7 +1,3 @@
-/* eslint-disable strict */
-
-'use strict';
-
 const {
   EmptyActivityConverter,
   EventConverter,
@@ -94,7 +90,12 @@ function registerServices(container) {
 
   container
     .register('ManagementApiFlowNodeInstanceService', FlowNodeInstanceService)
-    .dependencies('FlowNodeInstanceService')
+    .dependencies(
+      'FlowNodeInstanceService',
+      'ManagementApiEmptyActivityConverter',
+      'ManagementApiManualTaskConverter',
+      'ManagementApiUserTaskConverter',
+    )
     .singleton();
 
   container
