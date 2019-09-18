@@ -125,6 +125,7 @@ export class UserTaskConverter {
     };
 
     const managementApiUserTask: DataModels.UserTasks.UserTask = {
+      flowNodeType: BpmnType.userTask,
       id: userTaskInstance.flowNodeId,
       flowNodeInstanceId: userTaskInstance.id,
       name: userTaskModel.name,
