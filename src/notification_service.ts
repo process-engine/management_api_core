@@ -306,28 +306,4 @@ export class NotificationService implements APIs.INotificationManagementApi {
     return this.notificationAdapter.removeSubscription(subscription);
   }
 
-  // -------------- For backwards compatibility only
-
-  public async onCallActivityWaiting(
-    identity: IIdentity,
-    callback: Messages.CallbackTypes.OnCallActivityWaitingCallback,
-    subscribeOnce?: boolean,
-  ): Promise<Subscription> {
-    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
-
-    return this.notificationAdapter.onCallActivityWaiting(identity, callback, subscribeOnce);
-  }
-
-  public async onCallActivityFinished(
-    identity: IIdentity,
-    callback: Messages.CallbackTypes.OnCallActivityFinishedCallback,
-    subscribeOnce?: boolean,
-  ): Promise<Subscription> {
-    await this.iamService.ensureHasClaim(identity, this.canSubscribeToEventsClaim);
-
-    return this.notificationAdapter.onCallActivityFinished(identity, callback, subscribeOnce);
-  }
-
-  // --------------
-
 }
