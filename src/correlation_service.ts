@@ -21,7 +21,7 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
 
     const correlations = await this.correlationService.getAll(identity);
 
-    const managementApiCorrelations = correlations.map(this.mapToPublicCorrelation);
+    const managementApiCorrelations = correlations.map<DataModels.Correlations.Correlation>(this.mapToPublicCorrelation.bind(this));
 
     const paginizedCorrelations = applyPagination(managementApiCorrelations, offset, limit);
 
@@ -36,7 +36,7 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
 
     const activeCorrelations = await this.correlationService.getActive(identity);
 
-    const managementApiCorrelations = activeCorrelations.map(this.mapToPublicCorrelation);
+    const managementApiCorrelations = activeCorrelations.map<DataModels.Correlations.Correlation>(this.mapToPublicCorrelation.bind(this));
 
     const paginizedCorrelations = applyPagination(managementApiCorrelations, offset, limit);
 
@@ -61,7 +61,7 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
 
     const correlations = await this.correlationService.getByProcessModelId(identity, processModelId);
 
-    const managementApiCorrelations = correlations.map(this.mapToPublicCorrelation);
+    const managementApiCorrelations = correlations.map<DataModels.Correlations.Correlation>(this.mapToPublicCorrelation.bind(this));
 
     const paginizedCorrelations = applyPagination(managementApiCorrelations, offset, limit);
 
