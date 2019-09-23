@@ -1,6 +1,6 @@
 import {IIdentity} from '@essential-projects/iam_contracts';
 
-import {Correlation, CorrelationProcessInstance, ICorrelationService} from '@process-engine/correlation.contracts';
+import {Correlation, ICorrelationService, ProcessInstance} from '@process-engine/correlation.contracts';
 import {APIs, DataModels} from '@process-engine/management_api_contracts';
 
 import {applyPagination} from './paginator';
@@ -21,7 +21,7 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
 
     const correlations = await this.correlationService.getAll(identity);
 
-    const managementApiCorrelations = correlations.map(this.mapToPublicCorrelation);
+    const managementApiCorrelations = correlations.map<DataModels.Correlations.Correlation>(this.mapToPublicCorrelation.bind(this));
 
     const paginizedCorrelations = applyPagination(managementApiCorrelations, offset, limit);
 
@@ -36,7 +36,7 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
 
     const activeCorrelations = await this.correlationService.getActive(identity);
 
-    const managementApiCorrelations = activeCorrelations.map(this.mapToPublicCorrelation);
+    const managementApiCorrelations = activeCorrelations.map<DataModels.Correlations.Correlation>(this.mapToPublicCorrelation.bind(this));
 
     const paginizedCorrelations = applyPagination(managementApiCorrelations, offset, limit);
 
@@ -61,20 +61,68 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
 
     const correlations = await this.correlationService.getByProcessModelId(identity, processModelId);
 
-    const managementApiCorrelations = correlations.map(this.mapToPublicCorrelation);
+    const managementApiCorrelations = correlations.map<DataModels.Correlations.Correlation>(this.mapToPublicCorrelation.bind(this));
 
     const paginizedCorrelations = applyPagination(managementApiCorrelations, offset, limit);
 
     return {correlations: paginizedCorrelations, totalCount: managementApiCorrelations.length};
   }
 
-  public async getCorrelationByProcessInstanceId(identity: IIdentity, processInstanceId: string): Promise<DataModels.Correlations.Correlation> {
+  public async getProcessInstanceById(identity: IIdentity, processInstanceId: string): Promise<DataModels.Correlations.ProcessInstance> {
 
-    const correlation = await this.correlationService.getByProcessInstanceId(identity, processInstanceId);
+    const processInstance = await this.correlationService.getByProcessInstanceId(identity, processInstanceId);
 
-    const managementApiCorrelation = this.mapToPublicCorrelation(correlation);
+    const managementApiProcessInstance = this.mapToPublicProcessInstance(processInstance);
 
-    return managementApiCorrelation;
+    return managementApiProcessInstance;
+  }
+
+  public async getProcessInstancesForCorrelation(
+    identity: IIdentity,
+    correlationId: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<DataModels.Correlations.ProcessInstanceList> {
+
+    const processInstances = await this.correlationService.getProcessInstancesForCorrelation(identity, correlationId);
+
+    const managementApiProcessInstances = processInstances.map(this.mapToPublicProcessInstance);
+
+    const paginizedProcessInstances = applyPagination(managementApiProcessInstances, offset, limit);
+
+    return {processInstances: paginizedProcessInstances, totalCount: managementApiProcessInstances.length};
+  }
+
+  public async getProcessInstancesForProcessModel(
+    identity: IIdentity,
+    processModelId: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<DataModels.Correlations.ProcessInstanceList> {
+
+    const processInstances = await this.correlationService.getProcessInstancesForProcessModel(identity, processModelId);
+
+    const managementApiProcessInstances = processInstances.map(this.mapToPublicProcessInstance);
+
+    const paginizedProcessInstances = applyPagination(managementApiProcessInstances, offset, limit);
+
+    return {processInstances: paginizedProcessInstances, totalCount: managementApiProcessInstances.length};
+  }
+
+  public async getProcessInstancesByState(
+    identity: IIdentity,
+    state: DataModels.Correlations.CorrelationState,
+    offset?: number,
+    limit?: number,
+  ): Promise<DataModels.Correlations.ProcessInstanceList> {
+
+    const processInstances = await this.correlationService.getProcessInstancesByState(identity, state);
+
+    const managementApiProcessInstances = processInstances.map(this.mapToPublicProcessInstance);
+
+    const paginizedProcessInstances = applyPagination(managementApiProcessInstances, offset, limit);
+
+    return {processInstances: paginizedProcessInstances, totalCount: managementApiProcessInstances.length};
   }
 
   private mapToPublicCorrelation(runtimeCorrelation: Correlation): DataModels.Correlations.Correlation {
@@ -87,25 +135,28 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
 
     managementApiCorrelation.processInstances = runtimeCorrelation
       .processInstances
-      .map((runtimeProcessModel: CorrelationProcessInstance): DataModels.Correlations.CorrelationProcessInstance => {
-
-        const managementApiProcessModel = new DataModels.Correlations.CorrelationProcessInstance();
-
-        managementApiProcessModel.processDefinitionName = runtimeProcessModel.processDefinitionName;
-        managementApiProcessModel.hash = runtimeProcessModel.hash;
-        managementApiProcessModel.xml = runtimeProcessModel.xml;
-        managementApiProcessModel.processModelId = runtimeProcessModel.processModelId;
-        managementApiProcessModel.processInstanceId = runtimeProcessModel.processInstanceId;
-        managementApiProcessModel.parentProcessInstanceId = runtimeProcessModel.parentProcessInstanceId;
-        managementApiProcessModel.state = DataModels.Correlations.CorrelationState[runtimeProcessModel.state];
-        managementApiProcessModel.error = runtimeProcessModel.error;
-        managementApiProcessModel.identity = runtimeProcessModel.identity;
-        managementApiProcessModel.createdAt = runtimeProcessModel.createdAt;
-
-        return managementApiProcessModel;
-      });
+      .map(this.mapToPublicProcessInstance);
 
     return managementApiCorrelation;
+  }
+
+  private mapToPublicProcessInstance(runtimeProcessInstance: ProcessInstance): DataModels.Correlations.ProcessInstance {
+
+    const managementApiProcessInstance = new DataModels.Correlations.ProcessInstance();
+
+    managementApiProcessInstance.correlationId = runtimeProcessInstance.correlationId;
+    managementApiProcessInstance.processDefinitionName = runtimeProcessInstance.processDefinitionName;
+    managementApiProcessInstance.hash = runtimeProcessInstance.hash;
+    managementApiProcessInstance.xml = runtimeProcessInstance.xml;
+    managementApiProcessInstance.processModelId = runtimeProcessInstance.processModelId;
+    managementApiProcessInstance.processInstanceId = runtimeProcessInstance.processInstanceId;
+    managementApiProcessInstance.parentProcessInstanceId = runtimeProcessInstance.parentProcessInstanceId;
+    managementApiProcessInstance.state = DataModels.Correlations.CorrelationState[runtimeProcessInstance.state];
+    managementApiProcessInstance.error = runtimeProcessInstance.error;
+    managementApiProcessInstance.identity = runtimeProcessInstance.identity;
+    managementApiProcessInstance.createdAt = runtimeProcessInstance.createdAt;
+
+    return managementApiProcessInstance;
   }
 
 }
