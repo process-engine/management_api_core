@@ -2,10 +2,12 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 
 import {APIs, DataModels} from '@process-engine/management_api_contracts';
 import {
-  FlowNodeInstance, FlowNodeInstanceState, IFlowNodeInstanceService,
-} from '@process-engine/flow_node_instance.contracts';
+  FlowNodeInstance,
+  FlowNodeInstanceState,
+  IFlowNodeInstanceService,
+} from '@process-engine/persistence_api.contracts';
 
-import {EmptyActivityConverter, ManualTaskConverter, UserTaskConverter} from './index';
+import {EmptyActivityConverter, ManualTaskConverter, UserTaskConverter} from './converters/index';
 import {applyPagination} from './paginator';
 
 export class FlowNodeInstanceService implements APIs.IFlowNodeInstanceManagementApi {

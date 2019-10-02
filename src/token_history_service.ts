@@ -1,7 +1,7 @@
 import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
 
-import {FlowNodeInstance, IFlowNodeInstanceRepository, ProcessToken} from '@process-engine/flow_node_instance.contracts';
 import {APIs, DataModels} from '@process-engine/management_api_contracts';
+import {FlowNodeInstance, IFlowNodeInstanceRepository, ProcessToken} from '@process-engine/persistence_api.contracts';
 
 import {applyPagination} from './paginator';
 

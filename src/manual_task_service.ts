@@ -1,12 +1,13 @@
 import * as EssentialProjectErrors from '@essential-projects/errors_ts';
 import {IEventAggregator, Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
+
+import {APIs, DataModels, Messages} from '@process-engine/management_api_contracts';
 import {
   FlowNodeInstance,
   FlowNodeInstanceState,
   IFlowNodeInstanceService,
-} from '@process-engine/flow_node_instance.contracts';
-import {APIs, DataModels, Messages} from '@process-engine/management_api_contracts';
+} from '@process-engine/persistence_api.contracts';
 import {FinishManualTaskMessage as InternalFinishManualTaskMessage} from '@process-engine/process_engine_contracts';
 
 import {NotificationAdapter} from './adapters/index';

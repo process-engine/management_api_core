@@ -2,9 +2,9 @@ import * as moment from 'moment';
 
 import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
 
-import {FlowNodeInstance, FlowNodeInstanceState, IFlowNodeInstanceRepository} from '@process-engine/flow_node_instance.contracts';
 import {APIs, DataModels} from '@process-engine/management_api_contracts';
 import {IMetricsApi, Metric, MetricMeasurementPoint} from '@process-engine/metrics_api_contracts';
+import {FlowNodeInstance, FlowNodeInstanceState, IFlowNodeInstanceRepository} from '@process-engine/persistence_api.contracts';
 
 import {applyPagination} from './paginator';
 

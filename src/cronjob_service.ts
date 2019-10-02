@@ -1,11 +1,12 @@
 import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
 
-import {ICronjobHistoryService} from '@process-engine/cronjob_history.contracts';
 import {APIs, DataModels, Messages} from '@process-engine/management_api_contracts';
 import {ICronjobService} from '@process-engine/process_engine_contracts';
 import {Subscription} from '@essential-projects/event_aggregator_contracts';
-import {NotificationAdapter} from '.';
 
+import {ICronjobHistoryService} from '@process-engine/persistence_api.contracts';
+
+import {NotificationAdapter} from './adapters/index';
 import {applyPagination} from './paginator';
 
 export class CronjobService implements APIs.ICronjobManagementApi {

@@ -1,7 +1,6 @@
 import {IIdentity} from '@essential-projects/iam_contracts';
 
 import {ILoggingApi} from '@process-engine/logging_api_contracts';
-
 import {APIs, DataModels} from '@process-engine/management_api_contracts';
 
 import {applyPagination} from './paginator';

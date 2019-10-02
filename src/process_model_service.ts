@@ -3,7 +3,10 @@ import * as uuid from 'node-uuid';
 import * as EssentialProjectErrors from '@essential-projects/errors_ts';
 import {IEventAggregator, Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
+
 import {APIs, DataModels, Messages} from '@process-engine/management_api_contracts';
+
+import {IProcessModelUseCases, Model} from '@process-engine/persistence_api.contracts';
 import {
   EndEventReachedMessage,
   ICronjobService,
@@ -11,7 +14,6 @@ import {
   IProcessModelFacadeFactory,
   ProcessStartedMessage,
 } from '@process-engine/process_engine_contracts';
-import {IProcessModelUseCases, Model} from '@process-engine/process_model.contracts';
 
 import {NotificationAdapter} from './adapters/index';
 import {applyPagination} from './paginator';
