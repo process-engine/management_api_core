@@ -1,7 +1,7 @@
 import {IIdentity} from '@essential-projects/iam_contracts';
 
-import {Correlation, ICorrelationService, ProcessInstance} from '@process-engine/correlation.contracts';
 import {APIs, DataModels} from '@process-engine/management_api_contracts';
+import {Correlation, ICorrelationService, ProcessInstance} from '@process-engine/persistence_api.contracts';
 
 import {applyPagination} from './paginator';
 
