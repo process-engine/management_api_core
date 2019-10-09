@@ -44,11 +44,6 @@ function registerInContainer(container) {
     )
     .singleton();
 
-    container
-      .register('ManagementApiEventConverter', EventConverter)
-      .dependencies( )
-      .singleton();
-
   container
     .register('ManagementApiEventService', EventService)
     .dependencies(
