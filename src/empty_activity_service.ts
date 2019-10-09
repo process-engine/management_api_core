@@ -4,171 +4,55 @@ import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
 
 import {APIs, DataModels, Messages} from '@process-engine/management_api_contracts';
 import {
+  BpmnType,
   FlowNodeInstance,
   FlowNodeInstanceState,
+  ICorrelationService,
   IFlowNodeInstanceService,
+  IProcessModelUseCases,
+  Model,
+  ProcessTokenType,
 } from '@process-engine/persistence_api.contracts';
-import {FinishEmptyActivityMessage as InternalFinishEmptyActivityMessage} from '@process-engine/process_engine_contracts';
+import {
+  IProcessModelFacade,
+  IProcessModelFacadeFactory,
+  FinishEmptyActivityMessage as InternalFinishEmptyActivityMessage,
+} from '@process-engine/process_engine_contracts';
 
 import {NotificationAdapter} from './adapters/index';
-import {EmptyActivityConverter} from './converters/index';
 import {applyPagination} from './paginator';
+
+import * as ProcessModelCache from './process_model_cache';
 
 export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
 
+  private readonly correlationService: ICorrelationService;
   private readonly eventAggregator: IEventAggregator;
   private readonly flowNodeInstanceService: IFlowNodeInstanceService;
   private readonly iamService: IIAMService;
+  private readonly processModelUseCase: IProcessModelUseCases;
+  private readonly processModelFacadeFactory: IProcessModelFacadeFactory;
 
   private readonly notificationAdapter: NotificationAdapter;
-
-  private readonly emptyActivityConverter: EmptyActivityConverter;
 
   private readonly canSubscribeToEventsClaim = 'can_subscribe_to_events';
 
   constructor(
+    correlationService: ICorrelationService,
     eventAggregator: IEventAggregator,
     flowNodeInstanceService: IFlowNodeInstanceService,
     iamService: IIAMService,
     notificationAdapter: NotificationAdapter,
-    emptyActivityConverter: EmptyActivityConverter,
+    processModelFacadeFactory: IProcessModelFacadeFactory,
+    processModelUseCase: IProcessModelUseCases,
   ) {
+    this.correlationService = correlationService;
     this.eventAggregator = eventAggregator;
     this.flowNodeInstanceService = flowNodeInstanceService;
     this.iamService = iamService;
-
     this.notificationAdapter = notificationAdapter;
-
-    this.emptyActivityConverter = emptyActivityConverter;
-  }
-
-  public async getEmptyActivitiesForProcessModel(
-    identity: IIdentity,
-    processModelId: string,
-    offset: number = 0,
-    limit: number = 0,
-  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
-
-    const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessModel(processModelId);
-
-    const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
-
-    // TODO: Remove that useless `EmptyActivityList` datatype and just return an Array of EmptyActivities.
-    // Goes for the other UseCases as well.
-    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
-
-    return emptyActivityList;
-  }
-
-  public async getEmptyActivitiesForProcessInstance(
-    identity: IIdentity,
-    processInstanceId: string,
-    offset: number = 0,
-    limit: number = 0,
-  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
-
-    const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessInstance(processInstanceId);
-
-    const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
-
-    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
-
-    return emptyActivityList;
-  }
-
-  public async getEmptyActivitiesForCorrelation(
-    identity: IIdentity,
-    correlationId: string,
-    offset: number = 0,
-    limit: number = 0,
-  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
-
-    const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByCorrelation(correlationId);
-
-    const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedFlowNodes);
-
-    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
-
-    return emptyActivityList;
-  }
-
-  public async getEmptyActivitiesForProcessModelInCorrelation(
-    identity: IIdentity,
-    processModelId: string,
-    correlationId: string,
-    offset: number = 0,
-    limit: number = 0,
-  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
-
-    const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByCorrelation(correlationId);
-
-    const suspendedProcessModelFlowNodes = suspendedFlowNodes.filter((flowNodeInstance: FlowNodeInstance): boolean => {
-      return flowNodeInstance.tokens[0].processModelId === processModelId;
-    });
-
-    const emptyActivityList = await this.emptyActivityConverter.convert(identity, suspendedProcessModelFlowNodes);
-
-    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
-
-    return emptyActivityList;
-  }
-
-  public async getWaitingEmptyActivitiesByIdentity(
-    identity: IIdentity,
-    offset: number = 0,
-    limit: number = 0,
-  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
-
-    const suspendedFlowNodeInstances = await this.flowNodeInstanceService.queryByState(FlowNodeInstanceState.suspended);
-
-    const flowNodeInstancesOwnedByUser = suspendedFlowNodeInstances.filter((flowNodeInstance: FlowNodeInstance): boolean => {
-      return this.checkIfIdentityUserIDsMatch(identity, flowNodeInstance.owner);
-    });
-
-    const emptyActivityList = await this.emptyActivityConverter.convert(identity, flowNodeInstancesOwnedByUser);
-
-    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
-
-    return emptyActivityList;
-  }
-
-  public async finishEmptyActivity(
-    identity: IIdentity,
-    processInstanceId: string,
-    correlationId: string,
-    emptyActivityInstanceId: string,
-  ): Promise<void> {
-
-    const matchingFlowNodeInstance =
-      await this.getFlowNodeInstanceForCorrelationInProcessInstance(correlationId, processInstanceId, emptyActivityInstanceId);
-
-    const noMatchingInstanceFound = matchingFlowNodeInstance === undefined;
-    if (noMatchingInstanceFound) {
-      const errorMessage =
-        // eslint-disable-next-line max-len
-        `ProcessInstance '${processInstanceId}' in Correlation '${correlationId}' does not have an EmptyActivity with id '${emptyActivityInstanceId}'`;
-      throw new EssentialProjectErrors.NotFoundError(errorMessage);
-    }
-
-    const convertedEmptyActivityList = await this.emptyActivityConverter.convert(identity, [matchingFlowNodeInstance]);
-
-    const matchingEmptyActivity = convertedEmptyActivityList.emptyActivities[0];
-
-    return new Promise<void>((resolve: Function): void => {
-      const routePrameter: {[name: string]: string} = Messages.EventAggregatorSettings.messageParams;
-
-      const emptyActivityFinishedEvent = Messages.EventAggregatorSettings
-        .messagePaths.emptyActivityWithInstanceIdFinished
-        .replace(routePrameter.correlationId, correlationId)
-        .replace(routePrameter.processInstanceId, processInstanceId)
-        .replace(routePrameter.flowNodeInstanceId, emptyActivityInstanceId);
-
-      this.eventAggregator.subscribeOnce(emptyActivityFinishedEvent, (): void => {
-        resolve();
-      });
-
-      this.publishFinishEmptyActivityEvent(identity, matchingEmptyActivity);
-    });
+    this.processModelFacadeFactory = processModelFacadeFactory;
+    this.processModelUseCase = processModelUseCase;
   }
 
   public async onEmptyActivityWaiting(
@@ -211,6 +95,223 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
     return this.notificationAdapter.onEmptyActivityForIdentityFinished(identity, callback, subscribeOnce);
   }
 
+  public async getEmptyActivitiesForProcessModel(
+    identity: IIdentity,
+    processModelId: string,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
+
+    const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessModel(processModelId);
+
+    const emptyActivities = suspendedFlowNodes.filter(this.checkIfIsFlowNodeIsEmptyActivity);
+
+    const emptyActivityList = await this.convertFlowNodeInstancesToEmptyActivities(identity, emptyActivities);
+
+    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
+
+    return emptyActivityList;
+  }
+
+  public async getEmptyActivitiesForProcessInstance(
+    identity: IIdentity,
+    processInstanceId: string,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
+
+    const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByProcessInstance(processInstanceId);
+
+    const emptyActivities = suspendedFlowNodes.filter(this.checkIfIsFlowNodeIsEmptyActivity);
+
+    const emptyActivityList = await this.convertFlowNodeInstancesToEmptyActivities(identity, emptyActivities);
+
+    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
+
+    return emptyActivityList;
+  }
+
+  public async getEmptyActivitiesForCorrelation(
+    identity: IIdentity,
+    correlationId: string,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
+
+    const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByCorrelation(correlationId);
+
+    const emptyActivities = suspendedFlowNodes.filter(this.checkIfIsFlowNodeIsEmptyActivity);
+
+    const emptyActivityList = await this.convertFlowNodeInstancesToEmptyActivities(identity, emptyActivities);
+
+    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
+
+    return emptyActivityList;
+  }
+
+  public async getEmptyActivitiesForProcessModelInCorrelation(
+    identity: IIdentity,
+    processModelId: string,
+    correlationId: string,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
+
+    const suspendedFlowNodes = await this.flowNodeInstanceService.querySuspendedByCorrelation(correlationId);
+
+    const suspendedProcessModelFlowNodes = suspendedFlowNodes.filter((flowNodeInstance: FlowNodeInstance): boolean => {
+      const isEmptyActivity = this.checkIfIsFlowNodeIsEmptyActivity(flowNodeInstance);
+      const belongsToProcessModel = flowNodeInstance.processModelId === processModelId;
+      return isEmptyActivity && belongsToProcessModel;
+    });
+
+    const emptyActivityList = await this.convertFlowNodeInstancesToEmptyActivities(identity, suspendedProcessModelFlowNodes);
+
+    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
+
+    return emptyActivityList;
+  }
+
+  public async getWaitingEmptyActivitiesByIdentity(
+    identity: IIdentity,
+    offset: number = 0,
+    limit: number = 0,
+  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
+
+    const suspendedFlowNodeInstances = await this.flowNodeInstanceService.queryByState(FlowNodeInstanceState.suspended);
+
+    const flowNodeInstancesOwnedByUser = suspendedFlowNodeInstances.filter((flowNodeInstance: FlowNodeInstance): boolean => {
+      const isEmptyActivity = this.checkIfIsFlowNodeIsEmptyActivity(flowNodeInstance);
+      const userIdsMatch = this.checkIfIdentityUserIDsMatch(identity, flowNodeInstance.owner);
+      return isEmptyActivity && userIdsMatch;
+    });
+
+    const emptyActivityList = await this.convertFlowNodeInstancesToEmptyActivities(identity, flowNodeInstancesOwnedByUser);
+
+    emptyActivityList.emptyActivities = applyPagination(emptyActivityList.emptyActivities, offset, limit);
+
+    return emptyActivityList;
+  }
+
+  public async finishEmptyActivity(
+    identity: IIdentity,
+    processInstanceId: string,
+    correlationId: string,
+    emptyActivityInstanceId: string,
+  ): Promise<void> {
+
+    const matchingFlowNodeInstance =
+      await this.getFlowNodeInstanceForCorrelationInProcessInstance(correlationId, processInstanceId, emptyActivityInstanceId);
+
+    if (matchingFlowNodeInstance === undefined) {
+      const errorMessage =
+        // eslint-disable-next-line max-len
+        `ProcessInstance '${processInstanceId}' in Correlation '${correlationId}' does not have an EmptyActivity with id '${emptyActivityInstanceId}'`;
+      throw new EssentialProjectErrors.NotFoundError(errorMessage);
+    }
+
+    const convertedEmptyActivityList = await this.convertFlowNodeInstancesToEmptyActivities(identity, [matchingFlowNodeInstance]);
+
+    const matchingEmptyActivity = convertedEmptyActivityList.emptyActivities[0];
+
+    return new Promise<void>((resolve: Function): void => {
+      const routePrameter: {[name: string]: string} = Messages.EventAggregatorSettings.messageParams;
+
+      const emptyActivityFinishedEvent = Messages.EventAggregatorSettings
+        .messagePaths.emptyActivityWithInstanceIdFinished
+        .replace(routePrameter.correlationId, correlationId)
+        .replace(routePrameter.processInstanceId, processInstanceId)
+        .replace(routePrameter.flowNodeInstanceId, emptyActivityInstanceId);
+
+      this.eventAggregator.subscribeOnce(emptyActivityFinishedEvent, (): void => {
+        resolve();
+      });
+
+      this.publishFinishEmptyActivityEvent(identity, matchingEmptyActivity);
+    });
+  }
+
+  public async convertFlowNodeInstancesToEmptyActivities(
+    identity: IIdentity,
+    suspendedFlowNodes: Array<FlowNodeInstance>,
+  ): Promise<DataModels.EmptyActivities.EmptyActivityList> {
+
+    const suspendedEmptyActivities =
+      await Promise.map(suspendedFlowNodes, async (suspendedFlowNode): Promise<DataModels.EmptyActivities.EmptyActivity> => {
+        return this.convertSuspendedFlowNodeToEmptyActivity(identity, suspendedFlowNode);
+      });
+
+    const emptyActivityList: DataModels.EmptyActivities.EmptyActivityList = {
+      emptyActivities: suspendedEmptyActivities,
+      totalCount: suspendedEmptyActivities.length,
+    };
+
+    return emptyActivityList;
+  }
+
+  private checkIfIsFlowNodeIsEmptyActivity(flowNodeInstance: FlowNodeInstance): boolean {
+    return flowNodeInstance.flowNodeType === BpmnType.emptyActivity;
+  }
+
+  private checkIfIdentityUserIDsMatch(identityA: IIdentity, identityB: IIdentity): boolean {
+    return identityA.userId === identityB.userId;
+  }
+
+  private async convertSuspendedFlowNodeToEmptyActivity(
+    identity: IIdentity,
+    emptyActivityInstance: FlowNodeInstance,
+  ): Promise<DataModels.EmptyActivities.EmptyActivity> {
+
+    const onSuspendToken = emptyActivityInstance.getTokenByType(ProcessTokenType.onSuspend);
+
+    const processModelFacade = await this.getProcessModelForFlowNodeInstance(identity, emptyActivityInstance);
+    const emptyActivityModel = processModelFacade.getFlowNodeById(emptyActivityInstance.flowNodeId);
+
+    const consumerApiEmptyActivity: DataModels.EmptyActivities.EmptyActivity = {
+      flowNodeType: BpmnType.emptyActivity,
+      id: emptyActivityInstance.flowNodeId,
+      flowNodeInstanceId: emptyActivityInstance.id,
+      name: emptyActivityModel.name,
+      correlationId: emptyActivityInstance.correlationId,
+      processModelId: emptyActivityInstance.processModelId,
+      processInstanceId: emptyActivityInstance.processInstanceId,
+      tokenPayload: onSuspendToken.payload,
+    };
+
+    return consumerApiEmptyActivity;
+  }
+
+  private async getProcessModelForFlowNodeInstance(
+    identity: IIdentity,
+    flowNodeInstance: FlowNodeInstance,
+  ): Promise<IProcessModelFacade> {
+
+    let processModel: Model.Process;
+
+    // We must store the ProcessModel for each user, to account for lane-restrictions.
+    // Some users may not be able to see some lanes that are visible to others.
+    const cacheKeyToUse = `${flowNodeInstance.processInstanceId}-${identity.userId}`;
+
+    const cacheHasMatchingEntry = ProcessModelCache.hasEntry(cacheKeyToUse);
+    if (cacheHasMatchingEntry) {
+      processModel = ProcessModelCache.get(cacheKeyToUse);
+    } else {
+      const processModelHash = await this.getProcessModelHashForProcessInstance(identity, flowNodeInstance.processInstanceId);
+      processModel = await this.processModelUseCase.getByHash(identity, flowNodeInstance.processModelId, processModelHash);
+      ProcessModelCache.add(cacheKeyToUse, processModel);
+    }
+
+    const processModelFacade = this.processModelFacadeFactory.create(processModel);
+
+    return processModelFacade;
+  }
+
+  private async getProcessModelHashForProcessInstance(identity: IIdentity, processInstanceId: string): Promise<string> {
+    const processInstance = await this.correlationService.getByProcessInstanceId(identity, processInstanceId);
+
+    return processInstance.hash;
+  }
+
   private async getFlowNodeInstanceForCorrelationInProcessInstance(
     correlationId: string,
     processInstanceId: string,
@@ -225,10 +326,6 @@ export class EmptyActivityService implements APIs.IEmptyActivityManagementApi {
     });
 
     return matchingInstance;
-  }
-
-  private checkIfIdentityUserIDsMatch(identityA: IIdentity, identityB: IIdentity): boolean {
-    return identityA.userId === identityB.userId;
   }
 
   private publishFinishEmptyActivityEvent(
