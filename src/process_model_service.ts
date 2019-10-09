@@ -36,18 +36,17 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     eventAggregator: IEventAggregator,
     executeProcessService: IExecuteProcessService,
     iamService: IIAMService,
+    notificationAdapter: NotificationAdapter,
     processModelFacadeFactory: IProcessModelFacadeFactory,
     processModelUseCase: IProcessModelUseCases,
-    notificationAdapter: NotificationAdapter,
   ) {
     this.cronjobService = cronjobService;
     this.eventAggregator = eventAggregator;
     this.executeProcessService = executeProcessService;
     this.iamService = iamService;
+    this.notificationAdapter = notificationAdapter;
     this.processModelFacadeFactory = processModelFacadeFactory;
     this.processModelUseCase = processModelUseCase;
-
-    this.notificationAdapter = notificationAdapter;
   }
 
   public async getProcessModels(

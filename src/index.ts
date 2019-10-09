@@ -1,5 +1,4 @@
 export * from './adapters/index';
-export * from './converters/index';
 
 export * from './correlation_service';
 export * from './cronjob_service';
