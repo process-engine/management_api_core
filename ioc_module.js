@@ -1,5 +1,4 @@
 const {
-  EventConverter,
   ManualTaskConverter,
   NotificationAdapter,
   UserTaskConverter,
@@ -21,11 +20,6 @@ const {
 } = require('./dist/commonjs/index');
 
 function registerInContainer(container) {
-
-  container
-    .register('ManagementApiEventConverter', EventConverter)
-    .dependencies('CorrelationService', 'ProcessModelFacadeFactory', 'ProcessModelUseCases')
-    .singleton();
 
   container
     .register('ManagementApiUserTaskConverter', UserTaskConverter)
@@ -65,14 +59,20 @@ function registerInContainer(container) {
     )
     .singleton();
 
+    container
+      .register('ManagementApiEventConverter', EventConverter)
+      .dependencies( )
+      .singleton();
+
   container
     .register('ManagementApiEventService', EventService)
     .dependencies(
+      'CorrelationService',
       'EventAggregator',
       'FlowNodeInstanceService',
       'IamService',
+      'ProcessModelFacadeFactory',
       'ProcessModelUseCases',
-      'ManagementApiEventConverter',
     )
     .singleton();
 
