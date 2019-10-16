@@ -222,7 +222,7 @@ export class EventService implements APIs.IEventManagementApi {
 
     // We must store the ProcessModel for each user, to account for lane-restrictions.
     // Some users may not be able to see some lanes that are visible to others.
-    const cacheKeyToUse = `${flowNodeInstance.processInstanceId}-${identity.userId}`;
+    const cacheKeyToUse = `${flowNodeInstance.processInstanceId}-${identity.token}`;
 
     const cacheHasMatchingEntry = ProcessModelCache.hasEntry(cacheKeyToUse);
     if (cacheHasMatchingEntry) {
