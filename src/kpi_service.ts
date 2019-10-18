@@ -3,27 +3,27 @@ import * as moment from 'moment';
 import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
 
 import {APIs, DataModels} from '@process-engine/management_api_contracts';
-import {IMetricsApi, Metric, MetricMeasurementPoint} from '@process-engine/metrics_api_contracts';
+import {ILoggingApi, LogEntry, MetricMeasurementPoint} from '@process-engine/logging_api_contracts';
 import {FlowNodeInstance, FlowNodeInstanceState, IFlowNodeInstanceRepository} from '@process-engine/persistence_api.contracts';
 
 import {applyPagination} from './paginator';
 
 /**
- * Groups Metrics by their FlowNodeIds.
+ * Groups LogEntries by their FlowNodeIds.
  *
  * Only use internally.
  */
 type FlowNodeGroups = {
-  [flowNodeId: string]: Array<Metric>;
+  [flowNodeId: string]: Array<LogEntry>;
 };
 
 /**
- * Groups Metrics by their FlowNodeInstanceIds.
+ * Groups LogEntries by their FlowNodeInstanceIds.
  *
  * Only use internally.
  */
 type FlowNodeInstanceGroups = {
-  [flowNodeInstanceId: string]: Array<Metric>;
+  [flowNodeInstanceId: string]: Array<LogEntry>;
 };
 
 /**
@@ -41,16 +41,16 @@ export class KpiService implements APIs.IKpiManagementApi {
 
   private iamService: IIAMService;
   private flowNodeInstanceRepository: IFlowNodeInstanceRepository;
-  private metricsService: IMetricsApi;
+  private loggingService: ILoggingApi;
 
   constructor(
     flowNodeInstanceRepository: IFlowNodeInstanceRepository,
     iamService: IIAMService,
-    metricsService: IMetricsApi,
+    loggingService: ILoggingApi,
   ) {
     this.flowNodeInstanceRepository = flowNodeInstanceRepository;
     this.iamService = iamService;
-    this.metricsService = metricsService;
+    this.loggingService = loggingService;
   }
 
   public async getRuntimeInformationForProcessModel(
@@ -60,7 +60,7 @@ export class KpiService implements APIs.IKpiManagementApi {
     limit: number = 0,
   ): Promise<DataModels.Kpi.FlowNodeRuntimeInformationList> {
 
-    const metrics = await this.metricsService.readMetricsForProcessModel(identity, processModelId);
+    const metrics = await this.loggingService.readLogForProcessModel(identity, processModelId);
 
     // Do not include FlowNode instances which are still being executed,
     // since they do net yet have a final runtime.
@@ -85,9 +85,9 @@ export class KpiService implements APIs.IKpiManagementApi {
     flowNodeId: string,
   ): Promise<DataModels.Kpi.FlowNodeRuntimeInformation> {
 
-    const metrics = await this.metricsService.readMetricsForProcessModel(identity, processModelId);
+    const metrics = await this.loggingService.readLogForProcessModel(identity, processModelId);
 
-    const flowNodeMetrics = metrics.filter((entry: Metric): boolean => {
+    const flowNodeMetrics = metrics.filter((entry: LogEntry): boolean => {
       return entry.flowNodeId === flowNodeId;
     });
 
@@ -192,7 +192,7 @@ export class KpiService implements APIs.IKpiManagementApi {
    * @returns                    True, if the metric belongs to a finished
    *                             FlowNodeInstance, otherwise false.
    */
-  private metricBelongsToFinishedFlowNodeInstance(metricToCheck: Metric, metricIndex: number, allFlowNodeMetrics: Array<Metric>): boolean {
+  private metricBelongsToFinishedFlowNodeInstance(metricToCheck: LogEntry, metricIndex: number, allFlowNodeMetrics: Array<LogEntry>): boolean {
 
     const metricDoesNotBelongToAFlowNodeInstance = !metricToCheck.flowNodeInstanceId || !metricToCheck.flowNodeId;
 
@@ -200,17 +200,17 @@ export class KpiService implements APIs.IKpiManagementApi {
       return false;
     }
 
-    const metricWasRecordedOnFlowNodeExit = metricToCheck.metricType === MetricMeasurementPoint.onFlowNodeExit;
+    const metricWasRecordedOnFlowNodeExit = metricToCheck.measuredAt === MetricMeasurementPoint.onFlowNodeExit;
     if (metricWasRecordedOnFlowNodeExit) {
       return true;
     }
 
-    const hasMatchingExitMetric = allFlowNodeMetrics.some((entry: Metric): boolean => {
+    const hasMatchingExitMetric = allFlowNodeMetrics.some((entry: LogEntry): boolean => {
 
       const belongsToSameFlowNodeInstance = metricToCheck.flowNodeInstanceId === entry.flowNodeInstanceId;
 
       const hasMatchingState =
-        !(entry.metricType === MetricMeasurementPoint.onFlowNodeEnter || entry.metricType === MetricMeasurementPoint.onFlowNodeSuspend);
+        !(entry.measuredAt === MetricMeasurementPoint.onFlowNodeEnter || entry.measuredAt === MetricMeasurementPoint.onFlowNodeSuspend);
 
       return belongsToSameFlowNodeInstance && hasMatchingState;
     });
@@ -218,7 +218,7 @@ export class KpiService implements APIs.IKpiManagementApi {
     return hasMatchingExitMetric;
   }
 
-  private groupFlowNodeInstancesByFlowNodeId(metrics: Array<Metric>): FlowNodeGroups {
+  private groupFlowNodeInstancesByFlowNodeId(metrics: Array<LogEntry>): FlowNodeGroups {
 
     const groupedMetrics: FlowNodeGroups = {};
 
@@ -239,7 +239,7 @@ export class KpiService implements APIs.IKpiManagementApi {
   private createFlowNodeRuntimeInformation(
     processModelId: string,
     flowNodeId: string,
-    metrics: Array<Metric>,
+    metrics: Array<LogEntry>,
   ): DataModels.Kpi.FlowNodeRuntimeInformation {
 
     const groupedMetrics = this.groupMetricsByFlowNodeInstance(metrics);
@@ -265,7 +265,7 @@ export class KpiService implements APIs.IKpiManagementApi {
     return runtimeInformation;
   }
 
-  private groupMetricsByFlowNodeInstance(metrics: Array<Metric>): FlowNodeInstanceGroups {
+  private groupMetricsByFlowNodeInstance(metrics: Array<LogEntry>): FlowNodeInstanceGroups {
 
     const groupedMetrics = {};
 
@@ -283,15 +283,15 @@ export class KpiService implements APIs.IKpiManagementApi {
     return groupedMetrics;
   }
 
-  private calculateRuntimeForFlowNodeInstance(metrics: Array<Metric>): number {
+  private calculateRuntimeForFlowNodeInstance(metrics: Array<LogEntry>): number {
 
-    const onEnterMetric = metrics.find((token: Metric): boolean => {
-      return token.metricType === MetricMeasurementPoint.onFlowNodeEnter;
+    const onEnterMetric = metrics.find((token: LogEntry): boolean => {
+      return token.measuredAt === MetricMeasurementPoint.onFlowNodeEnter;
     });
 
-    const onExitMetric = metrics.find((token: Metric): boolean => {
-      return token.metricType === MetricMeasurementPoint.onFlowNodeExit ||
-             token.metricType === MetricMeasurementPoint.onFlowNodeError;
+    const onExitMetric = metrics.find((token: LogEntry): boolean => {
+      return token.measuredAt === MetricMeasurementPoint.onFlowNodeExit ||
+             token.measuredAt === MetricMeasurementPoint.onFlowNodeError;
     });
 
     const startTime = moment(onEnterMetric.timeStamp);
