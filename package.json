@@ -29,26 +29,25 @@
   "homepage": "https://github.com/process-engine/management_api_core#readme",
   "dependencies": {
     "@essential-projects/errors_ts": "^1.5.0",
-    "@process-engine/logging_api_contracts": "^1.0.3",
-    "@process-engine/management_api_contracts": "^13.0.0",
-    "@process-engine/metrics_api_contracts": "^2.0.0",
-    "@process-engine/persistence_api.contracts": "1.1.0-alpha.4",
+    "@process-engine/logging_api_contracts": "2.0.0-alpha.3",
+    "@process-engine/management_api_contracts": "13.1.0-alpha.2",
+    "@process-engine/metrics_api_contracts": "3.0.0-alpha.3",
+    "@process-engine/persistence_api.contracts": "1.1.0-alpha.11",
     "@process-engine/process_engine_contracts": "^46.0.0",
-    "bluebird": "~3.5.2",
-    "bluebird-global": "~1.0.1",
-    "clone": "~2.1.2",
-    "loggerhythm": "~3.0.3",
-    "moment": "~2.24.0",
+    "bluebird": "^3.5.2",
+    "bluebird-global": "^1.0.1",
+    "clone": "^2.1.2",
+    "loggerhythm": "^3.0.3",
+    "moment": "^2.24.0",
     "node-uuid": "^1.4.8"
   },
   "devDependencies": {
     "@essential-projects/eslint-config": "^1.0.0",
     "@process-engine/ci_tools": "^2.0.0",
     "@types/bluebird-global": "^3.5.9",
-    "@types/node": "^10.12.10",
-    "eslint": "^5.16.0",
-    "tsconfig": "^7.0.0",
-    "typescript": "^3.4.5"
+    "@types/node": "^12.11.7",
+    "eslint": "^6.6.0",
+    "typescript": "^3.6.4"
   },
   "scripts": {
     "clean": "rm -rf dist",
