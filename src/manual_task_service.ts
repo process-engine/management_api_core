@@ -7,10 +7,7 @@ import {
   BpmnType,
   FlowNodeInstance,
   FlowNodeInstanceState,
-  ICorrelationService,
   IFlowNodeInstanceService,
-  IProcessModelUseCases,
-  Model,
   ProcessTokenType,
 } from '@process-engine/persistence_api.contracts';
 import {FinishManualTaskMessage as InternalFinishManualTaskMessage} from '@process-engine/process_engine_contracts';

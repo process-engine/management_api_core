@@ -2,7 +2,6 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 
 import {APIs, DataModels} from '@process-engine/management_api_contracts';
 import {
-  BpmnType,
   FlowNodeInstance,
   FlowNodeInstanceState,
   IFlowNodeInstanceService,
