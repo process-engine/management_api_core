@@ -66,6 +66,13 @@ export class KpiService implements APIs.IKpiManagementApi {
     // since they do net yet have a final runtime.
     const filteredLogs = logs.filter(this.logBelongsToFinishedFlowNodeInstance);
 
+    if (!filteredLogs || filteredLogs.length === 0) {
+      return {
+        flowNodeRuntimeInformation: [],
+        totalCount: 0,
+      };
+    }
+
     const logsGroupedByFlowNodeId = this.groupFlowNodeInstancesByFlowNodeId(filteredLogs);
 
     const groupKeys = Object.keys(logsGroupedByFlowNodeId);
@@ -87,13 +94,17 @@ export class KpiService implements APIs.IKpiManagementApi {
 
     const logs = await this.loggingService.readLogForProcessModel(identity, processModelId);
 
-    const flowNodeMetrics = logs.filter((entry: LogEntry): boolean => {
+    const flowNodeLogs = logs.filter((entry: LogEntry): boolean => {
       return entry.flowNodeId === flowNodeId;
     });
 
+    if (!flowNodeLogs || flowNodeLogs.length === 0) {
+      return undefined;
+    }
+
     // Do not include FlowNode instances which are still being executed,
     // since they do net yet have a final runtime.
-    const filteredMetrics = flowNodeMetrics.filter(this.logBelongsToFinishedFlowNodeInstance);
+    const filteredMetrics = flowNodeLogs.filter(this.logBelongsToFinishedFlowNodeInstance);
 
     const flowNodeRuntimeInformation = this.createFlowNodeRuntimeInformation(processModelId, flowNodeId, filteredMetrics);
 
