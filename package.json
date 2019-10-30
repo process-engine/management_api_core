@@ -29,9 +29,9 @@
   "homepage": "https://github.com/process-engine/management_api_core#readme",
   "dependencies": {
     "@essential-projects/errors_ts": "^1.5.0",
-    "@process-engine/logging_api_contracts": "feature~import_values_from_metrics_api",
-    "@process-engine/management_api_contracts": "feature~merge_logging_and_metrics_apis",
-    "@process-engine/persistence_api.contracts": "1.1.0-alpha.11",
+    "@process-engine/logging_api_contracts": "2.0.0-alpha.4",
+    "@process-engine/management_api_contracts": "13.1.0-alpha.3",
+    "@process-engine/persistence_api.contracts": "1.1.0-alpha.12",
     "@process-engine/process_engine_contracts": "^46.0.0",
     "bluebird": "^3.5.2",
     "bluebird-global": "^1.0.1",
