@@ -1,6 +1,6 @@
 {
   "name": "@process-engine/management_api_core",
-  "version": "6.2.0-beta.4",
+  "version": "6.2.0",
   "description": "service implementation for the process-engine.io Management APIs",
   "main": "dist/commonjs/index.js",
   "typings": "dist/index.d.ts",
@@ -29,9 +29,9 @@
   "homepage": "https://github.com/process-engine/management_api_core#readme",
   "dependencies": {
     "@essential-projects/errors_ts": "^1.5.0",
-    "@process-engine/logging_api_contracts": "2.0.0-beta.3",
-    "@process-engine/management_api_contracts": "13.1.0-beta.3",
-    "@process-engine/persistence_api.contracts": "1.1.0-beta.9",
+    "@process-engine/logging_api_contracts": "^2.0.0",
+    "@process-engine/management_api_contracts": "^13.1.0",
+    "@process-engine/persistence_api.contracts": "^1.1.0",
     "@process-engine/process_engine_contracts": "^46.0.0",
     "bluebird": "^3.5.2",
     "bluebird-global": "^1.0.1",
