@@ -161,7 +161,11 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     const terminateEvent = Messages.EventAggregatorSettings.messagePaths.terminateProcessInstance
       .replace(Messages.EventAggregatorSettings.messageParams.processInstanceId, processInstanceId);
 
-    this.eventAggregator.publish(terminateEvent);
+    const eventPayload = {
+      terminatedBy: identity,
+    };
+
+    this.eventAggregator.publish(terminateEvent, eventPayload);
   }
 
   // Notifications
