@@ -91,6 +91,7 @@ function registerInContainer(container) {
   container
     .register('ManagementApiProcessModelService', ProcessModelService)
     .dependencies(
+      'CorrelationService',
       'CronjobService',
       'EventAggregator',
       'ExecuteProcessService',
