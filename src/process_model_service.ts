@@ -6,7 +6,7 @@ import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
 
 import {APIs, DataModels, Messages} from '@process-engine/management_api_contracts';
 
-import {IProcessModelUseCases, Model} from '@process-engine/persistence_api.contracts';
+import {ICorrelationService, IProcessModelUseCases, Model} from '@process-engine/persistence_api.contracts';
 import {
   EndEventReachedMessage,
   ICronjobService,
@@ -20,6 +20,7 @@ import {applyPagination} from './paginator';
 
 export class ProcessModelService implements APIs.IProcessModelManagementApi {
 
+  private readonly correlationService: ICorrelationService;
   private readonly cronjobService: ICronjobService;
   private readonly eventAggregator: IEventAggregator;
   private readonly executeProcessService: IExecuteProcessService;
@@ -32,6 +33,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
   private readonly canSubscribeToEventsClaim = 'can_subscribe_to_events';
 
   constructor(
+    correlationService: ICorrelationService,
     cronjobService: ICronjobService,
     eventAggregator: IEventAggregator,
     executeProcessService: IExecuteProcessService,
@@ -40,6 +42,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     processModelFacadeFactory: IProcessModelFacadeFactory,
     processModelUseCase: IProcessModelUseCases,
   ) {
+    this.correlationService = correlationService;
     this.cronjobService = cronjobService;
     this.eventAggregator = eventAggregator;
     this.executeProcessService = executeProcessService;
@@ -157,6 +160,11 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     processInstanceId: string,
   ): Promise<void> {
     await this.ensureUserHasClaim(identity, 'can_terminate_process');
+
+    // We query the ProcessInstance to make sure that the requesting user is authorized to access it in the first place.
+    // Will throw a 404, if the ProcessInstance does not exist, or the user doesn't have access to it.
+    // This is intentional, to hide the existence of the ProcessInstance from users that shouldn't know about it.
+    await this.correlationService.getByProcessInstanceId(identity, processInstanceId);
 
     const terminateEvent = Messages.EventAggregatorSettings.messagePaths.terminateProcessInstance
       .replace(Messages.EventAggregatorSettings.messageParams.processInstanceId, processInstanceId);
