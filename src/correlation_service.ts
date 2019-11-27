@@ -155,6 +155,8 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
     managementApiProcessInstance.error = runtimeProcessInstance.error;
     managementApiProcessInstance.identity = runtimeProcessInstance.identity;
     managementApiProcessInstance.createdAt = runtimeProcessInstance.createdAt;
+    managementApiProcessInstance.terminatedBy = runtimeProcessInstance.terminatedBy;
+    managementApiProcessInstance.finishedAt = runtimeProcessInstance.finishedAt;
 
     return managementApiProcessInstance;
   }
