@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {BadRequestError, NotFoundError} from '@essential-projects/errors_ts';
 import {IEventAggregator, Subscription} from '@essential-projects/event_aggregator_contracts';
-import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
+import {IIAMService, IIdentity, IIdentityService} from '@essential-projects/iam_contracts';
 
 import {APIs, DataModels, Messages} from '@process-engine/management_api_contracts';
 import {
@@ -35,16 +35,22 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
   private readonly correlationService: ICorrelationService;
   private readonly eventAggregator: IEventAggregator;
   private readonly flowNodeInstanceService: IFlowNodeInstanceService;
+  private readonly identityService: IIdentityService;
   private readonly iamService: IIAMService;
   private readonly notificationAdapter: NotificationAdapter;
   private readonly processModelFacadeFactory: IProcessModelFacadeFactory;
   private readonly processModelUseCase: IProcessModelUseCases;
   private readonly processTokenFacadeFactory: IProcessTokenFacadeFactory;
 
+  // This identity is used to ensure that this service can work with full ProcessModels.
+  // It needs those in order to be able to read a UserTask's config.
+  private internalIdentity: IIdentity;
+
   constructor(
     correlationService: ICorrelationService,
     eventAggregator: IEventAggregator,
     flowNodeInstanceService: IFlowNodeInstanceService,
+    identityService: IIdentityService,
     iamService: IIAMService,
     notificationAdapter: NotificationAdapter,
     processModelFacadeFactory: IProcessModelFacadeFactory,
@@ -54,11 +60,17 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
     this.correlationService = correlationService;
     this.eventAggregator = eventAggregator;
     this.flowNodeInstanceService = flowNodeInstanceService;
+    this.identityService = identityService;
     this.iamService = iamService;
     this.notificationAdapter = notificationAdapter;
     this.processModelFacadeFactory = processModelFacadeFactory;
     this.processModelUseCase = processModelUse;
     this.processTokenFacadeFactory = processTokenFacadeFactory;
+  }
+
+  public async initialize(): Promise<void> {
+    const internalToken = 'UHJvY2Vzc0VuZ2luZUludGVybmFsVXNlcg==';
+    this.internalIdentity = await this.identityService.getIdentity(internalToken);
   }
 
   public async onUserTaskWaiting(
@@ -282,23 +294,10 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
     }
 
     const accessibleFlowNodeInstances = Promise.filter(flowNodeInstances, async (item: FlowNodeInstance): Promise<boolean> => {
-      const userCanAccessProcessInstance = await this.checkIfUserCanAccessProcessInstance(identity, item);
-      const userCanAccessFlowNodeInstance = await this.checkIfUserCanAccessFlowNodeInstance(identity, item);
-
-      return userCanAccessFlowNodeInstance && userCanAccessProcessInstance;
+      return this.checkIfUserCanAccessFlowNodeInstance(identity, item);
     });
 
     return accessibleFlowNodeInstances;
-  }
-
-  private async checkIfUserCanAccessProcessInstance(identity: IIdentity, flowNodeInstance: FlowNodeInstance): Promise<boolean> {
-    try {
-      await this.correlationService.getByProcessInstanceId(identity, flowNodeInstance.processInstanceId);
-
-      return true;
-    } catch (error) {
-      return false;
-    }
   }
 
   private async checkIfUserCanAccessFlowNodeInstance(identity: IIdentity, flowNodeInstance: FlowNodeInstance): Promise<boolean> {
@@ -386,7 +385,7 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
     if (cacheHasMatchingEntry) {
       processModel = ProcessModelCache.get(cacheKeyToUse);
     } else {
-      const processModelHash = await this.getProcessModelHashForProcessInstance(identity, flowNodeInstance.processInstanceId);
+      const processModelHash = await this.getProcessModelHashForProcessInstance(flowNodeInstance.processInstanceId);
       processModel = await this.processModelUseCase.getByHash(identity, flowNodeInstance.processModelId, processModelHash);
       ProcessModelCache.add(cacheKeyToUse, processModel);
     }
@@ -396,8 +395,8 @@ export class UserTaskService implements APIs.IUserTaskManagementApi {
     return processModelFacade;
   }
 
-  private async getProcessModelHashForProcessInstance(identity: IIdentity, processInstanceId: string): Promise<string> {
-    const processInstance = await this.correlationService.getByProcessInstanceId(identity, processInstanceId);
+  private async getProcessModelHashForProcessInstance(processInstanceId: string): Promise<string> {
+    const processInstance = await this.correlationService.getByProcessInstanceId(this.internalIdentity, processInstanceId);
 
     return processInstance.hash;
   }

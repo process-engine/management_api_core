@@ -34,7 +34,6 @@ function registerInContainer(container) {
   container
     .register('ManagementApiEmptyActivityService', EmptyActivityService)
     .dependencies(
-      'CorrelationService',
       'EventAggregator',
       'FlowNodeInstanceService',
       'IamService',
@@ -48,6 +47,7 @@ function registerInContainer(container) {
       'CorrelationService',
       'EventAggregator',
       'FlowNodeInstanceService',
+      'IdentityService',
       'IamService',
       'ProcessModelFacadeFactory',
       'ProcessModelUseCases',
@@ -77,7 +77,6 @@ function registerInContainer(container) {
   container
     .register('ManagementApiManualTaskService', ManualTaskService)
     .dependencies(
-      'CorrelationService',
       'EventAggregator',
       'FlowNodeInstanceService',
       'IamService',
@@ -115,6 +114,7 @@ function registerInContainer(container) {
       'CorrelationService',
       'EventAggregator',
       'FlowNodeInstanceService',
+      'IdentityService',
       'IamService',
       'ManagementApiNotificationAdapter',
       'ProcessModelFacadeFactory',

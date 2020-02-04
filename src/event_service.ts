@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {InternalServerError} from '@essential-projects/errors_ts';
 import {IEventAggregator} from '@essential-projects/event_aggregator_contracts';
-import {IIAMService, IIdentity} from '@essential-projects/iam_contracts';
+import {IIAMService, IIdentity, IIdentityService} from '@essential-projects/iam_contracts';
 
 import {APIs, DataModels, Messages} from '@process-engine/management_api_contracts';
 import {
@@ -26,14 +26,20 @@ export class EventService implements APIs.IEventManagementApi {
   private readonly correlationService: ICorrelationService;
   private readonly eventAggregator: IEventAggregator;
   private readonly flowNodeInstanceService: IFlowNodeInstanceService;
+  private readonly identityService: IIdentityService;
   private readonly iamService: IIAMService;
   private readonly processModelUseCase: IProcessModelUseCases;
   private readonly processModelFacadeFactory: IProcessModelFacadeFactory;
+
+  // This identity is used to ensure that this service can work with full ProcessModels.
+  // It needs those in order to be able to read an Event's config.
+  private internalIdentity: IIdentity;
 
   constructor(
     correlationService: ICorrelationService,
     eventAggregator: IEventAggregator,
     flowNodeInstanceService: IFlowNodeInstanceService,
+    identityService: IIdentityService,
     iamService: IIAMService,
     processModelFacadeFactory: IProcessModelFacadeFactory,
     processModelUseCase: IProcessModelUseCases,
@@ -41,9 +47,15 @@ export class EventService implements APIs.IEventManagementApi {
     this.correlationService = correlationService;
     this.eventAggregator = eventAggregator;
     this.flowNodeInstanceService = flowNodeInstanceService;
+    this.identityService = identityService;
     this.iamService = iamService;
     this.processModelFacadeFactory = processModelFacadeFactory;
     this.processModelUseCase = processModelUseCase;
+  }
+
+  public async initialize(): Promise<void> {
+    const internalToken = 'UHJvY2Vzc0VuZ2luZUludGVybmFsVXNlcg==';
+    this.internalIdentity = await this.identityService.getIdentity(internalToken);
   }
 
   public async getWaitingEventsForProcessModel(
@@ -239,7 +251,7 @@ export class EventService implements APIs.IEventManagementApi {
   }
 
   private async getProcessModelHashForProcessInstance(identity: IIdentity, processInstanceId: string): Promise<string> {
-    const processInstance = await this.correlationService.getByProcessInstanceId(identity, processInstanceId);
+    const processInstance = await this.correlationService.getByProcessInstanceId(this.internalIdentity, processInstanceId);
 
     return processInstance.hash;
   }
