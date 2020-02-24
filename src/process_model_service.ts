@@ -1,3 +1,4 @@
+import {Logger} from 'loggerhythm';
 import * as uuid from 'node-uuid';
 
 import * as EssentialProjectErrors from '@essential-projects/errors_ts';
@@ -17,6 +18,8 @@ import {
 
 import {NotificationAdapter} from './adapters/index';
 import {applyPagination} from './paginator';
+
+const logger = Logger.createLogger('processengine:management_api:process_model_service');
 
 export class ProcessModelService implements APIs.IProcessModelManagementApi {
 
@@ -73,6 +76,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
 
   public async getProcessModelById(identity: IIdentity, processModelId: string): Promise<DataModels.ProcessModels.ProcessModel> {
 
+    logger.verbose(`Executing getProcessModelById with processModelId '${processModelId}'`);
     const processModel = await this.processModelUseCase.getProcessModelById(identity, processModelId);
     const managementApiProcessModel = await this.convertProcessModelToPublicType(identity, processModel);
 
@@ -81,6 +85,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
 
   public async getProcessModelByProcessInstanceId(identity: IIdentity, processInstanceId: string): Promise<DataModels.ProcessModels.ProcessModel> {
 
+    logger.verbose(`Executing getProcessModelByProcessInstanceId with processInstanceId '${processInstanceId}'`);
     const processModel = await this.processModelUseCase.getProcessModelByProcessInstanceId(identity, processInstanceId);
     const managementApiProcessModel = await this.convertProcessModelToPublicType(identity, processModel);
 
@@ -89,6 +94,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
 
   public async getStartEventsForProcessModel(identity: IIdentity, processModelId: string): Promise<DataModels.Events.EventList> {
 
+    logger.verbose(`Executing getStartEventsForProcessModel with processModelId '${processModelId}'`);
     const processModel = await this.processModelUseCase.getProcessModelById(identity, processModelId);
     const processModelFacade = this.processModelFacadeFactory.create(processModel);
 
@@ -114,6 +120,7 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     endEventId?: string,
   ): Promise<DataModels.ProcessModels.ProcessStartResponsePayload> {
 
+    logger.verbose(`Executing startProcessInstance with processModelId '${processModelId}'`);
     let startCallbackTypeToUse = startCallbackType;
 
     const useDefaultStartCallbackType: boolean = startCallbackTypeToUse === undefined;
@@ -140,13 +147,17 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     name: string,
     payload: DataModels.ProcessModels.UpdateProcessDefinitionsRequestPayload,
   ): Promise<void> {
+    logger.verbose(`Executing startProcessInstance with name '${name}'`);
+
+    logger.verbose('Persisting ProcessModel...');
     await this.processModelUseCase.persistProcessDefinitions(identity, name, payload.xml, payload.overwriteExisting);
 
     // NOTE: This will only work as long as ProcessDefinitionName and ProcessModelId remain the same.
     // As soon as we refactor the ProcessEngine core to allow different names for each, this will have to be refactored accordingly.
+    logger.verbose('Checking ProcessModel for Cronjobs');
     const processModel = await this.processModelUseCase.getProcessModelById(identity, name);
 
-    await this.cronjobService.addOrUpdate(processModel);
+    this.cronjobService.addOrUpdate(processModel);
   }
 
   public async deleteProcessDefinitionsByProcessModelId(identity: IIdentity, processModelId: string): Promise<void> {
@@ -159,6 +170,8 @@ export class ProcessModelService implements APIs.IProcessModelManagementApi {
     identity: IIdentity,
     processInstanceId: string,
   ): Promise<void> {
+    logger.verbose(`Executing terminateProcessInstance with processInstanceId '${processInstanceId}'`);
+
     await this.ensureUserHasClaim(identity, 'can_terminate_process');
 
     // We query the ProcessInstance to make sure that the requesting user is authorized to access it in the first place.
