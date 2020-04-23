@@ -59,13 +59,23 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
     limit: number = 0,
   ): Promise<DataModels.Correlations.CorrelationList> {
 
-    const correlations = await this.correlationService.getByProcessModelId(identity, processModelId);
+    try {
+      const correlations = await this.correlationService.getByProcessModelId(identity, processModelId);
 
-    const managementApiCorrelations = correlations.map<DataModels.Correlations.Correlation>(this.mapToPublicCorrelation.bind(this));
+      const managementApiCorrelations = correlations.map<DataModels.Correlations.Correlation>(this.mapToPublicCorrelation.bind(this));
 
-    const paginizedCorrelations = applyPagination(managementApiCorrelations, offset, limit);
+      const paginizedCorrelations = applyPagination(managementApiCorrelations, offset, limit);
 
-    return {correlations: paginizedCorrelations, totalCount: managementApiCorrelations.length};
+      return {correlations: paginizedCorrelations, totalCount: managementApiCorrelations.length};
+    } catch (error) {
+      if (error.code === 404) {
+        return {
+          correlations: [],
+          totalCount: 0,
+        };
+      }
+      throw error;
+    }
   }
 
   public async getProcessInstanceById(identity: IIdentity, processInstanceId: string): Promise<DataModels.Correlations.ProcessInstance> {
@@ -84,13 +94,23 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
     limit?: number,
   ): Promise<DataModels.Correlations.ProcessInstanceList> {
 
-    const processInstances = await this.correlationService.getProcessInstancesForCorrelation(identity, correlationId);
+    try {
+      const processInstances = await this.correlationService.getProcessInstancesForCorrelation(identity, correlationId);
 
-    const managementApiProcessInstances = processInstances.map(this.mapToPublicProcessInstance);
+      const managementApiProcessInstances = processInstances.map(this.mapToPublicProcessInstance);
 
-    const paginizedProcessInstances = applyPagination(managementApiProcessInstances, offset, limit);
+      const paginizedProcessInstances = applyPagination(managementApiProcessInstances, offset, limit);
 
-    return {processInstances: paginizedProcessInstances, totalCount: managementApiProcessInstances.length};
+      return {processInstances: paginizedProcessInstances, totalCount: managementApiProcessInstances.length};
+    } catch (error) {
+      if (error.code === 404) {
+        return {
+          processInstances: [],
+          totalCount: 0,
+        };
+      }
+      throw error;
+    }
   }
 
   public async getProcessInstancesForProcessModel(
@@ -100,13 +120,23 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
     limit?: number,
   ): Promise<DataModels.Correlations.ProcessInstanceList> {
 
-    const processInstances = await this.correlationService.getProcessInstancesForProcessModel(identity, processModelId);
+    try {
+      const processInstances = await this.correlationService.getProcessInstancesForProcessModel(identity, processModelId);
 
-    const managementApiProcessInstances = processInstances.map(this.mapToPublicProcessInstance);
+      const managementApiProcessInstances = processInstances.map(this.mapToPublicProcessInstance);
 
-    const paginizedProcessInstances = applyPagination(managementApiProcessInstances, offset, limit);
+      const paginizedProcessInstances = applyPagination(managementApiProcessInstances, offset, limit);
 
-    return {processInstances: paginizedProcessInstances, totalCount: managementApiProcessInstances.length};
+      return {processInstances: paginizedProcessInstances, totalCount: managementApiProcessInstances.length};
+    } catch (error) {
+      if (error.code === 404) {
+        return {
+          processInstances: [],
+          totalCount: 0,
+        };
+      }
+      throw error;
+    }
   }
 
   public async getProcessInstancesByState(
@@ -116,13 +146,23 @@ export class CorrelationService implements APIs.ICorrelationManagementApi {
     limit?: number,
   ): Promise<DataModels.Correlations.ProcessInstanceList> {
 
-    const processInstances = await this.correlationService.getProcessInstancesByState(identity, state);
+    try {
+      const processInstances = await this.correlationService.getProcessInstancesByState(identity, state);
 
-    const managementApiProcessInstances = processInstances.map(this.mapToPublicProcessInstance);
+      const managementApiProcessInstances = processInstances.map(this.mapToPublicProcessInstance);
 
-    const paginizedProcessInstances = applyPagination(managementApiProcessInstances, offset, limit);
+      const paginizedProcessInstances = applyPagination(managementApiProcessInstances, offset, limit);
 
-    return {processInstances: paginizedProcessInstances, totalCount: managementApiProcessInstances.length};
+      return {processInstances: paginizedProcessInstances, totalCount: managementApiProcessInstances.length};
+    } catch (error) {
+      if (error.code === 404) {
+        return {
+          processInstances: [],
+          totalCount: 0,
+        };
+      }
+      throw error;
+    }
   }
 
   private mapToPublicCorrelation(runtimeCorrelation: Correlation): DataModels.Correlations.Correlation {
